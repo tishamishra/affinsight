@@ -27,6 +27,9 @@ export default function LoginPage() {
         return;
       }
 
+      // Set user-email cookie for middleware authentication
+      document.cookie = `user-email=${email}; path=/; max-age=86400`; // 24 hours
+
       // Redirect to admin dashboard
       router.push("/admin");
     } catch {

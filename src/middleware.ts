@@ -1,10 +1,23 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
-export async function middleware(req: NextRequest) {
-  // For now, allow all admin routes without middleware authentication
-  // Authentication will be handled on the client side
-  return NextResponse.next();
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
+  // Allow public paths
+  if (pathname.startsWith('/auth') || pathname === '/') {
+    return NextResponse.next()
+  }
+
+  const userEmail = request.cookies.get('user-email')?.value
+
+  if (pathname.startsWith('/admin') && userEmail !== 'vishalgkumar54@gmail.com') {
+    const url = request.nextUrl.clone()
+    url.pathname = '/auth/unauthorized'
+    return NextResponse.redirect(url)
+  }
+
+  return NextResponse.next()
 }
 
 export const config = {
