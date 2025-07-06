@@ -29,7 +29,7 @@ export default function LoginPage() {
 
       // Redirect to admin dashboard
       router.push("/admin");
-    } catch (error) {
+    } catch {
       setError("An unexpected error occurred");
     } finally {
       setIsLoading(false);
