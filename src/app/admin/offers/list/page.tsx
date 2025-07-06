@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 
 type Offer = {
@@ -74,10 +75,12 @@ export default function OfferListPage() {
               <tr key={offer.id} style={{ borderTop: '1px solid #ccc' }}>
                 <td style={{ padding: '8px' }}>
                   {offer.logo ? (
-                    <img
+                    <Image
                       src={getPublicImageUrl(offer.logo) || ''}
                       alt="Logo"
-                      style={{ height: 40 }}
+                      width={40}
+                      height={40}
+                      className="object-contain"
                     />
                   ) : (
                     '—'

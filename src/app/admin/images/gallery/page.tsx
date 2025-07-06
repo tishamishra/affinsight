@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 
 type ImageFile = {
@@ -55,7 +56,14 @@ export default function ImageGalleryPage() {
         }}>
           {images.map((img) => (
             <div key={img.name} style={{ textAlign: 'center' }}>
-              <img src={img.url} alt={img.name} style={{ maxWidth: '100%', borderRadius: 8 }} />
+              <Image 
+                src={img.url} 
+                alt={img.name} 
+                width={200}
+                height={200}
+                style={{ maxWidth: '100%', borderRadius: 8 }}
+                className="object-cover"
+              />
               <p style={{ fontSize: '0.8rem' }}>{img.name}</p>
             </div>
           ))}

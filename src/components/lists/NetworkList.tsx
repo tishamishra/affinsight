@@ -2,9 +2,19 @@
 
 import { useState, useEffect } from "react";
 import { FiEdit, FiTrash2, FiEye, FiExternalLink } from "react-icons/fi";
+import Image from "next/image";
 import Link from "next/link";
 import { getNetworks, deleteNetwork } from "@/lib/database";
-import type { Network } from "@/lib/supabase";
+
+type Network = {
+  id: string;
+  name: string;
+  website: string;
+  category: string;
+  rating: number;
+  countries: string[] | string;
+  logo_url?: string;
+};
 
 export default function NetworkList() {
   const [networks, setNetworks] = useState<Network[]>([]);
@@ -102,9 +112,11 @@ export default function NetworkList() {
               <td className="px-6 py-4 whitespace-nowrap">
                 <div className="flex items-center">
                   {network.logo_url && (
-                    <img
+                    <Image
                       src={network.logo_url}
                       alt={network.name}
+                      width={40}
+                      height={40}
                       className="w-10 h-10 rounded-lg object-contain mr-3"
                     />
                   )}

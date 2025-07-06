@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useState } from "react";
+import Image from "next/image";
 import { FiUpload, FiX } from "react-icons/fi";
 import { uploadLogo } from "@/lib/storage";
 
@@ -179,9 +180,11 @@ export default function NetworkForm({ initialData, onSubmit, isLoading }: Networ
           />
           {logoPreview && (
             <div className="relative inline-block">
-              <img
+              <Image
                 src={logoPreview}
                 alt="Logo preview"
+                width={128}
+                height={128}
                 className="w-32 h-32 object-contain border border-gray-300 rounded-lg"
               />
               <button

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 
 export default function ImageUploadPage() {
@@ -51,7 +52,14 @@ export default function ImageUploadPage() {
       {imageUrl && (
         <div style={{ marginTop: '1rem' }}>
           <strong>Preview:</strong><br />
-          <img src={imageUrl} alt="Uploaded" style={{ maxWidth: 400, borderRadius: 8 }} />
+          <Image 
+            src={imageUrl} 
+            alt="Uploaded" 
+            width={400}
+            height={300}
+            style={{ maxWidth: 400, borderRadius: 8 }}
+            className="object-cover"
+          />
         </div>
       )}
     </div>
