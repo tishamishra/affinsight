@@ -15,19 +15,27 @@ export default function AddNetworkPage() {
     try {
       setIsLoading(true);
       
+      console.log("Form data received:", data);
+      
       // Convert countries string to array, keep all other fields
       const networkData: Omit<Network, 'id' | 'created_at' | 'updated_at'> = {
         ...data as Omit<Network, 'id' | 'created_at' | 'updated_at'>,
         countries: (data.countries as string).split(",").map((country: string) => country.trim()),
       };
 
-      const { error } = await createNetwork(networkData);
+      console.log("Network data to be inserted:", networkData);
+
+      const { data: createdNetwork, error } = await createNetwork(networkData);
+      
+      console.log("Create network response:", { createdNetwork, error });
       
       if (error) {
+        console.error("Supabase error:", error);
         alert("Failed to create network: " + error.message);
         return;
       }
 
+      console.log("Network created successfully:", createdNetwork);
       alert("Network created successfully!");
       router.push("/admin/networks");
     } catch (error) {

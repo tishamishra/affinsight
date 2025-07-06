@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { 
   FiGlobe, 
@@ -13,7 +13,8 @@ import {
   FiExternalLink,
   FiStar,
   FiTrendingUp,
-  FiX
+  FiX,
+  FiRefreshCw
 } from "react-icons/fi";
 import { getNetworks, deleteNetwork, type Network } from "@/lib/database";
 
@@ -26,25 +27,28 @@ export default function NetworksPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Fetch real data from Supabase
-  useEffect(() => {
-    fetchNetworks();
-  }, []);
-
-  const fetchNetworks = async () => {
+  const fetchNetworks = useCallback(async () => {
     try {
       setLoading(true);
+      console.log("Fetching networks from Supabase...");
       const { data, error } = await getNetworks();
+      console.log("Networks fetch response:", { data, error });
       if (error) {
         console.error("Error fetching networks:", error);
         return;
       }
       setNetworks(data || []);
+      console.log("Networks set to state:", data || []);
     } catch (error) {
       console.error("Error fetching networks:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchNetworks();
+  }, [fetchNetworks]);
 
   const filteredNetworks = networks.filter(network => {
     const matchesSearch = network.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -105,13 +109,38 @@ export default function NetworksPage() {
             Manage your affiliate networks and partnerships
           </p>
         </div>
-        <Link
-          href="/admin/networks/add"
-          className="mt-4 sm:mt-0 inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all duration-200 font-medium"
-        >
-          <FiPlus className="w-4 h-4 mr-2" />
-          Add Network
-        </Link>
+        <div className="flex space-x-3 mt-4 sm:mt-0">
+          <button
+            onClick={fetchNetworks}
+            className="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-all duration-200 font-medium"
+          >
+            <FiRefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </button>
+          <Link
+            href="/admin/networks/add"
+            className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all duration-200 font-medium"
+          >
+            <FiPlus className="w-4 h-4 mr-2" />
+            Add Network
+          </Link>
+        </div>
+      </div>
+
+      {/* Debug Section */}
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+        <h3 className="text-sm font-semibold text-yellow-800 mb-2">Debug Info:</h3>
+        <div className="text-xs text-yellow-700">
+          <p>Total networks in state: {networks.length}</p>
+          <p>Filtered networks: {filteredNetworks.length}</p>
+          <p>Loading state: {loading ? 'true' : 'false'}</p>
+          <details className="mt-2">
+            <summary className="cursor-pointer">Raw network data:</summary>
+            <pre className="mt-2 bg-white p-2 rounded text-xs overflow-auto max-h-32">
+              {JSON.stringify(networks, null, 2)}
+            </pre>
+          </details>
+        </div>
       </div>
 
       {/* Filters */}
@@ -142,7 +171,15 @@ export default function NetworksPage() {
                 <div className="flex items-center space-x-3">
                   <div className="w-12 h-12 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center">
                     {network.logo_url ? (
-                      <img src={network.logo_url} alt={network.name} className="w-full h-full object-cover" />
+                      <img 
+                        src={network.logo_url} 
+                        alt={network.name} 
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          console.log("Image failed to load:", network.logo_url);
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
                     ) : (
                       <FiGlobe className="w-6 h-6 text-gray-600" />
                     )}
