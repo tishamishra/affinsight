@@ -20,7 +20,7 @@ export default function ImageUploadPage() {
 
     const filePath = `uploads/${Date.now()}-${file.name}`
 
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from('general-images')
       .upload(filePath, file)
 

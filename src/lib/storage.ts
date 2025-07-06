@@ -1,11 +1,11 @@
 import { supabase } from './supabase';
 
-export async function uploadLogo(file: File): Promise<{ url: string; error: any }> {
+export async function uploadLogo(file: File): Promise<{ url: string; error: unknown }> {
   const fileExt = file.name.split('.').pop();
   const fileName = `${Math.random()}.${fileExt}`;
   const filePath = `logos/${fileName}`;
 
-  const { data, error } = await supabase.storage
+  const { error } = await supabase.storage
     .from('logos')
     .upload(filePath, file);
 
@@ -21,7 +21,7 @@ export async function uploadLogo(file: File): Promise<{ url: string; error: any 
   return { url: publicUrl, error: null };
 }
 
-export async function deleteLogo(filePath: string): Promise<{ error: any }> {
+export async function deleteLogo(filePath: string): Promise<{ error: unknown }> {
   const { error } = await supabase.storage
     .from('logos')
     .remove([filePath]);

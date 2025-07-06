@@ -1,4 +1,4 @@
-import { FiMail, FiPhone, FiMapPin, FiTwitter, FiFacebook, FiLinkedin, FiInstagram } from "react-icons/fi";
+import { FiTwitter, FiFacebook, FiLinkedin, FiInstagram } from "react-icons/fi";
 
 export default function Footer() {
   return (

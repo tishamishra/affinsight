@@ -8,7 +8,7 @@ export default function AddOfferPage() {
   const [offerUrl, setOfferUrl] = useState('')
   const [logo, setLogo] = useState<File | null>(null)
   const [networkId, setNetworkId] = useState('')
-  const [networks, setNetworks] = useState<any[]>([])
+  const [networks, setNetworks] = useState<{ id: string; name: string }[]>([])
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
