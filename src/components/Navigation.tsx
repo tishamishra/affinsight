@@ -20,8 +20,8 @@ export default function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link href="/" className="flex-shrink-0">
-              <h1 className="text-2xl font-bold text-blue-600">AffinSight</h1>
+            <Link href="/" className="flex-shrink-0 hover:opacity-80 transition-opacity duration-200">
+              <h1 className="text-2xl font-bold text-blue-600 cursor-pointer">AffinSight</h1>
             </Link>
           </div>
 
