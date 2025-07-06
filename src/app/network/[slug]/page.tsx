@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { FiStar, FiUsers, FiGlobe, FiDollarSign, FiCalendar, FiExternalLink } from "react-icons/fi";
-import { fetchNetworkBySlug, type AffiliateNetwork } from "@/lib/api";
+import { getNetworkById } from "@/lib/networks-loader";
+import { Network } from "@/data/networks";
 
 export default function NetworkDetailPage() {
   const params = useParams();

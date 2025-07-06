@@ -1,22 +1,24 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { networks, getNetworksByCategory, type Network } from '@/data/networks';
+import { getAllNetworks } from '@/lib/networks-loader';
+import { Network } from '@/data/networks';
 import NetworkGrid from '@/components/NetworkGrid';
 import Filters from '@/components/Filters';
 import Tabs from '@/components/Tabs';
 
 export default function NetworksPage() {
-  const [filteredNetworks, setFilteredNetworks] = useState<Network[]>(networks);
+  const allNetworks = getAllNetworks();
+  const [filteredNetworks, setFilteredNetworks] = useState<Network[]>(allNetworks);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [activeTab, setActiveTab] = useState<string>('grid');
 
-  const categories = ['all', ...Array.from(new Set(networks.map(n => n.category)))];
-  const allCountries = Array.from(new Set(networks.flatMap(n => n.countries))).sort();
+  const categories = ['all', ...Array.from(new Set(allNetworks.map((n: Network) => n.category)))];
+  const allCountries = Array.from(new Set(allNetworks.flatMap((n: Network) => n.countries))).sort();
 
   useEffect(() => {
-    let filtered = networks;
+    let filtered = allNetworks;
 
     // Filter by category
     if (selectedCategory !== 'all') {

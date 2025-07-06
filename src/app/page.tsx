@@ -2,11 +2,12 @@
 import Hero from '@/components/Hero';
 import NetworkFilters from '@/components/NetworkFilters';
 import NetworkList from '@/components/NetworkList';
-import { networks } from '@/data/networks';
+import { getFeaturedNetworks, getAllNetworks } from '@/lib/networks-loader';
 import { useState } from 'react';
 
 export default function HomePage() {
-  const [filteredNetworks, setFilteredNetworks] = useState(networks);
+  const featuredNetworks = getFeaturedNetworks(6);
+  const [filteredNetworks, setFilteredNetworks] = useState(featuredNetworks);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -24,7 +25,7 @@ export default function HomePage() {
         </div>
         
         <NetworkFilters 
-          networks={networks} 
+          networks={featuredNetworks} 
           onFilterChange={setFilteredNetworks} 
         />
         
