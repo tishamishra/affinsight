@@ -8,16 +8,17 @@ import { Network } from "@/data/networks";
 
 export default function NetworkDetailPage() {
   const params = useParams();
-  const [network, setNetwork] = useState<AffiliateNetwork | null>(null);
+  const [network, setNetwork] = useState<Network | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function loadNetwork() {
+    function loadNetwork() {
       try {
         setLoading(true);
         const slug = params?.slug as string;
-        const data = await fetchNetworkBySlug(slug);
+        const networkId = slug; // Assuming slug is the network ID
+        const data = getNetworkById(networkId);
         if (data) {
           setNetwork(data);
         } else {
@@ -89,14 +90,14 @@ export default function NetworkDetailPage() {
                 <FiStar className="text-yellow-400 text-xl" />
                 <div>
                   <div className="font-medium">{network.rating} out of 5</div>
-                  <div className="text-sm text-gray-500">{network.reviewCount} reviews</div>
+                  <div className="text-sm text-gray-500">Rating</div>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <FiDollarSign className="text-green-500 text-xl" />
                 <div>
-                  <div className="font-medium">{network.payout}</div>
-                  <div className="text-sm text-gray-500">Average payout</div>
+                  <div className="font-medium">{network.commission_rate}</div>
+                  <div className="text-sm text-gray-500">Commission rate</div>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -109,43 +110,44 @@ export default function NetworkDetailPage() {
               <div className="flex items-center gap-3">
                 <FiUsers className="text-purple-500 text-xl" />
                 <div>
-                  <div className="font-medium">{network.employees}</div>
-                  <div className="text-sm text-gray-500">Company size</div>
+                  <div className="font-medium">{network.offers_count?.toLocaleString() || 'N/A'}</div>
+                  <div className="text-sm text-gray-500">Number of offers</div>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <FiCalendar className="text-orange-500 text-xl" />
                 <div>
-                  <div className="font-medium">Founded {network.founded}</div>
-                  <div className="text-sm text-gray-500">Years in business</div>
+                  <div className="font-medium">{network.payment_frequency}</div>
+                  <div className="text-sm text-gray-500">Payment frequency</div>
                 </div>
               </div>
             </div>
           </div>
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-            <h2 className="text-xl font-semibold mb-4">Categories</h2>
+            <h2 className="text-xl font-semibold mb-4">Category</h2>
             <div className="flex flex-wrap gap-2">
-              {network.categories.map((category) => (
-                <span
-                  key={category}
-                  className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium"
-                >
-                  {category}
-                </span>
-              ))}
+              <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-sm font-medium">
+                {network.category}
+              </span>
             </div>
           </div>
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-xl font-semibold mb-4">Key Features</h2>
             <ul className="space-y-2">
-              {network.features.map((feature) => (
-                <li key={feature} className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <span className="text-gray-700">{feature}</span>
-                </li>
-              ))}
+              <li className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span className="text-gray-700">Tracking Software: {network.tracking_software}</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span className="text-gray-700">Minimum Payout: {network.minimum_payout}</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span className="text-gray-700">Payment Frequency: {network.payment_frequency}</span>
+              </li>
             </ul>
           </div>
         </div>
@@ -156,19 +158,19 @@ export default function NetworkDetailPage() {
             <div className="space-y-3">
               <div>
                 <div className="text-sm text-gray-500">Minimum Payout</div>
-                <div className="font-medium">{network.minPayout}</div>
+                <div className="font-medium">{network.minimum_payout}</div>
               </div>
               <div>
                 <div className="text-sm text-gray-500">Payment Methods</div>
                 <div className="flex flex-wrap gap-1 mt-1">
-                  {network.paymentMethods.map((method) => (
+                  {network.payment_methods?.map((method: string) => (
                     <span
                       key={method}
                       className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded"
                     >
                       {method}
                     </span>
-                  ))}
+                  )) || <span className="text-gray-500 text-xs">N/A</span>}
                 </div>
               </div>
             </div>
