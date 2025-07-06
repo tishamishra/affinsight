@@ -12,7 +12,11 @@ import {
   FiHome,
   FiImage,
   FiMenu,
-  FiX
+  FiX,
+  FiMessageSquare,
+  FiBarChart,
+  FiTrendingUp,
+  FiDollarSign
 } from "react-icons/fi";
 import { getCurrentUser, isAdminUser, signOut } from "@/lib/auth";
 
@@ -65,7 +69,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const handleLogout = async () => {
     try {
       await signOut();
-      // Clear the user-email cookie
       document.cookie = 'user-email=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
       router.push('/auth/login');
     } catch (error) {
@@ -77,130 +80,158 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { name: 'Dashboard', href: '/admin', icon: FiHome },
     { name: 'Networks', href: '/admin/networks', icon: FiGlobe },
     { name: 'Offers', href: '/admin/offers', icon: FiGift },
+    { name: 'Analytics', href: '/admin/analytics', icon: FiBarChart },
+    { name: 'Messages', href: '/admin/messages', icon: FiMessageSquare },
     { name: 'Images', href: '/admin/images', icon: FiImage },
     { name: 'Settings', href: '/admin/settings', icon: FiSettings },
   ];
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading admin panel...</p>
+        </div>
       </div>
     );
   }
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600 mb-4">Checking authentication...</p>
-          <button 
-            onClick={() => router.push('/auth/login')}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Go to Login
-          </button>
+          <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md mx-auto">
+            <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FiUsers className="w-8 h-8 text-indigo-600" />
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Authentication Required</h2>
+            <p className="text-gray-600 mb-6">Please log in to access the admin panel</p>
+            <button 
+              onClick={() => router.push('/auth/login')}
+              className="w-full px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all duration-200 font-medium"
+            >
+              Go to Login
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
+          className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden backdrop-blur-sm"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
+      <div className={`fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
-        <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
-          <h1 className="text-xl font-bold text-gray-900">Admin Panel</h1>
-          <button
-            onClick={() => setSidebarOpen(false)}
-            className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-600"
-          >
-            <FiX className="w-5 h-5" />
-          </button>
-        </div>
-
-        <nav className="mt-6 px-3">
-          <div className="space-y-1">
-            {navigation.map((item) => {
-              const isActive = pathname === item.href;
-              return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                    isActive
-                      ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-700'
-                      : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
-                  }`}
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  <item.icon className="mr-3 h-5 w-5" />
-                  {item.name}
-                </Link>
-              );
-            })}
-          </div>
-        </nav>
-
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                <FiUsers className="w-4 h-4 text-blue-600" />
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="flex items-center justify-between h-20 px-6 border-b border-gray-100">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                <FiTrendingUp className="w-6 h-6 text-white" />
               </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium text-gray-700 truncate">
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">Affinsight</h1>
+                <p className="text-xs text-gray-500">Admin Panel</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="lg:hidden p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+            >
+              <FiX className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Navigation */}
+          <nav className="flex-1 px-4 py-6">
+            <div className="space-y-2">
+              {navigation.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
+                      isActive
+                        ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg'
+                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                    }`}
+                    onClick={() => setSidebarOpen(false)}
+                  >
+                    <item.icon className={`mr-3 h-5 w-5 ${
+                      isActive ? 'text-white' : 'text-gray-400 group-hover:text-gray-600'
+                    }`} />
+                    {item.name}
+                  </Link>
+                );
+              })}
+            </div>
+          </nav>
+
+          {/* User Profile */}
+          <div className="p-4 border-t border-gray-100">
+            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
+              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
+                <FiUsers className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">
                   {userEmail}
                 </p>
                 <p className="text-xs text-gray-500">Administrator</p>
               </div>
+              <button
+                onClick={handleLogout}
+                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                title="Logout"
+              >
+                <FiLogOut className="w-4 h-4" />
+              </button>
             </div>
-            <button
-              onClick={handleLogout}
-              className="p-2 text-gray-400 hover:text-red-600 transition-colors"
-              title="Logout"
-            >
-              <FiLogOut className="w-4 h-4" />
-            </button>
           </div>
         </div>
       </div>
 
       {/* Main content */}
-      <div className="lg:pl-64">
+      <div className="lg:pl-72">
         {/* Top bar */}
-        <div className="sticky top-0 z-30 bg-white shadow-sm border-b border-gray-200">
+        <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200">
           <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-600"
-            >
-              <FiMenu className="w-5 h-5" />
-            </button>
-            
             <div className="flex items-center space-x-4">
-              <h2 className="text-lg font-medium text-gray-900">
-                {navigation.find(item => item.href === pathname)?.name || 'Admin'}
-              </h2>
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+              >
+                <FiMenu className="w-5 h-5" />
+              </button>
+              
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  {navigation.find(item => item.href === pathname)?.name || 'Admin'}
+                </h2>
+                <p className="text-sm text-gray-500">Welcome back, Administrator</p>
+              </div>
             </div>
 
             <div className="flex items-center space-x-4">
-              <span className="hidden sm:block text-sm text-gray-600">
-                {userEmail}
-              </span>
+              <div className="hidden sm:flex items-center space-x-2 text-sm text-gray-600">
+                <FiDollarSign className="w-4 h-4" />
+                <span>Premium Plan</span>
+              </div>
               <button
                 onClick={handleLogout}
-                className="hidden sm:flex items-center gap-2 px-3 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+                className="hidden sm:flex items-center gap-2 px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 font-medium"
               >
                 <FiLogOut className="w-4 h-4" />
                 Logout
