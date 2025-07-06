@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Network } from "@/data/networks";
 import { FiChevronUp, FiChevronDown, FiExternalLink } from "react-icons/fi";
 
@@ -106,10 +107,33 @@ export default function NetworkList({ networks }: NetworkListProps) {
               <tr key={network.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
-                    <div className="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <span className="text-blue-600 font-semibold text-sm">
-                        {network.name.charAt(0)}
-                      </span>
+                    <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center">
+                      {network.logo_url ? (
+                        <Image
+                          src={network.logo_url}
+                          alt={`${network.name} logo`}
+                          width={40}
+                          height={40}
+                          className="max-w-full max-h-full object-contain rounded-lg"
+                          onError={(e) => {
+                            // Fallback to network name if logo fails to load
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                            const fallback = target.nextElementSibling as HTMLElement;
+                            if (fallback) fallback.style.display = 'flex';
+                          }}
+                        />
+                      ) : null}
+                      {/* Fallback - Network name initial */}
+                      <div 
+                        className={`h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center ${
+                          network.logo_url ? 'hidden' : ''
+                        }`}
+                      >
+                        <span className="text-blue-600 font-semibold text-sm">
+                          {network.name.charAt(0)}
+                        </span>
+                      </div>
                     </div>
                     <div className="ml-4">
                       <div className="text-sm font-medium text-gray-900">
