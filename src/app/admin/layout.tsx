@@ -12,9 +12,7 @@ import {
   FiHome,
   FiPlus,
   FiMenu,
-  FiX,
-  FiMinimize2,
-  FiMaximize2
+  FiX
 } from "react-icons/fi";
 import { getCurrentUser, isAdminUser, signOut } from "@/lib/auth";
 
@@ -29,8 +27,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userEmail, setUserEmail] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [minimalMode, setMinimalMode] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -86,7 +83,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading admin panel...</p>
@@ -97,7 +94,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md mx-auto">
             <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -118,179 +115,143 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-      {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
-        <div 
-          className="fixed inset-0 z-40 bg-black bg-opacity-50 lg:hidden backdrop-blur-sm"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      }`}>
-        <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="flex items-center justify-between h-20 px-6 border-b border-gray-100">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                <FiGlobe className="w-6 h-6 text-white" />
+    <div className="min-h-screen bg-white">
+      {/* Top Navigation Bar */}
+      <nav className="bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo and Brand */}
+            <div className="flex items-center space-x-4">
+              <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                <FiGlobe className="w-5 h-5 text-white" />
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">Affinsight</h1>
-                <p className="text-xs text-gray-500">Admin Panel</p>
-              </div>
+              <span className="text-xl font-bold text-gray-900">Affinsight Admin</span>
             </div>
-            <button
-              onClick={() => setSidebarOpen(false)}
-              className="lg:hidden p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-            >
-              <FiX className="w-5 h-5" />
-            </button>
-          </div>
 
-          {/* Minimal Mode Toggle */}
-          <div className="px-6 py-4 border-b border-gray-100">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Minimal Mode</span>
-              <button
-                onClick={() => setMinimalMode(!minimalMode)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                  minimalMode ? 'bg-indigo-600' : 'bg-gray-200'
-                }`}
-              >
-                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                  minimalMode ? 'translate-x-6' : 'translate-x-1'
-                }`} />
-              </button>
-            </div>
-          </div>
-
-          {/* Navigation */}
-          <nav className="flex-1 px-4 py-6">
-            <div className="space-y-2">
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-8">
               {navigation.map((item) => {
                 const isActive = pathname === item.href;
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`group flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 ${
+                    className={`flex items-center space-x-2 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                       isActive
-                        ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-lg'
-                        : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
+                        ? 'bg-indigo-100 text-indigo-700'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                     }`}
-                    onClick={() => setSidebarOpen(false)}
                   >
-                    <item.icon className={`mr-3 h-5 w-5 ${
-                      isActive ? 'text-white' : 'text-gray-400 group-hover:text-gray-600'
-                    }`} />
-                    {item.name}
+                    <item.icon className="w-4 h-4" />
+                    <span>{item.name}</span>
                   </Link>
                 );
               })}
             </div>
 
-            {/* Quick Action Buttons */}
-            <div className="mt-8 space-y-3">
-              <Link
-                href="/admin/networks/add"
-                className="flex items-center px-4 py-3 text-sm font-medium text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-all duration-200 shadow-lg"
-                onClick={() => setSidebarOpen(false)}
-              >
-                <FiPlus className="mr-3 h-5 w-5" />
-                Add Network
-              </Link>
-              <Link
-                href="/admin/offers/add"
-                className="flex items-center px-4 py-3 text-sm font-medium text-white bg-green-600 rounded-xl hover:bg-green-700 transition-all duration-200 shadow-lg"
-                onClick={() => setSidebarOpen(false)}
-              >
-                <FiPlus className="mr-3 h-5 w-5" />
-                Add Offer
-              </Link>
-            </div>
-          </nav>
-
-          {/* User Profile - Always Visible */}
-          <div className="p-4 border-t border-gray-100">
-            <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
-              <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
-                <FiUsers className="w-5 h-5 text-white" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">
-                  {userEmail}
-                </p>
-                <p className="text-xs text-gray-500">{isAdmin ? 'Administrator' : 'User'}</p>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                title="Logout"
-              >
-                <FiLogOut className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main content */}
-      <div className="lg:pl-72">
-        {/* Top bar - Always Visible */}
-        <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200">
-          <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
+            {/* User Menu and Actions */}
             <div className="flex items-center space-x-4">
-              <button
-                onClick={() => setSidebarOpen(true)}
-                className="lg:hidden p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-              >
-                <FiMenu className="w-5 h-5" />
-              </button>
-              
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900">
-                  {navigation.find(item => item.href === pathname)?.name || 'Admin'}
-                </h2>
-                <p className="text-sm text-gray-500">Welcome back, {isAdmin ? 'Administrator' : 'User'}</p>
+              {/* Quick Action Buttons */}
+              <div className="hidden sm:flex items-center space-x-2">
+                <Link
+                  href="/admin/networks/add"
+                  className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors"
+                >
+                  <FiPlus className="w-4 h-4 mr-1" />
+                  Add Network
+                </Link>
+                <Link
+                  href="/admin/offers/add"
+                  className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors"
+                >
+                  <FiPlus className="w-4 h-4 mr-1" />
+                  Add Offer
+                </Link>
               </div>
-            </div>
 
-            <div className="flex items-center space-x-4">
-              {/* Minimal Mode Indicator */}
-              <div className="hidden sm:flex items-center space-x-2 text-sm text-gray-600">
-                {minimalMode ? (
-                  <FiMinimize2 className="w-4 h-4" />
+              {/* User Info */}
+              <div className="flex items-center space-x-3">
+                <div className="hidden sm:block text-right">
+                  <p className="text-sm font-medium text-gray-900">{userEmail}</p>
+                  <p className="text-xs text-gray-500">{isAdmin ? 'Administrator' : 'User'}</p>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                >
+                  <FiLogOut className="w-4 h-4" />
+                  <span className="hidden sm:inline">Logout</span>
+                </button>
+              </div>
+
+              {/* Mobile menu button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+              >
+                {mobileMenuOpen ? (
+                  <FiX className="w-5 h-5" />
                 ) : (
-                  <FiMaximize2 className="w-4 h-4" />
+                  <FiMenu className="w-5 h-5" />
                 )}
-                <span>{minimalMode ? 'Minimal' : 'Full'} Mode</span>
-              </div>
-              
-              {/* Always visible logout button */}
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 font-medium"
-              >
-                <FiLogOut className="w-4 h-4" />
-                Logout
               </button>
             </div>
           </div>
         </div>
 
-        {/* Page content */}
-        <main className="flex-1">
-          <div className="py-6">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              {children}
+        {/* Mobile Navigation */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-gray-200 bg-white">
+            <div className="px-4 py-2 space-y-1">
+              {navigation.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={`flex items-center space-x-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                      isActive
+                        ? 'bg-indigo-100 text-indigo-700'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    }`}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <item.icon className="w-4 h-4" />
+                    <span>{item.name}</span>
+                  </Link>
+                );
+              })}
+              
+              {/* Mobile Quick Actions */}
+              <div className="pt-2 border-t border-gray-200">
+                <Link
+                  href="/admin/networks/add"
+                  className="flex items-center space-x-3 px-3 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <FiPlus className="w-4 h-4" />
+                  <span>Add Network</span>
+                </Link>
+                <Link
+                  href="/admin/offers/add"
+                  className="flex items-center space-x-3 px-3 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors mt-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <FiPlus className="w-4 h-4" />
+                  <span>Add Offer</span>
+                </Link>
+              </div>
             </div>
           </div>
-        </main>
-      </div>
+        )}
+      </nav>
+
+      {/* Main Content - Full Width */}
+      <main className="flex-1">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {children}
+        </div>
+      </main>
     </div>
   );
 } 
