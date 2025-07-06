@@ -153,7 +153,7 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                 <tr key={network.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 h-12 w-12 flex items-center justify-center">
+                      <div className="flex-shrink-0 h-16 w-16 flex items-center justify-center">
                         {network.logo_url ? (
                           <img
                             src={network.logo_url}
@@ -170,11 +170,11 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                         ) : null}
                         {/* Fallback - Network name initial */}
                         <div 
-                          className={`h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center ${
+                          className={`h-16 w-16 bg-blue-100 rounded-lg flex items-center justify-center ${
                             network.logo_url ? 'hidden' : ''
                           }`}
                         >
-                          <span className="text-blue-600 font-semibold text-sm">
+                          <span className="text-blue-600 font-semibold text-base">
                             {network.name.charAt(0)}
                           </span>
                         </div>

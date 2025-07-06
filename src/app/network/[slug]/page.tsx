@@ -82,7 +82,7 @@ export default function NetworkDetailPage() {
             <img
               src={network.logo_url}
               alt={`${network.name} logo`}
-              className="w-16 h-16 object-contain rounded-lg"
+              className="w-20 h-20 object-contain rounded-lg"
             />
           )}
           <div>
