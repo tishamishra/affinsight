@@ -17,6 +17,7 @@ import {
   FiRefreshCw
 } from "react-icons/fi";
 import { getNetworks, deleteNetwork, type Network } from "@/lib/database";
+import { supabase } from "@/lib/supabase";
 
 export default function NetworksPage() {
   const [networks, setNetworks] = useState<Network[]>([]);
@@ -31,16 +32,35 @@ export default function NetworksPage() {
     try {
       setLoading(true);
       console.log("Fetching networks from Supabase...");
+      
+      // First, let's check if we can access Supabase at all
+      const { data: testData, error: testError } = await supabase
+        .from('networks')
+        .select('count')
+        .limit(1);
+      
+      console.log("Test query result:", { testData, testError });
+      
       const { data, error } = await getNetworks();
       console.log("Networks fetch response:", { data, error });
+      
       if (error) {
         console.error("Error fetching networks:", error);
+        console.error("Error details:", {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
         return;
       }
+      
       setNetworks(data || []);
       console.log("Networks set to state:", data || []);
     } catch (error) {
       console.error("Error fetching networks:", error);
+      console.error("Error type:", typeof error);
+      console.error("Error stringified:", JSON.stringify(error, null, 2));
     } finally {
       setLoading(false);
     }
