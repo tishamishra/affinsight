@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Affiliate Directory - Supabase Backend
 
 A modern affiliate network directory built with Next.js, TypeScript, Tailwind CSS, and Supabase.
@@ -201,3 +202,7 @@ src/
 ## License
 
 MIT License - see LICENSE file for details.
+=======
+# affinsight
+Modern affiliate network directory built with Next.js, TypeScript, Tailwind CSS, and Supabase
+>>>>>>> 8d8f64d886c86115380a3c88cc50a1e372371a28
