@@ -1,7 +1,56 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FiGlobe, FiGift, FiSettings, FiUsers } from "react-icons/fi";
+import { getCurrentUser, isAdminUser } from "@/lib/auth";
 
 export default function AdminDashboard() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { user, error } = await getCurrentUser();
+        
+        if (error || !user) {
+          router.push('/auth/login');
+          return;
+        }
+
+        const isAdmin = await isAdminUser(user.email || '');
+        if (!isAdmin) {
+          router.push('/auth/unauthorized');
+          return;
+        }
+
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        router.push('/auth/login');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, [router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
     <div className="py-8">
       <div className="max-w-6xl mx-auto">
