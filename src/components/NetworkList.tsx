@@ -84,18 +84,18 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
     for (let i = 0; i < 5; i++) {
       if (i < fullStars) {
         stars.push(
-          <FiStar key={i} className="w-4 h-4 text-yellow-400 fill-current" />
+          <FiStar key={i} className="w-3 h-3 text-yellow-400 fill-current" />
         );
       } else if (i === fullStars && hasHalfStar) {
         stars.push(
           <div key={i} className="relative">
-            <FiStar className="w-4 h-4 text-gray-300" />
-            <FiStar className="w-4 h-4 text-yellow-400 fill-current absolute inset-0" style={{ clipPath: 'inset(0 50% 0 0)' }} />
+            <FiStar className="w-3 h-3 text-gray-300" />
+            <FiStar className="w-3 h-3 text-yellow-400 fill-current absolute inset-0" style={{ clipPath: 'inset(0 50% 0 0)' }} />
           </div>
         );
       } else {
         stars.push(
-          <FiStar key={i} className="w-4 h-4 text-gray-300" />
+          <FiStar key={i} className="w-3 h-3 text-gray-300" />
         );
       }
     }
@@ -103,7 +103,7 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
     return (
       <div className="flex items-center space-x-1">
         {stars}
-        <span className="text-sm text-gray-600 ml-1">({rating})</span>
+        <span className="text-xs text-gray-500 ml-1">({rating})</span>
       </div>
     );
   };
@@ -124,15 +124,7 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                     <SortIcon field="name" />
                   </button>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  <button
-                    onClick={() => handleSort("rating")}
-                    className="flex items-center space-x-1 hover:text-gray-700 transition-colors"
-                  >
-                    <span>Rating</span>
-                    <SortIcon field="rating" />
-                  </button>
-                </th>
+
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <button
                     onClick={() => handleSort("description")}
@@ -187,19 +179,19 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                           </span>
                         </div>
                       </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {network.name}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {network.category}
-                        </div>
+                                          <div className="ml-4">
+                      <div className="text-sm font-medium text-gray-900">
+                        {network.name}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {network.category}
+                      </div>
+                      <div className="mt-1">
+                        <StarRating rating={network.rating} />
                       </div>
                     </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <StarRating rating={network.rating} />
-                  </td>
+                  </div>
+                </td>
                   <td className="px-6 py-4">
                     <div className="text-sm text-gray-900 max-w-xs">
                       {network.description}
