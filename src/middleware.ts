@@ -20,7 +20,7 @@ export async function middleware(req: NextRequest) {
     }
 
     // Check if user is admin
-    const adminEmails = ['vishal@yourdomain.com'];
+    const adminEmails = ['vishalgkumar54@gmail.com'];
     const isAdmin = adminEmails.includes(session.user.email || '');
 
     if (!isAdmin) {

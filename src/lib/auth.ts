@@ -20,7 +20,7 @@ export async function signOut() {
 
 export async function isAdminUser(email: string): Promise<boolean> {
   // Check if user email is in the allowed admin list
-  const adminEmails = ['vishal@yourdomain.com']; // Add more admin emails as needed
+  const adminEmails = ['vishalgkumar54@gmail.com']; // Add more admin emails as needed
   return adminEmails.includes(email);
 }
 
