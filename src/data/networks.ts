@@ -28,7 +28,7 @@ export const networks: Network[] = [
     commission_rate: "1-10%",
     payment_methods: ["Direct Deposit", "Check"],
     minimum_payout: "$10",
-    tracking_software: "Amazon Associates",
+    tracking_software: "HasOffers",
     payment_frequency: "Monthly",
     offers_count: 1000000
   },
@@ -44,7 +44,7 @@ export const networks: Network[] = [
     commission_rate: "5-25%",
     payment_methods: ["Direct Deposit", "Check", "PayPal"],
     minimum_payout: "$50",
-    tracking_software: "CJ Tracking",
+    tracking_software: "CAKE",
     payment_frequency: "Monthly",
     offers_count: 50000
   },
@@ -60,7 +60,7 @@ export const networks: Network[] = [
     commission_rate: "5-20%",
     payment_methods: ["Direct Deposit", "Check"],
     minimum_payout: "$50",
-    tracking_software: "ShareASale Platform",
+    tracking_software: "Everflow",
     payment_frequency: "Monthly",
     offers_count: 25000
   },
@@ -76,7 +76,7 @@ export const networks: Network[] = [
     commission_rate: "5-30%",
     payment_methods: ["Direct Deposit", "Check"],
     minimum_payout: "$50",
-    tracking_software: "CJ Tracking",
+    tracking_software: "Offerslook",
     payment_frequency: "Monthly",
     offers_count: 45000
   },
@@ -92,7 +92,7 @@ export const networks: Network[] = [
     commission_rate: "5-25%",
     payment_methods: ["Direct Deposit", "Check", "PayPal"],
     minimum_payout: "$20",
-    tracking_software: "Awin Platform",
+    tracking_software: "HitPath",
     payment_frequency: "Monthly",
     offers_count: 35000
   },
@@ -108,9 +108,57 @@ export const networks: Network[] = [
     commission_rate: "5-20%",
     payment_methods: ["Direct Deposit", "Check"],
     minimum_payout: "$50",
-    tracking_software: "FlexOffers Platform",
+    tracking_software: "LinkTrust",
     payment_frequency: "Monthly",
     offers_count: 15000
+  },
+  {
+    id: "7",
+    name: "Affise Network",
+    website: "https://www.affise.com",
+    category: "General",
+    rating: 4.4,
+    countries: ["US", "UK", "CA", "AU", "DE"],
+    logo_url: undefined,
+    description: "Advanced affiliate network with comprehensive tracking solutions",
+    commission_rate: "5-30%",
+    payment_methods: ["Direct Deposit", "Check", "PayPal", "Wire Transfer"],
+    minimum_payout: "$100",
+    tracking_software: "Affise",
+    payment_frequency: "Monthly",
+    offers_count: 40000
+  },
+  {
+    id: "8",
+    name: "Afftrack Network",
+    website: "https://www.afftrack.com",
+    category: "General",
+    rating: 4.1,
+    countries: ["US", "UK", "CA"],
+    logo_url: undefined,
+    description: "Performance-based affiliate network with advanced analytics",
+    commission_rate: "5-25%",
+    payment_methods: ["Direct Deposit", "Check", "PayPal"],
+    minimum_payout: "$50",
+    tracking_software: "Afftrack",
+    payment_frequency: "Monthly",
+    offers_count: 20000
+  },
+  {
+    id: "9",
+    name: "Other Networks",
+    website: "https://example.com",
+    category: "General",
+    rating: 3.8,
+    countries: ["US", "UK"],
+    logo_url: undefined,
+    description: "Various affiliate networks using different tracking platforms",
+    commission_rate: "3-20%",
+    payment_methods: ["Direct Deposit", "Check"],
+    minimum_payout: "$25",
+    tracking_software: "Others",
+    payment_frequency: "Monthly",
+    offers_count: 10000
   }
 ];
 
