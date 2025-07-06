@@ -9,6 +9,8 @@ export type Network = {
   rating: number;
   countries: string[] | string;
   logo_url?: string;
+  created_at?: string;
+  updated_at?: string;
 };
 
 export type Offer = {
@@ -162,9 +164,4 @@ export async function searchOffers(query: string) {
         id,
         name
       )
-    `)
-    .or(`offer_name.ilike.%${query}%,vertical.ilike.%${query}%`)
-    .order('created_at', { ascending: false });
-  
-  return { data, error };
-} 
+    `
