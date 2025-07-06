@@ -1,0 +1,56 @@
+[
+  {
+    "id": "adcombo",
+    "name": "AdCombo",
+    "category": "CPA Network",
+    "website": "https://adcombo.com",
+    "logo": "/logos/adcombo.png",
+    "rating": 4.6,
+    "countries": ["US", "CA", "UK"]
+  },
+  {
+    "id": "clickbank",
+    "name": "ClickBank",
+    "category": "Digital Products",
+    "website": "https://clickbank.com",
+    "logo": "/logos/clickbank.png",
+    "rating": 4.5,
+    "countries": ["US", "CA", "UK", "AU"]
+  },
+  {
+    "id": "mobidea",
+    "name": "Mobidea",
+    "category": "Mobile Performance",
+    "website": "https://mobidea.com",
+    "logo": "/logos/mobidea.png",
+    "rating": 4.3,
+    "countries": ["US", "CA", "UK", "DE", "FR"]
+  },
+  {
+    "id": "maxbounty",
+    "name": "MaxBounty",
+    "category": "CPA Network",
+    "website": "https://maxbounty.com",
+    "logo": "/logos/maxbounty.png",
+    "rating": 4.4,
+    "countries": ["US", "CA"]
+  },
+  {
+    "id": "cj-affiliate",
+    "name": "Commission Junction",
+    "category": "Affiliate Network",
+    "website": "https://cj.com",
+    "logo": "/logos/cj.png",
+    "rating": 4.1,
+    "countries": ["US", "CA", "UK", "AU"]
+  },
+  {
+    "id": "shareasale",
+    "name": "ShareASale",
+    "category": "Ecommerce",
+    "website": "https://shareasale.com",
+    "logo": "/logos/shareasale.png",
+    "rating": 4.6,
+    "countries": ["US", "CA"]
+  }
+] 

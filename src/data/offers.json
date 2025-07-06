@@ -1,0 +1,98 @@
+[
+  {
+    "id": "1",
+    "offerName": "Keto Gummies Trial",
+    "payout": "$45 CPA",
+    "vertical": "Health",
+    "country": "US",
+    "network": "AdCombo"
+  },
+  {
+    "id": "2",
+    "offerName": "Crypto Trading Platform",
+    "payout": "$120 CPA",
+    "vertical": "Finance",
+    "country": "UK",
+    "network": "ClickBank"
+  },
+  {
+    "id": "3",
+    "offerName": "Ecommerce Store Builder",
+    "payout": "$30 CPA",
+    "vertical": "Ecommerce",
+    "country": "CA",
+    "network": "Mobidea"
+  },
+  {
+    "id": "4",
+    "offerName": "Insurance Leads",
+    "payout": "$80 CPL",
+    "vertical": "Finance",
+    "country": "US",
+    "network": "MaxBounty"
+  },
+  {
+    "id": "5",
+    "offerName": "Online Course Platform",
+    "payout": "$25 CPA",
+    "vertical": "Education",
+    "country": "US",
+    "network": "Commission Junction"
+  },
+  {
+    "id": "6",
+    "offerName": "Dating App Premium",
+    "payout": "$15 CPA",
+    "vertical": "Dating",
+    "country": "CA",
+    "network": "Mobidea"
+  },
+  {
+    "id": "7",
+    "offerName": "Gaming Platform",
+    "payout": "$8 CPA",
+    "vertical": "Gaming",
+    "country": "DE",
+    "network": "AdCombo"
+  },
+  {
+    "id": "8",
+    "offerName": "Home Security System",
+    "payout": "$150 CPA",
+    "vertical": "Home Services",
+    "country": "US",
+    "network": "MaxBounty"
+  },
+  {
+    "id": "9",
+    "offerName": "Credit Card Comparison",
+    "payout": "$35 CPA",
+    "vertical": "Finance",
+    "country": "AU",
+    "network": "Commission Junction"
+  },
+  {
+    "id": "10",
+    "offerName": "Fitness App Premium",
+    "payout": "$22 CPA",
+    "vertical": "Health",
+    "country": "UK",
+    "network": "ClickBank"
+  },
+  {
+    "id": "11",
+    "offerName": "Travel Booking Platform",
+    "payout": "$12 CPA",
+    "vertical": "Travel",
+    "country": "CA",
+    "network": "ShareASale"
+  },
+  {
+    "id": "12",
+    "offerName": "Beauty Products Anti-Aging",
+    "payout": "$18 CPA",
+    "vertical": "Beauty",
+    "country": "US",
+    "network": "ShareASale"
+  }
+] 
