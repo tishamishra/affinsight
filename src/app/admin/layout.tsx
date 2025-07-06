@@ -10,13 +10,11 @@ import {
   FiUsers, 
   FiLogOut, 
   FiHome,
-  FiImage,
+  FiPlus,
   FiMenu,
   FiX,
-  FiMessageSquare,
-  FiBarChart,
-  FiTrendingUp,
-  FiDollarSign
+  FiMinimize2,
+  FiMaximize2
 } from "react-icons/fi";
 import { getCurrentUser, isAdminUser, signOut } from "@/lib/auth";
 
@@ -30,7 +28,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userEmail, setUserEmail] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [minimalMode, setMinimalMode] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -46,10 +46,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         console.log('User found:', user.email);
         setUserEmail(user.email || '');
 
-        const isAdmin = await isAdminUser(user.email || '');
-        console.log('Is admin:', isAdmin);
+        const adminStatus = await isAdminUser(user.email || '');
+        console.log('Is admin:', adminStatus);
+        setIsAdmin(adminStatus);
         
-        if (!isAdmin) {
+        if (!adminStatus) {
           console.log('User is not admin, redirecting to unauthorized');
           router.push('/auth/unauthorized');
           return;
@@ -80,10 +81,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { name: 'Dashboard', href: '/admin', icon: FiHome },
     { name: 'Networks', href: '/admin/networks', icon: FiGlobe },
     { name: 'Offers', href: '/admin/offers', icon: FiGift },
-    { name: 'Analytics', href: '/admin/analytics', icon: FiBarChart },
-    { name: 'Messages', href: '/admin/messages', icon: FiMessageSquare },
-    { name: 'Images', href: '/admin/images', icon: FiImage },
-    { name: 'Settings', href: '/admin/settings', icon: FiSettings },
+    ...(isAdmin ? [{ name: 'Settings', href: '/admin/settings', icon: FiSettings }] : [])
   ];
 
   if (loading) {
@@ -138,7 +136,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <div className="flex items-center justify-between h-20 px-6 border-b border-gray-100">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                <FiTrendingUp className="w-6 h-6 text-white" />
+                <FiGlobe className="w-6 h-6 text-white" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Affinsight</h1>
@@ -151,6 +149,23 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             >
               <FiX className="w-5 h-5" />
             </button>
+          </div>
+
+          {/* Minimal Mode Toggle */}
+          <div className="px-6 py-4 border-b border-gray-100">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-700">Minimal Mode</span>
+              <button
+                onClick={() => setMinimalMode(!minimalMode)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  minimalMode ? 'bg-indigo-600' : 'bg-gray-200'
+                }`}
+              >
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  minimalMode ? 'translate-x-6' : 'translate-x-1'
+                }`} />
+              </button>
+            </div>
           </div>
 
           {/* Navigation */}
@@ -177,9 +192,29 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 );
               })}
             </div>
+
+            {/* Quick Action Buttons */}
+            <div className="mt-8 space-y-3">
+              <Link
+                href="/admin/networks/add"
+                className="flex items-center px-4 py-3 text-sm font-medium text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-all duration-200 shadow-lg"
+                onClick={() => setSidebarOpen(false)}
+              >
+                <FiPlus className="mr-3 h-5 w-5" />
+                Add Network
+              </Link>
+              <Link
+                href="/admin/offers/add"
+                className="flex items-center px-4 py-3 text-sm font-medium text-white bg-green-600 rounded-xl hover:bg-green-700 transition-all duration-200 shadow-lg"
+                onClick={() => setSidebarOpen(false)}
+              >
+                <FiPlus className="mr-3 h-5 w-5" />
+                Add Offer
+              </Link>
+            </div>
           </nav>
 
-          {/* User Profile */}
+          {/* User Profile - Always Visible */}
           <div className="p-4 border-t border-gray-100">
             <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-xl">
               <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center">
@@ -189,7 +224,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 <p className="text-sm font-medium text-gray-900 truncate">
                   {userEmail}
                 </p>
-                <p className="text-xs text-gray-500">Administrator</p>
+                <p className="text-xs text-gray-500">{isAdmin ? 'Administrator' : 'User'}</p>
               </div>
               <button
                 onClick={handleLogout}
@@ -205,7 +240,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
       {/* Main content */}
       <div className="lg:pl-72">
-        {/* Top bar */}
+        {/* Top bar - Always Visible */}
         <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200">
           <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
             <div className="flex items-center space-x-4">
@@ -220,18 +255,25 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 <h2 className="text-lg font-semibold text-gray-900">
                   {navigation.find(item => item.href === pathname)?.name || 'Admin'}
                 </h2>
-                <p className="text-sm text-gray-500">Welcome back, Administrator</p>
+                <p className="text-sm text-gray-500">Welcome back, {isAdmin ? 'Administrator' : 'User'}</p>
               </div>
             </div>
 
             <div className="flex items-center space-x-4">
+              {/* Minimal Mode Indicator */}
               <div className="hidden sm:flex items-center space-x-2 text-sm text-gray-600">
-                <FiDollarSign className="w-4 h-4" />
-                <span>Premium Plan</span>
+                {minimalMode ? (
+                  <FiMinimize2 className="w-4 h-4" />
+                ) : (
+                  <FiMaximize2 className="w-4 h-4" />
+                )}
+                <span>{minimalMode ? 'Minimal' : 'Full'} Mode</span>
               </div>
+              
+              {/* Always visible logout button */}
               <button
                 onClick={handleLogout}
-                className="hidden sm:flex items-center gap-2 px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 font-medium"
+                className="flex items-center gap-2 px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 font-medium"
               >
                 <FiLogOut className="w-4 h-4" />
                 Logout
