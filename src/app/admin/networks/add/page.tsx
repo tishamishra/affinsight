@@ -5,19 +5,19 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FiArrowLeft } from "react-icons/fi";
 import NetworkForm from "@/components/forms/NetworkForm";
-import { createNetwork } from "@/lib/database";
+import { createNetwork, type Network } from "@/lib/database";
 
 export default function AddNetworkPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: Record<string, unknown>) => {
     try {
       setIsLoading(true);
       
       // Convert countries string to array, keep all other fields
-      const networkData = {
-        ...data,
+      const networkData: Omit<Network, 'id' | 'created_at' | 'updated_at'> = {
+        ...data as Omit<Network, 'id' | 'created_at' | 'updated_at'>,
         countries: (data.countries as string).split(",").map((country: string) => country.trim()),
       };
 
