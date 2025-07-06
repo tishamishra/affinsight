@@ -164,4 +164,9 @@ export async function searchOffers(query: string) {
         id,
         name
       )
-    `
+    `)
+    .or(`offer_name.ilike.%${query}%,vertical.ilike.%${query}%`)
+    .order('created_at', { ascending: false });
+  
+  return { data, error };
+}
