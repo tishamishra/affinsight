@@ -1,10 +1,12 @@
+"use client";
 import Hero from '@/components/Hero';
-import NetworkGrid from '@/components/NetworkGrid';
+import NetworkFilters from '@/components/NetworkFilters';
+import NetworkList from '@/components/NetworkList';
 import { networks } from '@/data/networks';
+import { useState } from 'react';
 
 export default function HomePage() {
-  // Show featured networks (first 6)
-  const featuredNetworks = networks.slice(0, 6);
+  const [filteredNetworks, setFilteredNetworks] = useState(networks);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -21,7 +23,12 @@ export default function HomePage() {
           </p>
         </div>
         
-        <NetworkGrid networks={featuredNetworks} />
+        <NetworkFilters 
+          networks={networks} 
+          onFilterChange={setFilteredNetworks} 
+        />
+        
+        <NetworkList networks={filteredNetworks} />
         
         <div className="text-center mt-12">
           <a 

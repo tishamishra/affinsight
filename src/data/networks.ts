@@ -10,6 +10,9 @@ export interface Network {
   commission_rate?: string;
   payment_methods?: string[];
   minimum_payout?: string;
+  tracking_software?: string;
+  payment_frequency?: string;
+  offers_count?: number;
 }
 
 export const networks: Network[] = [
@@ -24,7 +27,10 @@ export const networks: Network[] = [
     description: "Amazon's affiliate program offering commissions on millions of products",
     commission_rate: "1-10%",
     payment_methods: ["Direct Deposit", "Check"],
-    minimum_payout: "$10"
+    minimum_payout: "$10",
+    tracking_software: "Amazon Associates",
+    payment_frequency: "Monthly",
+    offers_count: 1000000
   },
   {
     id: "2",
@@ -37,7 +43,10 @@ export const networks: Network[] = [
     description: "One of the largest affiliate networks with diverse merchant partners",
     commission_rate: "5-25%",
     payment_methods: ["Direct Deposit", "Check", "PayPal"],
-    minimum_payout: "$50"
+    minimum_payout: "$50",
+    tracking_software: "CJ Tracking",
+    payment_frequency: "Monthly",
+    offers_count: 50000
   },
   {
     id: "3",
@@ -50,7 +59,10 @@ export const networks: Network[] = [
     description: "Popular affiliate network with thousands of merchants",
     commission_rate: "5-20%",
     payment_methods: ["Direct Deposit", "Check"],
-    minimum_payout: "$50"
+    minimum_payout: "$50",
+    tracking_software: "ShareASale Platform",
+    payment_frequency: "Monthly",
+    offers_count: 25000
   },
   {
     id: "4",
@@ -63,7 +75,10 @@ export const networks: Network[] = [
     description: "Established affiliate network with reliable tracking",
     commission_rate: "5-30%",
     payment_methods: ["Direct Deposit", "Check"],
-    minimum_payout: "$50"
+    minimum_payout: "$50",
+    tracking_software: "CJ Tracking",
+    payment_frequency: "Monthly",
+    offers_count: 45000
   },
   {
     id: "5",
@@ -76,7 +91,10 @@ export const networks: Network[] = [
     description: "Global affiliate network with strong European presence",
     commission_rate: "5-25%",
     payment_methods: ["Direct Deposit", "Check", "PayPal"],
-    minimum_payout: "$20"
+    minimum_payout: "$20",
+    tracking_software: "Awin Platform",
+    payment_frequency: "Monthly",
+    offers_count: 35000
   },
   {
     id: "6",
@@ -89,7 +107,10 @@ export const networks: Network[] = [
     description: "Affiliate network with diverse merchant categories",
     commission_rate: "5-20%",
     payment_methods: ["Direct Deposit", "Check"],
-    minimum_payout: "$50"
+    minimum_payout: "$50",
+    tracking_software: "FlexOffers Platform",
+    payment_frequency: "Monthly",
+    offers_count: 15000
   }
 ];
 
