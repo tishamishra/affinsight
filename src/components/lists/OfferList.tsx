@@ -4,7 +4,16 @@ import { useState, useEffect } from "react";
 import { FiEdit, FiTrash2, FiEye } from "react-icons/fi";
 import Link from "next/link";
 import { getOffers, deleteOffer } from "@/lib/database";
-import type { Offer } from "@/lib/supabase";
+
+// Local Offer type definition
+type Offer = {
+  id: string;
+  offer_name: string;
+  payout: string;
+  vertical: string;
+  country: string;
+  network_id: string;
+};
 
 interface OfferWithNetwork extends Offer {
   networks: {

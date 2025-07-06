@@ -6,7 +6,16 @@ import { z } from "zod";
 import { useState, useEffect } from "react";
 import { FiSave } from "react-icons/fi";
 import { getNetworks } from "@/lib/database";
-import type { Network } from "@/lib/supabase";
+
+type Network = {
+  id: string;
+  name: string;
+  website: string;
+  category: string;
+  rating: number;
+  countries: string[] | string;
+  logo_url?: string;
+};
 
 const offerSchema = z.object({
   offer_name: z.string().min(1, "Offer name is required"),

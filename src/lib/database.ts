@@ -1,4 +1,24 @@
-import { supabase, type Network, type Offer } from './supabase';
+import { supabase } from './supabase';
+
+// Local type definitions
+export type Network = {
+  id: string;
+  name: string;
+  website: string;
+  category: string;
+  rating: number;
+  countries: string[] | string;
+  logo_url?: string;
+};
+
+export type Offer = {
+  id: string;
+  offer_name: string;
+  payout: string;
+  vertical: string;
+  country: string;
+  network_id: string;
+};
 
 // Network operations
 export async function getNetworks() {

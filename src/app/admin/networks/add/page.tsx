@@ -11,11 +11,11 @@ export default function AddNetworkPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (data: Record<string, unknown>) => {
+  const handleSubmit = async (data: any) => {
     try {
       setIsLoading(true);
       
-      // Convert countries string to array
+      // Convert countries string to array, keep all other fields
       const networkData = {
         ...data,
         countries: (data.countries as string).split(",").map((country: string) => country.trim()),
