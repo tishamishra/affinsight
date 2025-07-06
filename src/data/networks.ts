@@ -29,7 +29,7 @@ export const networks: Network[] = [
     payment_methods: ["Direct Deposit", "Check"],
     minimum_payout: "$10",
     tracking_software: "HasOffers",
-    payment_frequency: "Monthly",
+    payment_frequency: "Net-30",
     offers_count: 1000000
   },
   {
@@ -45,7 +45,7 @@ export const networks: Network[] = [
     payment_methods: ["Direct Deposit", "Check", "PayPal"],
     minimum_payout: "$50",
     tracking_software: "CAKE",
-    payment_frequency: "Monthly",
+    payment_frequency: "Net-15",
     offers_count: 50000
   },
   {
@@ -61,7 +61,7 @@ export const networks: Network[] = [
     payment_methods: ["Direct Deposit", "Check"],
     minimum_payout: "$50",
     tracking_software: "Everflow",
-    payment_frequency: "Monthly",
+    payment_frequency: "Weekly",
     offers_count: 25000
   },
   {
@@ -77,7 +77,7 @@ export const networks: Network[] = [
     payment_methods: ["Direct Deposit", "Check"],
     minimum_payout: "$50",
     tracking_software: "Offerslook",
-    payment_frequency: "Monthly",
+    payment_frequency: "Net-60",
     offers_count: 45000
   },
   {
@@ -93,7 +93,7 @@ export const networks: Network[] = [
     payment_methods: ["Direct Deposit", "Check", "PayPal"],
     minimum_payout: "$20",
     tracking_software: "HitPath",
-    payment_frequency: "Monthly",
+    payment_frequency: "Bi-Weekly",
     offers_count: 35000
   },
   {
@@ -109,7 +109,7 @@ export const networks: Network[] = [
     payment_methods: ["Direct Deposit", "Check"],
     minimum_payout: "$50",
     tracking_software: "LinkTrust",
-    payment_frequency: "Monthly",
+    payment_frequency: "Daily",
     offers_count: 15000
   },
   {
@@ -125,7 +125,7 @@ export const networks: Network[] = [
     payment_methods: ["Direct Deposit", "Check", "PayPal", "Wire Transfer"],
     minimum_payout: "$100",
     tracking_software: "Affise",
-    payment_frequency: "Monthly",
+    payment_frequency: "Net-15",
     offers_count: 40000
   },
   {
@@ -141,7 +141,7 @@ export const networks: Network[] = [
     payment_methods: ["Direct Deposit", "Check", "PayPal"],
     minimum_payout: "$50",
     tracking_software: "Afftrack",
-    payment_frequency: "Monthly",
+    payment_frequency: "Weekly",
     offers_count: 20000
   },
   {
@@ -157,7 +157,7 @@ export const networks: Network[] = [
     payment_methods: ["Direct Deposit", "Check"],
     minimum_payout: "$25",
     tracking_software: "Others",
-    payment_frequency: "Monthly",
+    payment_frequency: "Others",
     offers_count: 10000
   }
 ];
