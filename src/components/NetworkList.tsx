@@ -3,18 +3,20 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Network } from "@/data/networks";
-import { FiChevronUp, FiChevronDown, FiExternalLink } from "react-icons/fi";
+import { FiChevronUp, FiChevronDown, FiExternalLink, FiStar } from "react-icons/fi";
 
 interface NetworkListProps {
   networks: Network[];
+  itemsPerPage?: number;
 }
 
-type SortField = "name" | "description" | "offers_count";
+type SortField = "name" | "description" | "offers_count" | "rating";
 type SortDirection = "asc" | "desc";
 
-export default function NetworkList({ networks }: NetworkListProps) {
+export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkListProps) {
   const [sortField, setSortField] = useState<SortField>("name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -23,6 +25,7 @@ export default function NetworkList({ networks }: NetworkListProps) {
       setSortField(field);
       setSortDirection("asc");
     }
+    setCurrentPage(1); // Reset to first page when sorting
   };
 
   const sortedNetworks = [...networks].sort((a, b) => {
@@ -42,6 +45,10 @@ export default function NetworkList({ networks }: NetworkListProps) {
         aValue = a.offers_count || 0;
         bValue = b.offers_count || 0;
         break;
+      case "rating":
+        aValue = a.rating || 0;
+        bValue = b.rating || 0;
+        break;
       default:
         return 0;
     }
@@ -52,6 +59,12 @@ export default function NetworkList({ networks }: NetworkListProps) {
       return aValue < bValue ? 1 : -1;
     }
   });
+
+  // Pagination
+  const totalPages = Math.ceil(sortedNetworks.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentNetworks = sortedNetworks.slice(startIndex, endIndex);
 
   const SortIcon = ({ field }: { field: SortField }) => {
     if (sortField !== field) {
@@ -64,126 +77,234 @@ export default function NetworkList({ networks }: NetworkListProps) {
     );
   };
 
-  return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                <button
-                  onClick={() => handleSort("name")}
-                  className="flex items-center space-x-1 hover:text-gray-700 transition-colors"
-                >
-                  <span>Network</span>
-                  <SortIcon field="name" />
-                </button>
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                <button
-                  onClick={() => handleSort("description")}
-                  className="flex items-center space-x-1 hover:text-gray-700 transition-colors"
-                >
-                  <span>Description</span>
-                  <SortIcon field="description" />
-                </button>
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                <button
-                  onClick={() => handleSort("offers_count")}
-                  className="flex items-center space-x-1 hover:text-gray-700 transition-colors"
-                >
-                  <span>Offers</span>
-                  <SortIcon field="offers_count" />
-                </button>
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {sortedNetworks.map((network) => (
-              <tr key={network.id} className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center">
-                      {network.logo_url ? (
-                        <Image
-                          src={network.logo_url}
-                          alt={`${network.name} logo`}
-                          width={40}
-                          height={40}
-                          className="max-w-full max-h-full object-contain rounded-lg"
-                          onError={(e) => {
-                            // Fallback to network name if logo fails to load
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
-                            const fallback = target.nextElementSibling as HTMLElement;
-                            if (fallback) fallback.style.display = 'flex';
-                          }}
-                        />
-                      ) : null}
-                      {/* Fallback - Network name initial */}
-                      <div 
-                        className={`h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center ${
-                          network.logo_url ? 'hidden' : ''
-                        }`}
-                      >
-                        <span className="text-blue-600 font-semibold text-sm">
-                          {network.name.charAt(0)}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">
-                        {network.name}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {network.category}
-                      </div>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="text-sm text-gray-900 max-w-xs">
-                    {network.description}
-                  </div>
-                  <div className="text-sm text-gray-500 mt-1">
-                    Commission: {network.commission_rate}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">
-                    {network.offers_count?.toLocaleString() || "N/A"}
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    {network.payment_frequency} payments
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div className="flex space-x-2">
-                    <Link
-                      href={`/network/${network.id}`}
-                      className="text-blue-600 hover:text-blue-900 transition-colors"
-                    >
-                      View Details
-                    </Link>
-                    <a
-                      href={network.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-gray-600 hover:text-gray-900 transition-colors flex items-center"
-                    >
-                      <FiExternalLink className="w-4 h-4" />
-                    </a>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+  const StarRating = ({ rating }: { rating: number }) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+
+    for (let i = 0; i < 5; i++) {
+      if (i < fullStars) {
+        stars.push(
+          <FiStar key={i} className="w-4 h-4 text-yellow-400 fill-current" />
+        );
+      } else if (i === fullStars && hasHalfStar) {
+        stars.push(
+          <div key={i} className="relative">
+            <FiStar className="w-4 h-4 text-gray-300" />
+            <FiStar className="w-4 h-4 text-yellow-400 fill-current absolute inset-0" style={{ clipPath: 'inset(0 50% 0 0)' }} />
+          </div>
+        );
+      } else {
+        stars.push(
+          <FiStar key={i} className="w-4 h-4 text-gray-300" />
+        );
+      }
+    }
+
+    return (
+      <div className="flex items-center space-x-1">
+        {stars}
+        <span className="text-sm text-gray-600 ml-1">({rating})</span>
       </div>
+    );
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <button
+                    onClick={() => handleSort("name")}
+                    className="flex items-center space-x-1 hover:text-gray-700 transition-colors"
+                  >
+                    <span>Network</span>
+                    <SortIcon field="name" />
+                  </button>
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <button
+                    onClick={() => handleSort("rating")}
+                    className="flex items-center space-x-1 hover:text-gray-700 transition-colors"
+                  >
+                    <span>Rating</span>
+                    <SortIcon field="rating" />
+                  </button>
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <button
+                    onClick={() => handleSort("description")}
+                    className="flex items-center space-x-1 hover:text-gray-700 transition-colors"
+                  >
+                    <span>Description</span>
+                    <SortIcon field="description" />
+                  </button>
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <button
+                    onClick={() => handleSort("offers_count")}
+                    className="flex items-center space-x-1 hover:text-gray-700 transition-colors"
+                  >
+                    <span>Offers</span>
+                    <SortIcon field="offers_count" />
+                  </button>
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {currentNetworks.map((network) => (
+                <tr key={network.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 h-12 w-12 flex items-center justify-center">
+                        {network.logo_url ? (
+                          <Image
+                            src={network.logo_url}
+                            alt={`${network.name} logo`}
+                            width={48}
+                            height={48}
+                            className="max-w-full max-h-full object-contain rounded-lg"
+                            onError={(e) => {
+                              // Fallback to network name if logo fails to load
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              const fallback = target.nextElementSibling as HTMLElement;
+                              if (fallback) fallback.style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+                        {/* Fallback - Network name initial */}
+                        <div 
+                          className={`h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center ${
+                            network.logo_url ? 'hidden' : ''
+                          }`}
+                        >
+                          <span className="text-blue-600 font-semibold text-sm">
+                            {network.name.charAt(0)}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="ml-4">
+                        <div className="text-sm font-medium text-gray-900">
+                          {network.name}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {network.category}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <StarRating rating={network.rating} />
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="text-sm text-gray-900 max-w-xs">
+                      {network.description}
+                    </div>
+                    <div className="text-sm text-gray-500 mt-1">
+                      Commission: {network.commission_rate}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-900">
+                      {network.offers_count?.toLocaleString() || "N/A"}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {network.payment_frequency} payments
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex space-x-2">
+                      <Link
+                        href={`/network/${network.id}`}
+                        className="text-blue-600 hover:text-blue-900 transition-colors"
+                      >
+                        View Details
+                      </Link>
+                      <a
+                        href={network.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-600 hover:text-gray-900 transition-colors flex items-center"
+                      >
+                        <FiExternalLink className="w-4 h-4" />
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between bg-white px-4 py-3 border border-gray-200 rounded-lg">
+          <div className="flex-1 flex justify-between sm:hidden">
+            <button
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+          </div>
+          <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm text-gray-700">
+                Showing <span className="font-medium">{startIndex + 1}</span> to{" "}
+                <span className="font-medium">{Math.min(endIndex, sortedNetworks.length)}</span> of{" "}
+                <span className="font-medium">{sortedNetworks.length}</span> results
+              </p>
+            </div>
+            <div>
+              <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                <button
+                  onClick={() => setCurrentPage(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Previous
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                      currentPage === page
+                        ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
+                        : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
+              </nav>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

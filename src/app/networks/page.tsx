@@ -2,9 +2,8 @@
 import { useState, useEffect } from 'react';
 import { getAllNetworks } from '@/lib/networks-loader';
 import { Network } from '@/data/networks';
-import NetworkGrid from '@/components/NetworkGrid';
+import NetworkList from '@/components/NetworkList';
 import Filters from '@/components/Filters';
-import Tabs from '@/components/Tabs';
 
 export default function NetworksPage() {
   const allNetworks = getAllNetworks();
@@ -12,7 +11,6 @@ export default function NetworksPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [activeTab, setActiveTab] = useState<string>('grid');
 
   const categories = ['all', ...Array.from(new Set(allNetworks.map((n: Network) => n.category)))];
   const allCountries = Array.from(new Set(allNetworks.flatMap((n: Network) => n.countries))).sort();
@@ -68,18 +66,7 @@ export default function NetworksPage() {
         />
 
         <div className="mt-8">
-          <Tabs
-            tabs={[
-              { id: 'grid', label: 'Grid View', icon: 'grid' },
-              { id: 'list', label: 'List View', icon: 'list' }
-            ]}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
-          
-          <div className="mt-6">
-            <NetworkGrid networks={filteredNetworks} />
-          </div>
+          <NetworkList networks={filteredNetworks} itemsPerPage={20} />
         </div>
       </div>
     </div>
