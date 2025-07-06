@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { Network } from "@/data/networks";
 import { FiChevronUp, FiChevronDown, FiExternalLink, FiStar } from "react-icons/fi";
 
@@ -164,11 +163,9 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-12 w-12 flex items-center justify-center">
                         {network.logo_url ? (
-                          <Image
+                          <img
                             src={network.logo_url}
                             alt={`${network.name} logo`}
-                            width={48}
-                            height={48}
                             className="max-w-full max-h-full object-contain rounded-lg"
                             onError={(e) => {
                               // Fallback to network name if logo fails to load

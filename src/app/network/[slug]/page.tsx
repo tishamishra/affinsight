@@ -77,8 +77,19 @@ export default function NetworkDetailPage() {
   return (
     <div className="py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">{network.name}</h1>
-        <p className="text-gray-600 text-lg">{network.description}</p>
+        <div className="flex items-center gap-4 mb-4">
+          {network.logo_url && (
+            <img
+              src={network.logo_url}
+              alt={`${network.name} logo`}
+              className="w-16 h-16 object-contain rounded-lg"
+            />
+          )}
+          <div>
+            <h1 className="text-3xl font-bold mb-2">{network.name}</h1>
+            <p className="text-gray-600 text-lg">{network.description}</p>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
