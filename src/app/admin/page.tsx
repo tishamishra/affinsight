@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { FiGlobe, FiGift, FiSettings, FiUsers } from "react-icons/fi";
-import { getCurrentUser, isAdminUser } from "@/lib/auth";
+import { FiGlobe, FiGift, FiSettings, FiUsers, FiLogOut } from "react-icons/fi";
+import { getCurrentUser, isAdminUser, signOut } from "@/lib/auth";
 
 export default function AdminDashboard() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userEmail, setUserEmail] = useState("");
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -17,12 +18,19 @@ export default function AdminDashboard() {
         const { user, error } = await getCurrentUser();
         
         if (error || !user) {
+          console.log('No user found, redirecting to login');
           router.push('/auth/login');
           return;
         }
 
+        console.log('User found:', user.email);
+        setUserEmail(user.email || '');
+
         const isAdmin = await isAdminUser(user.email || '');
+        console.log('Is admin:', isAdmin);
+        
         if (!isAdmin) {
+          console.log('User is not admin, redirecting to unauthorized');
           router.push('/auth/unauthorized');
           return;
         }
@@ -30,7 +38,7 @@ export default function AdminDashboard() {
         setIsAuthenticated(true);
       } catch (error) {
         console.error('Auth check failed:', error);
-        router.push('/auth/login');
+        // Don't redirect immediately, let user see the error
       } finally {
         setLoading(false);
       }
@@ -38,6 +46,17 @@ export default function AdminDashboard() {
 
     checkAuth();
   }, [router]);
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      // Clear the user-email cookie
+      document.cookie = 'user-email=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      router.push('/auth/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   if (loading) {
     return (
@@ -48,13 +67,37 @@ export default function AdminDashboard() {
   }
 
   if (!isAuthenticated) {
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-600 mb-4">Checking authentication...</p>
+          <button 
+            onClick={() => router.push('/auth/login')}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="py-8">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-600">Logged in as: {userEmail}</span>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
+            >
+              <FiLogOut className="w-4 h-4" />
+              Logout
+            </button>
+          </div>
+        </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <Link
@@ -128,13 +171,13 @@ export default function AdminDashboard() {
               Add New Offer
             </Link>
             <Link
-              href="/networks"
+              href="/admin/networks"
               className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
             >
               View Networks
             </Link>
             <Link
-              href="/offers"
+              href="/admin/offers/list"
               className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition"
             >
               View Offers
