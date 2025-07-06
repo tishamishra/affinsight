@@ -1,25 +1,29 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 
-const tabs = [
-  { label: "Offers" },
-  { label: "Affiliate Networks" },
-  { label: "Pay Per Call" },
-  { label: "Traffic Sources" },
-];
+interface Tab {
+  id: string;
+  label: string;
+  icon?: string;
+}
 
-export default function Tabs() {
-  const [activeTab, setActiveTab] = useState(tabs[0].label);
+interface TabsProps {
+  tabs: Tab[];
+  activeTab: string;
+  onTabChange: (tabId: string) => void;
+}
+
+export default function Tabs({ tabs, activeTab, onTabChange }: TabsProps) {
   return (
     <div className="mb-6">
       <div className="flex gap-2 border-b border-gray-200">
         {tabs.map((tab) => (
           <button
-            key={tab.label}
-            onClick={() => setActiveTab(tab.label)}
+            key={tab.id}
+            onClick={() => onTabChange(tab.id)}
             className={`px-4 py-2 text-sm font-medium rounded-t-md border-b-2 transition-colors focus:outline-none ${
-              activeTab === tab.label
+              activeTab === tab.id
                 ? "border-blue-600 text-blue-700 bg-blue-50"
                 : "border-transparent text-gray-600 hover:bg-gray-100"
             }`}

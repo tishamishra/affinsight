@@ -1,135 +1,97 @@
-import ContactForm from "@/components/ContactForm";
-import { FiMail, FiPhone, FiMapPin, FiClock } from "react-icons/fi";
+"use client";
+import { useState } from 'react';
+import ContactForm from '@/components/ContactForm';
 
 export default function ContactPage() {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-      {/* Hero Section */}
-      <div className="bg-white border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Contact Us
-            </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Have questions about our affiliate networks or need support? 
-              We're here to help you succeed in your affiliate marketing journey.
-            </p>
-          </div>
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
+  const handleSubmit = async (formData: any) => {
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setIsSubmitted(true);
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.error}`);
+      }
+    } catch (error) {
+      alert('Failed to send message. Please try again.');
+    }
+  };
+
+  if (isSubmitted) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
+          <div className="text-green-600 text-6xl mb-4">✓</div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Message Sent!</h1>
+          <p className="text-gray-600 mb-6">
+            Thank you for contacting us. We'll get back to you as soon as possible.
+          </p>
+          <button
+            onClick={() => setIsSubmitted(false)}
+            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Send Another Message
+          </button>
         </div>
       </div>
+    );
+  }
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Contact Form */}
-          <div>
-            <ContactForm />
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Contact Us
+          </h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Have questions about affiliate networks or need help getting started? 
+            We're here to help! Send us a message and we'll get back to you.
+          </p>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-lg p-8">
+          <ContactForm onSubmit={handleSubmit} />
+        </div>
+
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="text-center">
+            <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Email</h3>
+            <p className="text-gray-600">contact@affinsight.com</p>
           </div>
 
-          {/* Contact Information */}
-          <div className="space-y-8">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                Get in Touch
-              </h2>
-              <p className="text-gray-600 mb-8">
-                We're committed to providing excellent support to our affiliate partners. 
-                Reach out to us through any of the channels below.
-              </p>
+          <div className="text-center">
+            <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Response Time</h3>
+            <p className="text-gray-600">Within 24 hours</p>
+          </div>
 
-            <div className="space-y-6">
-              {/* Email */}
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <FiMail className="w-6 h-6 text-indigo-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-1">Email Support</h3>
-                  <p className="text-gray-600 mb-2">support@affinsight.com</p>
-                  <p className="text-sm text-gray-500">
-                    We typically respond within 24 hours
-                  </p>
-                </div>
-              </div>
-
-              {/* Phone */}
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <FiPhone className="w-6 h-6 text-green-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-1">Phone Support</h3>
-                  <p className="text-gray-600 mb-2">+1 (555) 123-4567</p>
-                  <p className="text-sm text-gray-500">
-                    Available Monday-Friday, 9AM-6PM EST
-                  </p>
-                </div>
-              </div>
-
-              {/* Address */}
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <FiMapPin className="w-6 h-6 text-purple-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-1">Office Address</h3>
-                  <p className="text-gray-600 mb-2">
-                    123 Affiliate Street<br />
-                    Marketing City, MC 12345<br />
-                    United States
-                  </p>
-                </div>
-              </div>
-
-              {/* Hours */}
-              <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <FiClock className="w-6 h-6 text-orange-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-1">Business Hours</h3>
-                  <p className="text-gray-600 mb-2">
-                    Monday - Friday: 9:00 AM - 6:00 PM EST<br />
-                    Saturday: 10:00 AM - 4:00 PM EST<br />
-                    Sunday: Closed
-                  </p>
-                </div>
-              </div>
+          <div className="text-center">
+            <div className="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+              </svg>
             </div>
-
-            {/* FAQ Section */}
-            <div className="bg-gray-50 rounded-2xl p-6 mt-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Frequently Asked Questions
-              </h3>
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-1">
-                    How do I join an affiliate network?
-                  </h4>
-                  <p className="text-sm text-gray-600">
-                    Simply browse our networks, click on one that interests you, and follow their registration process.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-1">
-                    What commission rates can I expect?
-                  </h4>
-                  <p className="text-sm text-gray-600">
-                    Commission rates vary by network and offer type, typically ranging from $5 to $50 per conversion.
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-1">
-                    How often do you add new networks?
-                  </h4>
-                  <p className="text-sm text-gray-600">
-                    We regularly review and add new affiliate networks to ensure you have access to the best opportunities.
-                  </p>
-                </div>
-              </div>
-            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Support</h3>
+            <p className="text-gray-600">Expert guidance</p>
           </div>
         </div>
       </div>

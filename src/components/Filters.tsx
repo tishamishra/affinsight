@@ -3,77 +3,103 @@
 import { Listbox } from "@headlessui/react";
 import { useState } from "react";
 
-const networks = ["All Networks", "ClickBank", "AdCombo", "Mobidea"];
-const categories = ["All Categories", "Finance", "Health", "Ecommerce"];
-const countries = ["All Countries", "USA", "UK", "India", "Canada"];
+interface FiltersProps {
+  categories: string[];
+  countries: string[];
+  selectedCategory: string;
+  selectedCountries: string[];
+  searchTerm: string;
+  onCategoryChange: (category: string) => void;
+  onCountriesChange: (countries: string[]) => void;
+  onSearchChange: (term: string) => void;
+}
 
-export default function Filters() {
-  const [selectedNetwork, setSelectedNetwork] = useState(networks[0]);
-  const [selectedCategory, setSelectedCategory] = useState(categories[0]);
-  const [selectedCountry, setSelectedCountry] = useState(countries[0]);
-
+export default function Filters({
+  categories,
+  countries,
+  selectedCategory,
+  selectedCountries,
+  searchTerm,
+  onCategoryChange,
+  onCountriesChange,
+  onSearchChange
+}: FiltersProps) {
   return (
-    <div className="flex flex-wrap gap-4 mb-6">
-      <Listbox value={selectedNetwork} onChange={setSelectedNetwork}>
-        <div className="relative">
-          <Listbox.Button className="w-44 px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm text-left cursor-pointer">
-            {selectedNetwork}
-          </Listbox.Button>
-          <Listbox.Options className="absolute mt-1 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-            {networks.map((network) => (
-              <Listbox.Option
-                key={network}
-                value={network}
-                className={({ active }) =>
-                  `px-4 py-2 cursor-pointer ${active ? "bg-blue-100 text-blue-700" : ""}`
-                }
-              >
-                {network}
-              </Listbox.Option>
-            ))}
-          </Listbox.Options>
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {/* Search */}
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Search Networks
+          </label>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => onSearchChange(e.target.value)}
+            placeholder="Search by name or description..."
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          />
         </div>
-      </Listbox>
-      <Listbox value={selectedCategory} onChange={setSelectedCategory}>
-        <div className="relative">
-          <Listbox.Button className="w-44 px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm text-left cursor-pointer">
-            {selectedCategory}
-          </Listbox.Button>
-          <Listbox.Options className="absolute mt-1 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-            {categories.map((category) => (
-              <Listbox.Option
-                key={category}
-                value={category}
-                className={({ active }) =>
-                  `px-4 py-2 cursor-pointer ${active ? "bg-blue-100 text-blue-700" : ""}`
-                }
-              >
-                {category}
-              </Listbox.Option>
-            ))}
-          </Listbox.Options>
+
+        {/* Category Filter */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Category
+          </label>
+          <Listbox value={selectedCategory} onChange={onCategoryChange}>
+            <div className="relative">
+              <Listbox.Button className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm text-left cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                {selectedCategory === 'all' ? 'All Categories' : selectedCategory}
+              </Listbox.Button>
+              <Listbox.Options className="absolute mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-60 overflow-auto">
+                {categories.map((category) => (
+                  <Listbox.Option
+                    key={category}
+                    value={category}
+                    className={({ active }) =>
+                      `px-3 py-2 cursor-pointer ${active ? "bg-blue-100 text-blue-700" : "text-gray-900"}`
+                    }
+                  >
+                    {category === 'all' ? 'All Categories' : category}
+                  </Listbox.Option>
+                ))}
+              </Listbox.Options>
+            </div>
+          </Listbox>
         </div>
-      </Listbox>
-      <Listbox value={selectedCountry} onChange={setSelectedCountry}>
-        <div className="relative">
-          <Listbox.Button className="w-44 px-4 py-2 bg-white border border-gray-200 rounded-lg shadow-sm text-left cursor-pointer">
-            {selectedCountry}
-          </Listbox.Button>
-          <Listbox.Options className="absolute mt-1 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-            {countries.map((country) => (
-              <Listbox.Option
-                key={country}
-                value={country}
-                className={({ active }) =>
-                  `px-4 py-2 cursor-pointer ${active ? "bg-blue-100 text-blue-700" : ""}`
+
+        {/* Countries Filter */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Countries
+          </label>
+          <Listbox value={selectedCountries} onChange={onCountriesChange} multiple>
+            <div className="relative">
+              <Listbox.Button className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg shadow-sm text-left cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                {selectedCountries.length === 0 
+                  ? 'All Countries' 
+                  : selectedCountries.length === 1 
+                    ? selectedCountries[0] 
+                    : `${selectedCountries.length} countries selected`
                 }
-              >
-                {country}
-              </Listbox.Option>
-            ))}
-          </Listbox.Options>
+              </Listbox.Button>
+              <Listbox.Options className="absolute mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-60 overflow-auto">
+                {countries.map((country) => (
+                  <Listbox.Option
+                    key={country}
+                    value={country}
+                    className={({ active }) =>
+                      `px-3 py-2 cursor-pointer ${active ? "bg-blue-100 text-blue-700" : "text-gray-900"}`
+                    }
+                  >
+                    {country}
+                  </Listbox.Option>
+                ))}
+              </Listbox.Options>
+            </div>
+          </Listbox>
         </div>
-      </Listbox>
+      </div>
     </div>
   );
 } 

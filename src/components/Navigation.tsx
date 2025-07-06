@@ -1,74 +1,76 @@
 "use client";
-
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useState } from "react";
+import Link from "next/link";
 import { FiMenu, FiX } from "react-icons/fi";
 
-const navLinks = [
-  { href: "/networks", label: "Affiliate Networks" },
-  { href: "/programs", label: "Affiliate Programs" },
-  { href: "/advertising-networks", label: "Advertising Networks" },
-  { href: "/reviews", label: "Reviews" },
-  { href: "/offers", label: "Offers" },
-  { href: "/resources", label: "Resources" },
-  { href: "/blog", label: "Blog" },
+const navigation = [
+  { name: "Home", href: "/" },
+  { name: "Networks", href: "/networks" },
+  { name: "Offers", href: "/offers" },
+  { name: "Resources", href: "/resources" },
+  { name: "Reviews", href: "/reviews" },
+  { name: "Contact", href: "/contact" },
 ];
 
 export default function Navigation() {
-  const pathname = usePathname();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="flex items-center justify-between w-full max-w-screen-2xl mx-auto px-2 md:px-6 h-14">
-      <div className="font-bold text-xl text-blue-700 tracking-tight">Affinsight</div>
-      
-      {/* Desktop Menu */}
-      <ul className="hidden md:flex gap-2 lg:gap-4 xl:gap-6">
-        {navLinks.map((link) => (
-          <li key={link.href}>
-            <Link
-              href={link.href}
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors hover:bg-blue-50 hover:text-blue-700 ${
-                pathname.startsWith(link.href) ? "bg-blue-100 text-blue-700" : "text-gray-700"
-              }`}
-            >
-              {link.label}
+    <nav className="bg-white shadow-sm border-b border-gray-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          <div className="flex items-center">
+            <Link href="/" className="flex-shrink-0">
+              <h1 className="text-2xl font-bold text-blue-600">AffinSight</h1>
             </Link>
-          </li>
-        ))}
-      </ul>
+          </div>
 
-      {/* Mobile Menu Button */}
-      <button
-        className="md:hidden p-2 text-gray-700 hover:text-blue-700 transition"
-        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-      >
-        {isMobileMenuOpen ? <FiX className="text-xl" /> : <FiMenu className="text-xl" />}
-      </button>
-
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="absolute top-full left-0 right-0 bg-white border-b border-gray-200 shadow-lg md:hidden z-50">
-          <ul className="px-4 py-2 space-y-1">
-            {navLinks.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className={`block px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    pathname.startsWith(link.href) 
-                      ? "bg-blue-100 text-blue-700" 
-                      : "text-gray-700 hover:bg-gray-100"
-                  }`}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {link.label}
-                </Link>
-              </li>
+          {/* Desktop navigation */}
+          <div className="hidden md:flex md:items-center md:space-x-8">
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium transition-colors"
+              >
+                {item.name}
+              </Link>
             ))}
-          </ul>
+          </div>
+
+          {/* Mobile menu button */}
+          <div className="md:hidden flex items-center">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="text-gray-700 hover:text-blue-600 p-2"
+            >
+              {mobileMenuOpen ? (
+                <FiX className="h-6 w-6" />
+              ) : (
+                <FiMenu className="h-6 w-6" />
+              )}
+            </button>
+          </div>
         </div>
-      )}
+
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden">
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-gray-200">
+              {navigation.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="text-gray-700 hover:text-blue-600 block px-3 py-2 text-base font-medium transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </nav>
   );
 } 

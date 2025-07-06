@@ -10,7 +10,11 @@ interface ContactFormData {
   message: string;
 }
 
-export default function ContactForm() {
+interface ContactFormProps {
+  onSubmit: (formData: ContactFormData) => Promise<void>;
+}
+
+export default function ContactForm({ onSubmit }: ContactFormProps) {
   const [formData, setFormData] = useState<ContactFormData>({
     name: "",
     email: "",
@@ -18,7 +22,6 @@ export default function ContactForm() {
     message: ""
   });
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,24 +30,10 @@ export default function ContactForm() {
     setError("");
 
     try {
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccess(true);
-        setFormData({ name: "", email: "", subject: "", message: "" });
-      } else {
-        setError(data.error || 'Failed to send message');
-      }
+      await onSubmit(formData);
+      setFormData({ name: "", email: "", subject: "", message: "" });
     } catch (err) {
-      setError('Network error. Please try again.');
+      setError('Failed to send message. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -56,26 +45,6 @@ export default function ContactForm() {
       [e.target.name]: e.target.value
     }));
   };
-
-  if (success) {
-    return (
-      <div className="bg-green-50 border border-green-200 rounded-2xl p-6 text-center">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <FiSend className="w-8 h-8 text-green-600" />
-        </div>
-        <h3 className="text-lg font-semibold text-green-900 mb-2">Message Sent!</h3>
-        <p className="text-green-700 mb-4">
-          Thank you for your message. We'll get back to you as soon as possible.
-        </p>
-        <button
-          onClick={() => setSuccess(false)}
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-        >
-          Send Another Message
-        </button>
-      </div>
-    );
-  }
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">

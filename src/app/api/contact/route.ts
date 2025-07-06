@@ -3,7 +3,8 @@ import { supabase } from '@/lib/supabase';
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, subject, message } = await request.json();
+    const body = await request.json();
+    const { name, email, subject, message } = body;
 
     // Validate required fields
     if (!name || !email || !subject || !message) {
@@ -22,25 +23,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Insert the message into the messages table
+    // Insert contact form submission into Supabase
     const { data, error } = await supabase
-      .from('messages')
+      .from('contact_submissions')
       .insert([
         {
           name,
           email,
           subject,
           message,
-          read: false,
           created_at: new Date().toISOString()
         }
       ])
       .select();
 
     if (error) {
-      console.error('Error inserting message:', error);
+      console.error('Supabase error:', error);
       return NextResponse.json(
-        { error: 'Failed to save message' },
+        { error: 'Failed to submit contact form' },
         { status: 500 }
       );
     }
@@ -48,10 +48,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { 
         success: true, 
-        message: 'Message sent successfully',
-        data: data[0]
+        message: 'Contact form submitted successfully',
+        data 
       },
-      { status: 201 }
+      { status: 200 }
     );
 
   } catch (error) {
