@@ -6,10 +6,8 @@ import OffersSection from '@/components/OffersSection';
 import { getFeaturedNetworks, getAllNetworks } from '@/lib/networks-loader';
 import { getAllOffers } from '@/lib/offers-loader';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 
 export default function HomePage() {
-  const router = useRouter();
   const allNetworks = getAllNetworks();
   const allOffers = getAllOffers();
   // Merge networks from offers
@@ -35,18 +33,15 @@ export default function HomePage() {
   const mergedNetworks = [...allNetworks, ...placeholderNetworks];
   const [filteredNetworks, setFilteredNetworks] = useState<typeof mergedNetworks>([]);
 
-  // Separate Ad Gain Media and shuffle other networks
+  // Separate Ad Gain Media and shuffle other networks, limit to 20 for homepage
   useEffect(() => {
     const adGainMedia = mergedNetworks.find(network => network.name === "Ad Gain Media");
     const otherNetworks = mergedNetworks.filter(network => network.name !== "Ad Gain Media");
     const shuffledNetworks = [...otherNetworks].sort(() => Math.random() - 0.5);
     const arrangedNetworks = adGainMedia ? [adGainMedia, ...shuffledNetworks] : shuffledNetworks;
-    setFilteredNetworks(arrangedNetworks);
+    // Limit to 20 networks for homepage
+    setFilteredNetworks(arrangedNetworks.slice(0, 20));
   }, [mergedNetworks]);
-
-  const handleViewAllNetworks = () => {
-    router.push('/networks');
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -68,20 +63,20 @@ export default function HomePage() {
           onFilterChange={setFilteredNetworks} 
         />
         
-        <NetworkList networks={filteredNetworks} />
+        <NetworkList networks={filteredNetworks} itemsPerPage={20} />
         
         <div className="text-center mt-12">
-          <button 
-            onClick={handleViewAllNetworks}
-            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer"
+          <a 
+            href="/networks" 
+            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg"
           >
             View All Networks
-          </button>
+          </a>
         </div>
       </div>
 
       {/* Offers Section */}
-      <OffersSection offers={allOffers} networks={mergedNetworks} />
+      <OffersSection offers={allOffers.slice(0, 25)} networks={mergedNetworks} />
     </div>
   );
 }

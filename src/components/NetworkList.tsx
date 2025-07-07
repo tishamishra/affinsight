@@ -1,6 +1,5 @@
 "use client";
 import { useState, useRef } from "react";
-import { useRouter } from "next/navigation";
 import { Network } from "@/data/networks";
 import { FiChevronUp, FiChevronDown, FiExternalLink, FiStar } from "react-icons/fi";
 
@@ -13,7 +12,6 @@ type SortField = "name" | "description" | "offers_count" | "rating";
 type SortDirection = "asc" | "desc";
 
 export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkListProps) {
-  const router = useRouter();
   const [sortField, setSortField] = useState<SortField>("name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [currentPage, setCurrentPage] = useState(1);
@@ -27,10 +25,6 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
       setSortDirection("asc");
     }
     setCurrentPage(1); // Reset to first page when sorting
-  };
-
-  const handleViewDetails = (networkId: string) => {
-    router.push(`/network/${networkId}`);
   };
 
   const sortedNetworks = [...networks].sort((a, b) => {
@@ -65,11 +59,11 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
     }
   });
 
-  // Pagination
+  // Pagination - only show if itemsPerPage is less than total networks
   const totalPages = Math.ceil(sortedNetworks.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentNetworks = sortedNetworks.slice(startIndex, endIndex);
+  const currentNetworks = itemsPerPage >= sortedNetworks.length ? sortedNetworks : sortedNetworks.slice(startIndex, endIndex);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -157,9 +151,7 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                     <SortIcon field="offers_count" />
                   </button>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-amber-200">
@@ -231,12 +223,12 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleViewDetails(network.id)}
+                      <a
+                        href={`/network/${network.id}`}
                         className="text-amber-600 hover:text-amber-800 transition-colors"
                       >
                         View Details
-                      </button>
+                      </a>
                       <a
                         href={network.website}
                         target="_blank"
@@ -312,12 +304,12 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                       {network.offers_count?.toLocaleString() || "N/A"} offers
                     </div>
                     <div className="flex space-x-1">
-                      <button
-                        onClick={() => handleViewDetails(network.id)}
+                      <a
+                        href={`/network/${network.id}`}
                         className="text-xs text-amber-600 hover:text-amber-800 font-medium"
                       >
                         Details
-                      </button>
+                      </a>
                       <a
                         href={network.website}
                         target="_blank"
@@ -335,8 +327,8 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
         </div>
       </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
+      {/* Pagination - only show if there are more items than itemsPerPage */}
+      {totalPages > 1 && itemsPerPage < sortedNetworks.length && (
         <div className="flex items-center justify-between bg-white px-4 py-3 border border-amber-200 rounded-lg">
           <div className="flex-1 flex justify-between sm:hidden">
             <button

@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { FiSearch, FiTrendingUp } from "react-icons/fi";
-import { useRouter } from "next/navigation";
 import { getNetworkById, getFeaturedNetworks } from "@/lib/networks-loader";
 import networksData from "@/data/networks.json";
 
@@ -18,7 +17,6 @@ const searchSuggestions = [
 export default function Hero() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const router = useRouter();
   const trendingNetworks = getFeaturedNetworks(5);
 
   // Load all network names and ids
@@ -30,24 +28,16 @@ export default function Hero() {
   const handleSuggestionClick = (network: { id: string; name: string }) => {
     setSearchQuery(network.name);
     setShowSuggestions(false);
-    try {
-      router.push(`/network/${network.id}`);
-    } catch (error) {
-      console.error('Navigation error:', error);
-      window.location.href = `/network/${network.id}`;
-    }
+    // Use regular navigation like the offers section
+    window.location.href = `/network/${network.id}`;
   };
 
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const match = allNetworks.find(n => n.name.toLowerCase() === searchQuery.toLowerCase());
     if (match) {
-      try {
-        router.push(`/network/${match.id}`);
-      } catch (error) {
-        console.error('Navigation error:', error);
-        window.location.href = `/network/${match.id}`;
-      }
+      // Use regular navigation like the offers section
+      window.location.href = `/network/${match.id}`;
     }
   };
 
@@ -56,12 +46,8 @@ export default function Hero() {
   );
 
   const handleTrendingNetworkClick = (networkId: string) => {
-    try {
-      router.push(`/network/${networkId}`);
-    } catch (error) {
-      console.error('Navigation error:', error);
-      window.location.href = `/network/${networkId}`;
-    }
+    // Use regular navigation like the offers section
+    window.location.href = `/network/${networkId}`;
   };
 
   return (
