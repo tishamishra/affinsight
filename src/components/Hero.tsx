@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { FiSearch, FiTrendingUp } from "react-icons/fi";
-import { getNetworkById, getFeaturedNetworks } from "@/lib/networks-loader";
+import { getNetworkById, getFeaturedNetworks, getNetworkSlug } from "@/lib/networks-loader";
 import networksData from "@/data/networks.json";
 
 const searchSuggestions = [
@@ -28,16 +28,16 @@ export default function Hero() {
   const handleSuggestionClick = (network: { id: string; name: string }) => {
     setSearchQuery(network.name);
     setShowSuggestions(false);
-    // Use regular navigation like the offers section
-    window.location.href = `/network/${network.id}`;
+    // Use network slug for navigation
+    window.location.href = `/network/${getNetworkSlug(network.name)}`;
   };
 
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const match = allNetworks.find(n => n.name.toLowerCase() === searchQuery.toLowerCase());
     if (match) {
-      // Use regular navigation like the offers section
-      window.location.href = `/network/${match.id}`;
+      // Use network slug for navigation
+      window.location.href = `/network/${getNetworkSlug(match.name)}`;
     }
   };
 
@@ -46,8 +46,11 @@ export default function Hero() {
   );
 
   const handleTrendingNetworkClick = (networkId: string) => {
-    // Use regular navigation like the offers section
-    window.location.href = `/network/${networkId}`;
+    // Find network by ID and use its name for slug
+    const network = getNetworkById(networkId);
+    if (network) {
+      window.location.href = `/network/${getNetworkSlug(network.name)}`;
+    }
   };
 
   return (

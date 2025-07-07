@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { FiExternalLink, FiDollarSign, FiMapPin, FiTag, FiChevronLeft, FiChevronRight, FiChevronUp, FiChevronDown } from "react-icons/fi";
+import { getNetworkSlug } from "@/lib/networks-loader";
 
 interface Offer {
   id: string;
@@ -206,7 +208,12 @@ export default function OffersSection({ offers, networks, showPagination = true,
                           <span className="text-amber-600 font-semibold text-sm">{offer.network.charAt(0)}</span>
                         </div>
                       )}
-                      <span className="text-gray-900 font-medium">{offer.network}</span>
+                      <Link
+                        href={`/network/${getNetworkSlug(offer.network)}`}
+                        className="text-gray-900 font-medium hover:text-amber-600 transition-colors cursor-pointer"
+                      >
+                        {offer.network}
+                      </Link>
                     </div>
                   </td>
                   <td className="px-4 py-3 whitespace-nowrap">
@@ -277,7 +284,12 @@ export default function OffersSection({ offers, networks, showPagination = true,
                         </div>
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900">{offer.network}</h3>
+                        <Link
+                          href={`/network/${getNetworkSlug(offer.network)}`}
+                          className="font-semibold text-gray-900 hover:text-amber-600 transition-colors cursor-pointer"
+                        >
+                          {offer.network}
+                        </Link>
                         <p className="text-sm text-gray-500">Network</p>
                       </div>
                     </div>

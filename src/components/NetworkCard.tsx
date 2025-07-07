@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { FiStar, FiGlobe, FiExternalLink } from "react-icons/fi";
 import { Network } from "@/types";
 import { getNetworkLogo } from "@/lib/supabase-logos";
+import { getNetworkSlug } from "@/lib/networks-loader";
 import { useState, useEffect } from "react";
 
 interface NetworkCardProps {
@@ -47,7 +49,12 @@ export default function NetworkCard({ network }: NetworkCardProps) {
             )}
           </div>
           <div>
-            <h3 className="font-semibold text-lg text-gray-900">{network.name}</h3>
+            <Link
+              href={`/network/${getNetworkSlug(network.name)}`}
+              className="font-semibold text-lg text-gray-900 hover:text-blue-600 transition-colors cursor-pointer"
+            >
+              {network.name}
+            </Link>
             <div className="flex items-center gap-1">
               <FiStar className="text-yellow-400 text-sm" />
               <span className="text-sm text-gray-600">{network.rating}</span>
@@ -76,9 +83,12 @@ export default function NetworkCard({ network }: NetworkCardProps) {
           <FiExternalLink />
           Visit Site
         </a>
-        <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition">
+        <Link
+          href={`/network/${getNetworkSlug(network.name)}`}
+          className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition"
+        >
           View Details
-        </button>
+        </Link>
       </div>
     </div>
   );

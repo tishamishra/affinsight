@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { FiStar, FiUsers, FiGlobe, FiDollarSign } from "react-icons/fi";
 import { type Network } from "@/data/networks";
+import { getNetworkSlug } from "@/lib/networks-loader";
 
 interface NetworkGridProps {
   networks: Network[];
@@ -38,7 +40,12 @@ export default function NetworkGrid({ networks }: NetworkGridProps) {
                 </div>
               )}
               <div>
-                <h3 className="font-semibold text-lg text-gray-900">{network.name}</h3>
+                <Link
+                  href={`/network/${getNetworkSlug(network.name)}`}
+                  className="font-semibold text-lg text-gray-900 hover:text-blue-600 transition-colors cursor-pointer"
+                >
+                  {network.name}
+                </Link>
                 <div className="flex items-center gap-1">
                   <FiStar className="text-yellow-400 text-sm" />
                   <span className="text-sm text-gray-600">{network.rating}</span>
@@ -78,7 +85,7 @@ export default function NetworkGrid({ networks }: NetworkGridProps) {
           
           <div className="flex gap-2">
             <a 
-              href={`/network/${network.id}`}
+              href={`/network/${getNetworkSlug(network.name)}`}
               className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-blue-700 transition text-center"
             >
               View Details

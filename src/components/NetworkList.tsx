@@ -1,7 +1,9 @@
 "use client";
 import { useState, useRef } from "react";
+import Link from "next/link";
 import { Network } from "@/data/networks";
 import { FiChevronUp, FiChevronDown, FiExternalLink, FiStar } from "react-icons/fi";
+import { getNetworkSlug } from "@/lib/networks-loader";
 
 interface NetworkListProps {
   networks: Network[];
@@ -187,9 +189,12 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                       </div>
                       <div className="ml-4">
                         <div className="flex items-center gap-2">
-                          <div className="text-sm font-medium text-gray-900">
+                          <Link 
+                            href={`/network/${getNetworkSlug(network.name)}`}
+                            className="text-sm font-medium text-gray-900 hover:text-amber-600 transition-colors cursor-pointer"
+                          >
                             {network.name}
-                          </div>
+                          </Link>
                           {network.name === "Ad Gain Media" && (
                             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-400 to-yellow-600 text-white shadow-sm">
                               Sponsored
@@ -224,7 +229,7 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
                       <a
-                        href={`/network/${network.id}`}
+                        href={`/network/${getNetworkSlug(network.name)}`}
                         className="text-amber-600 hover:text-amber-800 transition-colors"
                       >
                         View Details
@@ -283,9 +288,12 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-sm font-semibold text-gray-900 truncate">
+                    <Link
+                      href={`/network/${getNetworkSlug(network.name)}`}
+                      className="text-sm font-semibold text-gray-900 truncate hover:text-amber-600 transition-colors cursor-pointer"
+                    >
                       {network.name}
-                    </h3>
+                    </Link>
                     {network.name === "Ad Gain Media" && (
                       <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-400 to-yellow-600 text-white">
                         Sponsored
@@ -305,7 +313,7 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                     </div>
                     <div className="flex space-x-1">
                       <a
-                        href={`/network/${network.id}`}
+                        href={`/network/${getNetworkSlug(network.name)}`}
                         className="text-xs text-amber-600 hover:text-amber-800 font-medium"
                       >
                         Details

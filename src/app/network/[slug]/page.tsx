@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { FiStar, FiUsers, FiGlobe, FiDollarSign, FiCalendar, FiExternalLink } from "react-icons/fi";
-import { getNetworkById } from "@/lib/networks-loader";
+import { getNetworkByName } from "@/lib/networks-loader";
 import { Network } from "@/data/networks";
 
 export default function NetworkDetailPage() {
@@ -17,8 +17,7 @@ export default function NetworkDetailPage() {
       try {
         setLoading(true);
         const slug = params?.slug as string;
-        const networkId = slug; // Assuming slug is the network ID
-        const data = getNetworkById(networkId);
+        const data = getNetworkByName(slug);
         if (data) {
           setNetwork(data);
         } else {
