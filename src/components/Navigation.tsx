@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FiMenu, FiX } from "react-icons/fi";
 
 const navigation = [
@@ -15,6 +16,24 @@ const navigation = [
 
 export default function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const router = useRouter();
+
+  const handleLinkClick = (href: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    console.log('Navigation link clicked:', href);
+    
+    try {
+      // Close mobile menu if open
+      setMobileMenuOpen(false);
+      
+      // Use router.push for programmatic navigation
+      router.push(href);
+    } catch (error) {
+      console.error('Navigation error:', error);
+      // Fallback to window.location if router fails
+      window.location.href = href;
+    }
+  };
 
   return (
     <nav className="bg-white shadow-sm border-b border-amber-200">
@@ -29,13 +48,14 @@ export default function Navigation() {
           {/* Desktop navigation */}
           <div className="hidden md:flex md:items-center md:space-x-8">
             {navigation.map((item) => (
-              <Link
+              <a
                 key={item.name}
                 href={item.href}
-                className="text-gray-700 hover:text-amber-600 px-3 py-2 text-sm font-medium transition-colors"
+                className="text-gray-700 hover:text-amber-600 px-3 py-2 text-sm font-medium transition-colors cursor-pointer"
+                onClick={(e) => handleLinkClick(item.href, e)}
               >
                 {item.name}
-              </Link>
+              </a>
             ))}
           </div>
 
@@ -59,14 +79,14 @@ export default function Navigation() {
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-amber-200">
               {navigation.map((item) => (
-                <Link
+                <a
                   key={item.name}
                   href={item.href}
-                  className="text-gray-700 hover:text-amber-600 block px-3 py-2 text-base font-medium transition-colors"
-                  onClick={() => setMobileMenuOpen(false)}
+                  className="text-gray-700 hover:text-amber-600 block px-3 py-2 text-base font-medium transition-colors cursor-pointer"
+                  onClick={(e) => handleLinkClick(item.href, e)}
                 >
                   {item.name}
-                </Link>
+                </a>
               ))}
             </div>
           </div>
