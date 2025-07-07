@@ -41,19 +41,6 @@ export const offers: Offer[] = [
     restrictions: ["No incentive traffic", "Must follow FTC guidelines"]
   },
   {
-    id: "3",
-    title: "ShareASale Fashion",
-    network_id: "3",
-    network_name: "ShareASale",
-    category: "Fashion",
-    commission: "5-20%",
-    payout: "$15-75 per sale",
-    countries: ["US", "UK", "CA"],
-    description: "Fashion and lifestyle offers from top brands",
-    requirements: ["Fashion-focused content", "Authentic audience"],
-    restrictions: ["No coupon stacking", "Must disclose affiliate relationship"]
-  },
-  {
     id: "4",
     title: "Awin Travel Offers",
     network_id: "5",

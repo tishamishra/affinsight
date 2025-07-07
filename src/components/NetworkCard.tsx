@@ -1,17 +1,50 @@
 import { FiStar, FiGlobe, FiExternalLink } from "react-icons/fi";
 import { Network } from "@/types";
+import { getNetworkLogo } from "@/lib/supabase-logos";
+import { useState, useEffect } from "react";
 
 interface NetworkCardProps {
   network: Network;
 }
 
 export default function NetworkCard({ network }: NetworkCardProps) {
+  const [logoUrl, setLogoUrl] = useState<string>('/logos/placeholder.png');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchLogo = async () => {
+      try {
+        setIsLoading(true);
+        const logo = await getNetworkLogo(network.name, network.logo);
+        setLogoUrl(logo);
+      } catch (error) {
+        console.error('Error fetching logo for', network.name, error);
+        setLogoUrl('/logos/placeholder.png');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchLogo();
+  }, [network.name, network.logo]);
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-lg transition-all duration-200">
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
-            {network.name.charAt(0)}
+          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-lg overflow-hidden">
+            {isLoading ? (
+              <div className="animate-pulse bg-gray-300 w-full h-full rounded-lg"></div>
+            ) : logoUrl !== '/logos/placeholder.png' ? (
+              <img 
+                src={logoUrl} 
+                alt={`${network.name} logo`}
+                className="w-full h-full object-cover rounded-lg"
+                onError={() => setLogoUrl('/logos/placeholder.png')}
+              />
+            ) : (
+              network.name.charAt(0)
+            )}
           </div>
           <div>
             <h3 className="font-semibold text-lg text-gray-900">{network.name}</h3>

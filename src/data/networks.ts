@@ -49,22 +49,6 @@ export const networks: Network[] = [
     offers_count: 50000
   },
   {
-    id: "3",
-    name: "ShareASale",
-    website: "https://www.shareasale.com",
-    category: "General",
-    rating: 4.0,
-    countries: ["US", "UK", "CA"],
-    logo_url: undefined,
-    description: "Popular affiliate network with thousands of merchants",
-    commission_rate: "5-20%",
-    payment_methods: ["Check", "Direct Deposit"],
-    minimum_payout: "$50",
-    tracking_software: "Everflow",
-    payment_frequency: "Weekly",
-    offers_count: 25000
-  },
-  {
     id: "4",
     name: "Commission Junction",
     website: "https://www.cj.com",
@@ -198,47 +182,15 @@ export const networks: Network[] = [
     website: "https://www.webmoney.com",
     category: "General",
     rating: 3.9,
-    countries: ["US", "UK", "RU", "DE"],
+    countries: ["US", "UK", "CA"],
     logo_url: undefined,
-    description: "International payment system with global reach",
+    description: "Digital payment network with global reach",
     commission_rate: "5-25%",
     payment_methods: ["Check", "Direct Deposit", "WebMoney"],
     minimum_payout: "$50",
-    tracking_software: "Everflow",
-    payment_frequency: "Net-15",
-    offers_count: 22000
-  },
-  {
-    id: "13",
-    name: "Skrill Network",
-    website: "https://www.skrill.com",
-    category: "General",
-    rating: 4.1,
-    countries: ["US", "UK", "CA", "AU", "DE"],
-    logo_url: undefined,
-    description: "Digital wallet network with instant payments",
-    commission_rate: "5-30%",
-    payment_methods: ["Check", "Direct Deposit", "Skrill"],
-    minimum_payout: "$30",
-    tracking_software: "Offerslook",
-    payment_frequency: "Bi-Weekly",
-    offers_count: 28000
-  },
-  {
-    id: "14",
-    name: "Payza Network",
-    website: "https://www.payza.com",
-    category: "General",
-    rating: 3.8,
-    countries: ["US", "UK", "CA"],
-    logo_url: undefined,
-    description: "Global payment platform with multiple currencies",
-    commission_rate: "5-20%",
-    payment_methods: ["Check", "Direct Deposit", "Payza"],
-    minimum_payout: "$40",
-    tracking_software: "HitPath",
+    tracking_software: "HasOffers",
     payment_frequency: "Net-30",
-    offers_count: 15000
+    offers_count: 25000
   }
 ];
 
