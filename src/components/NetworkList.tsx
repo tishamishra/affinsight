@@ -110,9 +110,10 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
 
   return (
     <div className="space-y-4">
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      {/* Desktop List View */}
+      <div className="hidden lg:block bg-white rounded-lg shadow-sm border border-amber-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
+          <table className="min-w-full divide-y divide-amber-200">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -148,7 +149,7 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white divide-y divide-amber-200">
               {currentNetworks.map((network) => (
                 <tr key={network.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -240,24 +241,105 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
         </div>
       </div>
 
+      {/* Mobile Grid View */}
+      <div className="lg:hidden">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {currentNetworks.map((network) => (
+            <div
+              key={network.id}
+              className="bg-white rounded-lg shadow-sm border border-amber-200 p-4 hover:shadow-md transition-all duration-200"
+            >
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0 h-12 w-12 flex items-center justify-center">
+                  {network.logo_url ? (
+                    <img
+                      src={network.logo_url}
+                      alt={`${network.name} logo`}
+                      className="max-w-full max-h-full object-contain rounded-lg"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const fallback = target.nextElementSibling as HTMLElement;
+                        if (fallback) fallback.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  {/* Fallback */}
+                  <div 
+                    className={`h-12 w-12 bg-amber-100 rounded-lg flex items-center justify-center ${
+                      network.logo_url ? 'hidden' : ''
+                    }`}
+                  >
+                    <span className="text-amber-600 font-semibold text-sm">
+                      {network.name.charAt(0)}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-sm font-semibold text-gray-900 truncate">
+                      {network.name}
+                    </h3>
+                    {network.name === "Ad Gain Media" && (
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-400 to-yellow-600 text-white">
+                        Sponsored
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mb-2">{network.category}</p>
+                  <div className="mb-2">
+                    <StarRating rating={network.rating} />
+                  </div>
+                  <div className="text-xs text-gray-600 mb-2 line-clamp-2">
+                    {network.description}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs text-gray-500">
+                      {network.offers_count?.toLocaleString() || "N/A"} offers
+                    </div>
+                    <div className="flex space-x-1">
+                      <Link
+                        href={`/network/${network.id}`}
+                        className="text-xs text-amber-600 hover:text-amber-800 font-medium"
+                      >
+                        Details
+                      </Link>
+                      <a
+                        href={network.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-gray-600"
+                      >
+                        <FiExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between bg-white px-4 py-3 border border-gray-200 rounded-lg">
+        <div className="flex items-center justify-between bg-white px-4 py-3 border border-amber-200 rounded-lg">
           <div className="flex-1 flex justify-between sm:hidden">
-                              <button
-                    onClick={() => setCurrentPage(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className="relative inline-flex items-center px-4 py-2 border border-amber-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-amber-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Previous
-                  </button>
-                  <button
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className="ml-3 relative inline-flex items-center px-4 py-2 border border-amber-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-amber-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Next
-                  </button>
+            <button
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="relative inline-flex items-center px-4 py-2 border border-amber-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-amber-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="ml-3 relative inline-flex items-center px-4 py-2 border border-amber-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-amber-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
           </div>
           <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
             <div>
@@ -289,13 +371,13 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                     {page}
                   </button>
                 ))}
-                                  <button
-                    onClick={() => setCurrentPage(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-amber-300 bg-white text-sm font-medium text-gray-500 hover:bg-amber-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    Next
-                  </button>
+                <button
+                  onClick={() => setCurrentPage(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-amber-300 bg-white text-sm font-medium text-gray-500 hover:bg-amber-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
               </nav>
             </div>
           </div>
