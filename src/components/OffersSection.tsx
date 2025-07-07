@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { FiExternalLink, FiDollarSign, FiMapPin, FiTag, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiExternalLink, FiDollarSign, FiMapPin, FiTag, FiChevronLeft, FiChevronRight, FiChevronUp, FiChevronDown } from "react-icons/fi";
 
 interface Offer {
   id: string;
@@ -15,6 +15,7 @@ interface Network {
   id: string;
   name: string;
   logo_url?: string;
+  website?: string;
 }
 
 interface OffersSectionProps {
@@ -26,6 +27,8 @@ export default function OffersSection({ offers, networks }: OffersSectionProps) 
   const [selectedVertical, setSelectedVertical] = useState<string>("All");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(20);
+  const [sortField, setSortField] = useState<'default' | 'payout'>('default');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
   // Predefined verticals list
   const verticals = [
@@ -49,9 +52,27 @@ export default function OffersSection({ offers, networks }: OffersSectionProps) 
   ];
 
   // Filter offers based on selected vertical from complete list
-  const filteredOffers = selectedVertical === "All" 
+  let filteredOffers = selectedVertical === "All" 
     ? offers 
     : offers.filter(offer => offer.vertical === selectedVertical);
+
+  // Sorting logic for payout
+  if (sortField === 'payout') {
+    filteredOffers = [...filteredOffers].sort((a, b) => {
+      // Extract numeric value from payout string (e.g., "$45 CPA" -> 45)
+      const getPayoutValue = (payout: string) => {
+        const match = payout.match(/\d+(?:\.\d+)?/);
+        return match ? parseFloat(match[0]) : 0;
+      };
+      const aValue = getPayoutValue(a.payout);
+      const bValue = getPayoutValue(b.payout);
+      if (sortDirection === 'asc') {
+        return aValue - bValue;
+      } else {
+        return bValue - aValue;
+      }
+    });
+  }
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredOffers.length / itemsPerPage);
@@ -64,15 +85,23 @@ export default function OffersSection({ offers, networks }: OffersSectionProps) 
     setCurrentPage(1);
   }, [selectedVertical]);
 
-  // Get network logo by name
-  const getNetworkLogo = (networkName: string) => {
-    const network = networks.find(n => n.name === networkName);
-    return network?.logo_url || null;
+  // Get network logo and website by name
+  const getNetwork = (networkName: string) => {
+    return networks.find(n => n.name === networkName);
   };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSortPayout = () => {
+    if (sortField === 'payout') {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField('payout');
+      setSortDirection('asc');
+    }
   };
 
   return (
@@ -92,7 +121,10 @@ export default function OffersSection({ offers, networks }: OffersSectionProps) 
         {verticals.map((vertical) => (
           <button
             key={vertical}
-            onClick={() => setSelectedVertical(vertical)}
+            onClick={() => {
+              setSelectedVertical(vertical);
+              setSortField('default');
+            }}
             className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 ${
               selectedVertical === vertical
                 ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-md"
@@ -117,75 +149,85 @@ export default function OffersSection({ offers, networks }: OffersSectionProps) 
       </div>
 
       {/* Desktop List View */}
-      <div className="hidden lg:block bg-white rounded-lg shadow-sm border border-amber-200 overflow-hidden mb-8">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-amber-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Offer</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Network</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payout</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-amber-200">
-              {currentOffers.map((offer) => {
-                const networkLogo = getNetworkLogo(offer.network);
-                return (
-                  <tr key={offer.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="font-semibold text-gray-900">{offer.offerName}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        {networkLogo ? (
-                          <img
-                            src={networkLogo}
-                            alt={`${offer.network} logo`}
-                            className="w-8 h-8 object-contain rounded"
-                          />
-                        ) : (
-                          <div className="w-8 h-8 bg-amber-100 rounded flex items-center justify-center">
-                            <span className="text-amber-600 font-semibold text-sm">{offer.network.charAt(0)}</span>
-                          </div>
-                        )}
-                        <span className="text-gray-900 font-medium">{offer.network}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-700">{offer.vertical}</span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-700">{offer.country}</span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-amber-600 font-semibold">{offer.payout}</span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex space-x-2">
-                        <button className="bg-gradient-to-r from-amber-500 to-orange-600 text-white py-1 px-3 rounded font-medium text-xs hover:from-amber-600 hover:to-orange-700 transition-all duration-200">
-                          View Offer
-                        </button>
-                        <button className="p-2 text-amber-600 hover:text-amber-700 border border-amber-200 rounded-lg hover:bg-amber-50 transition-colors">
-                          <FiExternalLink className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+      <div className="hidden lg:block bg-white rounded-lg shadow-sm border border-amber-200 overflow-x-auto mb-8">
+        <table className="min-w-full divide-y divide-amber-200 text-sm">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Offer</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Network</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Category</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">Country</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap cursor-pointer select-none" onClick={handleSortPayout}>
+                <span className="flex items-center gap-1">
+                  Payout
+                  {sortField === 'payout' ? (
+                    sortDirection === 'asc' ? <FiChevronUp className="w-4 h-4 text-amber-600" /> : <FiChevronDown className="w-4 h-4 text-amber-600" />
+                  ) : (
+                    <FiChevronUp className="w-4 h-4 text-gray-300" />
+                  )}
+                </span>
+              </th>
+              <th className="px-2 py-3 text-center font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap" style={{ width: 80 }}>Action</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-amber-200">
+            {currentOffers.map((offer) => {
+              const network = getNetwork(offer.network);
+              const networkLogo = network?.logo_url;
+              return (
+                <tr key={offer.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <div className="font-semibold text-gray-900">{offer.offerName}</div>
+                  </td>
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <div className="flex items-center gap-2">
+                      {networkLogo ? (
+                        <img
+                          src={networkLogo}
+                          alt={`${offer.network} logo`}
+                          className="w-8 h-8 object-contain rounded"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 bg-amber-100 rounded flex items-center justify-center">
+                          <span className="text-amber-600 font-semibold text-sm">{offer.network.charAt(0)}</span>
+                        </div>
+                      )}
+                      <span className="text-gray-900 font-medium">{offer.network}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <span className="text-gray-700">{offer.vertical}</span>
+                  </td>
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <span className="text-gray-700">{offer.country}</span>
+                  </td>
+                  <td className="px-4 py-3 whitespace-nowrap">
+                    <span className="text-amber-600 font-semibold">{offer.payout}</span>
+                  </td>
+                  <td className="px-2 py-3 whitespace-nowrap text-center">
+                    <a
+                      href={network?.website || '#'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded bg-gradient-to-r from-amber-500 to-orange-600 text-white hover:from-amber-600 hover:to-orange-700 transition-all duration-200 shadow-sm"
+                      style={{ minWidth: 0 }}
+                    >
+                      View Offer
+                    </a>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
 
       {/* Mobile Grid View */}
       <div className="lg:hidden">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {currentOffers.map((offer) => {
-            const networkLogo = getNetworkLogo(offer.network);
+            const network = getNetwork(offer.network);
+            const networkLogo = network?.logo_url;
             return (
               <div
                 key={offer.id}
@@ -253,12 +295,14 @@ export default function OffersSection({ offers, networks }: OffersSectionProps) 
 
                   {/* Action Buttons */}
                   <div className="flex space-x-2">
-                    <button className="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 text-white py-2 px-4 rounded-lg font-medium hover:from-amber-600 hover:to-orange-700 transition-all duration-200">
+                    <a
+                      href={network?.website || '#'}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 text-white py-2 px-4 rounded-lg font-medium hover:from-amber-600 hover:to-orange-700 transition-all duration-200 text-center"
+                    >
                       View Offer
-                    </button>
-                    <button className="p-2 text-amber-600 hover:text-amber-700 border border-amber-200 rounded-lg hover:bg-amber-50 transition-colors">
-                      <FiExternalLink className="w-4 h-4" />
-                    </button>
+                    </a>
                   </div>
                 </div>
               </div>
