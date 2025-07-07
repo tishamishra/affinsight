@@ -1,12 +1,25 @@
 "use client";
 
 import React, { useState } from "react";
-import { FiSearch, FiTrendingUp } from "react-icons/fi";
+import { FiSearch, FiTrendingUp, FiStar } from "react-icons/fi";
+import { useRouter } from "next/navigation";
+import { getNetworkById, getFeaturedNetworks } from "@/lib/networks-loader";
 
 const trendingTags = [
   "ClickBank", "AdCombo", "Mobidea", "MaxBounty", "CJ Affiliate", 
   "ShareASale", "Amazon Associates", "Commission Junction", "Awin", "Rakuten"
 ];
+
+// Mapping of trending tag names to network IDs
+const tagToNetworkId: { [key: string]: string } = {
+  "ClickBank": "clickbank",
+  "AdCombo": "adcombo", 
+  "Mobidea": "mobidea",
+  "MaxBounty": "maxbounty",
+  "CJ Affiliate": "cj-affiliate",
+  "Commission Junction": "cj-affiliate",
+  "ShareASale": "shareasale"
+};
 
 const searchSuggestions = [
   "Weight loss offers",
@@ -20,10 +33,26 @@ const searchSuggestions = [
 export default function Hero() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const router = useRouter();
+  const trendingNetworks = getFeaturedNetworks(5);
 
   const filteredSuggestions = searchSuggestions.filter(suggestion =>
     suggestion.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleTrendingTagClick = (tag: string) => {
+    const networkId = tagToNetworkId[tag];
+    if (networkId) {
+      const network = getNetworkById(networkId);
+      if (network) {
+        router.push(`/network/${networkId}`);
+      }
+    }
+  };
+
+  const handleNetworkClick = (networkId: string) => {
+    router.push(`/network/${networkId}`);
+  };
 
   return (
     <section className="relative flex flex-col items-center justify-center py-16 md:py-24 px-4 text-center bg-gradient-to-br from-blue-50 via-white to-purple-50 rounded-3xl shadow-lg overflow-hidden border border-gray-100">
@@ -75,19 +104,66 @@ export default function Hero() {
           )}
         </div>
 
+        {/* Trending Networks Section */}
+        <div className="mb-8">
+          <div className="flex items-center justify-center gap-2 text-lg font-semibold text-gray-700 mb-4">
+            <FiTrendingUp className="text-blue-500" />
+            <span>Trending Networks</span>
+          </div>
+          <div className="flex flex-wrap justify-center gap-4">
+            {trendingNetworks.map((network) => (
+              <button
+                key={network.id}
+                onClick={() => handleNetworkClick(network.id)}
+                className="group flex flex-col items-center p-4 bg-white/80 backdrop-blur-sm rounded-xl border border-gray-200 hover:border-blue-300 transition-all duration-200 shadow-sm hover:shadow-md hover:bg-blue-50/50"
+              >
+                <div className="w-16 h-16 mb-3 flex items-center justify-center">
+                  <img
+                    src={network.logo_url}
+                    alt={`${network.name} logo`}
+                    className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-200"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                    }}
+                  />
+                </div>
+                <h3 className="font-semibold text-gray-900 text-sm mb-1 group-hover:text-blue-600 transition-colors">
+                  {network.name}
+                </h3>
+                <div className="flex items-center gap-1">
+                  <FiStar className="text-yellow-400 text-xs" />
+                  <span className="text-xs text-gray-600">{network.rating}</span>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="flex flex-wrap justify-center gap-3">
           <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
             <FiTrendingUp className="text-blue-500" />
             <span>Trending:</span>
           </div>
-          {trendingTags.map((tag) => (
-            <button
-              key={tag}
-              className="px-4 py-2 bg-white/80 backdrop-blur-sm text-blue-700 rounded-full text-sm font-medium hover:bg-blue-50 border border-blue-100 transition-all duration-200 shadow-sm hover:shadow-md"
-            >
-              #{tag}
-            </button>
-          ))}
+          {trendingTags.map((tag) => {
+            const networkId = tagToNetworkId[tag];
+            const isClickable = networkId && getNetworkById(networkId);
+            
+            return (
+              <button
+                key={tag}
+                onClick={() => handleTrendingTagClick(tag)}
+                disabled={!isClickable}
+                className={`px-4 py-2 bg-white/80 backdrop-blur-sm text-blue-700 rounded-full text-sm font-medium border border-blue-100 transition-all duration-200 shadow-sm ${
+                  isClickable 
+                    ? 'hover:bg-blue-50 hover:shadow-md cursor-pointer' 
+                    : 'opacity-60 cursor-not-allowed'
+                }`}
+              >
+                #{tag}
+              </button>
+            );
+          })}
         </div>
       </div>
     </section>
