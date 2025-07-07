@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { FiSearch, FiTrendingUp } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 import { getNetworkById, getFeaturedNetworks } from "@/lib/networks-loader";
+import networksData from "@/data/networks.json";
 
 const searchSuggestions = [
   "Weight loss offers",
@@ -19,6 +20,26 @@ export default function Hero() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const router = useRouter();
   const trendingNetworks = getFeaturedNetworks(5);
+
+  // Load all network names and ids
+  const allNetworks = Array.isArray(networksData) ? networksData : [];
+  const filteredNetworkSuggestions = searchQuery
+    ? allNetworks.filter(n => n.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    : [];
+
+  const handleSuggestionClick = (network: { id: string; name: string }) => {
+    setSearchQuery(network.name);
+    setShowSuggestions(false);
+    router.push(`/network/${network.id}`);
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const match = allNetworks.find(n => n.name.toLowerCase() === searchQuery.toLowerCase());
+    if (match) {
+      router.push(`/network/${match.id}`);
+    }
+  };
 
   const filteredSuggestions = searchSuggestions.filter(suggestion =>
     suggestion.toLowerCase().includes(searchQuery.toLowerCase())
@@ -43,7 +64,7 @@ export default function Hero() {
         </p>
         
         <div className="relative w-full max-w-2xl mx-auto mb-8">
-          <form className="flex items-center bg-white rounded-full shadow-lg border border-amber-200 px-4 py-3">
+          <form className="flex items-center bg-white rounded-full shadow-lg border border-amber-200 px-4 py-3" onSubmit={handleSearchSubmit}>
             <FiSearch className="text-amber-400 text-xl mr-3 flex-shrink-0" />
             <input
               type="text"
@@ -53,6 +74,7 @@ export default function Hero() {
               onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
               placeholder="Search affiliate networks, offers, programs..."
               className="flex-1 bg-transparent outline-none text-base md:text-lg px-2 py-1"
+              autoComplete="off"
             />
             <button 
               type="submit" 
@@ -63,15 +85,15 @@ export default function Hero() {
           </form>
           
           {/* Search Suggestions */}
-          {showSuggestions && searchQuery && (
+          {showSuggestions && searchQuery && filteredNetworkSuggestions.length > 0 && (
             <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border border-amber-200 z-20">
-              {filteredSuggestions.map((suggestion, index) => (
+              {filteredNetworkSuggestions.slice(0, 8).map((network) => (
                 <button
-                  key={index}
+                  key={network.id}
                   className="w-full text-left px-4 py-3 hover:bg-amber-50 border-b border-amber-100 last:border-b-0"
-                  onClick={() => setSearchQuery(suggestion)}
+                  onMouseDown={() => handleSuggestionClick(network)}
                 >
-                  {suggestion}
+                  {network.name}
                 </button>
               ))}
             </div>

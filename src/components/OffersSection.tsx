@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FiExternalLink, FiDollarSign, FiMapPin, FiTag, FiChevronLeft, FiChevronRight, FiChevronUp, FiChevronDown } from "react-icons/fi";
 
 interface Offer {
@@ -29,6 +29,7 @@ export default function OffersSection({ offers, networks }: OffersSectionProps) 
   const [itemsPerPage] = useState(20);
   const [sortField, setSortField] = useState<'default' | 'payout'>('default');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const sectionRef = useRef<HTMLDivElement>(null);
 
   // Predefined verticals list
   const verticals = [
@@ -92,7 +93,9 @@ export default function OffersSection({ offers, networks }: OffersSectionProps) 
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (sectionRef.current) {
+      sectionRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   const handleSortPayout = () => {
@@ -105,7 +108,7 @@ export default function OffersSection({ offers, networks }: OffersSectionProps) 
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div ref={sectionRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="text-center mb-12">
         <h2 className="text-3xl font-bold text-gray-900 mb-4">
           All Networks Offers

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import Link from "next/link";
 import { Network } from "@/data/networks";
 import { FiChevronUp, FiChevronDown, FiExternalLink, FiStar } from "react-icons/fi";
@@ -16,6 +16,7 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
   const [sortField, setSortField] = useState<SortField>("name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [currentPage, setCurrentPage] = useState(1);
+  const sectionRef = useRef<HTMLDivElement>(null);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -65,6 +66,13 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
   const endIndex = startIndex + itemsPerPage;
   const currentNetworks = sortedNetworks.slice(startIndex, endIndex);
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    if (sectionRef.current) {
+      sectionRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   const SortIcon = ({ field }: { field: SortField }) => {
     if (sortField !== field) {
       return <FiChevronUp className="w-4 h-4 text-gray-400" />;
@@ -109,7 +117,7 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
   };
 
   return (
-    <div className="space-y-4">
+    <div ref={sectionRef} className="space-y-4">
       {/* Desktop List View */}
       <div className="hidden lg:block bg-white rounded-lg shadow-sm border border-amber-200 overflow-hidden">
         <div className="overflow-x-auto">
@@ -327,14 +335,14 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
         <div className="flex items-center justify-between bg-white px-4 py-3 border border-amber-200 rounded-lg">
           <div className="flex-1 flex justify-between sm:hidden">
             <button
-              onClick={() => setCurrentPage(currentPage - 1)}
+              onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
               className="relative inline-flex items-center px-4 py-2 border border-amber-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-amber-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Previous
             </button>
             <button
-              onClick={() => setCurrentPage(currentPage + 1)}
+              onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
               className="ml-3 relative inline-flex items-center px-4 py-2 border border-amber-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-amber-50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
@@ -352,7 +360,7 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
             <div>
               <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
                 <button
-                  onClick={() => setCurrentPage(currentPage - 1)}
+                  onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
                   className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-amber-300 bg-white text-sm font-medium text-gray-500 hover:bg-amber-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -361,7 +369,7 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                   <button
                     key={page}
-                    onClick={() => setCurrentPage(page)}
+                    onClick={() => handlePageChange(page)}
                     className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                       currentPage === page
                         ? "z-10 bg-amber-50 border-amber-500 text-amber-600"
@@ -372,7 +380,7 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                   </button>
                 ))}
                 <button
-                  onClick={() => setCurrentPage(currentPage + 1)}
+                  onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
                   className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-amber-300 bg-white text-sm font-medium text-gray-500 hover:bg-amber-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
