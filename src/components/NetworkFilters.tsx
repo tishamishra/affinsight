@@ -56,7 +56,7 @@ export default function NetworkFilters({ networks, onFilterChange }: NetworkFilt
   });
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
+    <div className="bg-white rounded-lg shadow-sm border border-amber-200 p-6 mb-8">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">Filter Networks</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -71,7 +71,7 @@ export default function NetworkFilters({ networks, onFilterChange }: NetworkFilt
               setTrackingSoftware(e.target.value);
               applyFilters();
             }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
           >
             <option value="">All Tracking Software</option>
             {trackingSoftwareOptions.map((software) => (
@@ -93,7 +93,7 @@ export default function NetworkFilters({ networks, onFilterChange }: NetworkFilt
               setPaymentFrequency(e.target.value);
               applyFilters();
             }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
           >
             <option value="">All Payment Frequencies</option>
             {paymentFrequencyOptions.map((frequency) => (
@@ -115,7 +115,7 @@ export default function NetworkFilters({ networks, onFilterChange }: NetworkFilt
               setPaymentMethod(e.target.value);
               applyFilters();
             }}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-amber-300 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
           >
             <option value="">All Payment Methods</option>
             {paymentMethodOptions.map((method) => (
@@ -131,7 +131,7 @@ export default function NetworkFilters({ networks, onFilterChange }: NetworkFilt
       <div className="mt-4">
         <button
           onClick={clearFilters}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-md hover:bg-gray-200 transition-colors"
+          className="px-4 py-2 text-sm font-medium text-gray-700 bg-amber-100 border border-amber-300 rounded-md hover:bg-amber-200 transition-colors"
         >
           Clear All Filters
         </button>

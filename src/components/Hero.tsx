@@ -29,12 +29,12 @@ export default function Hero() {
   };
 
   return (
-    <section className="relative flex flex-col items-center justify-center py-16 md:py-24 px-4 text-center bg-gradient-to-br from-blue-50 via-white to-purple-50 rounded-3xl shadow-lg overflow-hidden border border-gray-100">
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/5 to-purple-600/5"></div>
+    <section className="relative flex flex-col items-center justify-center py-16 md:py-24 px-4 text-center bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 rounded-3xl shadow-lg overflow-hidden border border-amber-100">
+      <div className="absolute inset-0 bg-gradient-to-r from-amber-600/5 to-orange-600/5"></div>
       <div className="relative z-10">
         <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-4 text-gray-900 drop-shadow-sm">
           Find The Perfect{" "}
-          <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-amber-500 to-orange-600 bg-clip-text text-transparent">
             Affiliate Network
           </span>
         </h1>
@@ -43,8 +43,8 @@ export default function Hero() {
         </p>
         
         <div className="relative w-full max-w-2xl mx-auto mb-8">
-          <form className="flex items-center bg-white rounded-full shadow-lg border border-gray-200 px-4 py-3">
-            <FiSearch className="text-gray-400 text-xl mr-3 flex-shrink-0" />
+          <form className="flex items-center bg-white rounded-full shadow-lg border border-amber-200 px-4 py-3">
+            <FiSearch className="text-amber-400 text-xl mr-3 flex-shrink-0" />
             <input
               type="text"
               value={searchQuery}
@@ -56,7 +56,7 @@ export default function Hero() {
             />
             <button 
               type="submit" 
-              className="ml-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg"
+              className="ml-2 px-6 py-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-full font-semibold hover:from-amber-600 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg"
             >
               Search
             </button>
@@ -64,11 +64,11 @@ export default function Hero() {
           
           {/* Search Suggestions */}
           {showSuggestions && searchQuery && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 z-20">
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border border-amber-200 z-20">
               {filteredSuggestions.map((suggestion, index) => (
                 <button
                   key={index}
-                  className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                  className="w-full text-left px-4 py-3 hover:bg-amber-50 border-b border-amber-100 last:border-b-0"
                   onClick={() => setSearchQuery(suggestion)}
                 >
                   {suggestion}
@@ -80,14 +80,14 @@ export default function Hero() {
 
         <div className="flex flex-wrap justify-center gap-3">
           <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-            <FiTrendingUp className="text-blue-500" />
+            <FiTrendingUp className="text-amber-500" />
             <span>Trending:</span>
           </div>
           {trendingNetworks.map((network) => (
             <button
               key={network.id}
               onClick={() => handleTrendingNetworkClick(network.id)}
-              className="px-4 py-2 bg-white/80 backdrop-blur-sm text-blue-700 rounded-full text-sm font-medium hover:bg-blue-50 border border-blue-100 transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer"
+              className="px-4 py-2 bg-white/80 backdrop-blur-sm text-amber-700 rounded-full text-sm font-medium hover:bg-amber-50 border border-amber-200 transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer"
             >
               #{network.name}
             </button>

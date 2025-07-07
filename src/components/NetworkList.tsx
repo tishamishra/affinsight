@@ -70,9 +70,9 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
       return <FiChevronUp className="w-4 h-4 text-gray-400" />;
     }
     return sortDirection === "asc" ? (
-      <FiChevronUp className="w-4 h-4 text-blue-600" />
+      <FiChevronUp className="w-4 h-4 text-amber-600" />
     ) : (
-      <FiChevronDown className="w-4 h-4 text-blue-600" />
+      <FiChevronDown className="w-4 h-4 text-amber-600" />
     );
   };
 
@@ -118,7 +118,7 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <button
                     onClick={() => handleSort("name")}
-                    className="flex items-center space-x-1 hover:text-gray-700 transition-colors"
+                    className="flex items-center space-x-1 hover:text-amber-600 transition-colors"
                   >
                     <span>Network</span>
                     <SortIcon field="name" />
@@ -128,7 +128,7 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <button
                     onClick={() => handleSort("description")}
-                    className="flex items-center space-x-1 hover:text-gray-700 transition-colors"
+                    className="flex items-center space-x-1 hover:text-amber-600 transition-colors"
                   >
                     <span>Description</span>
                     <SortIcon field="description" />
@@ -137,7 +137,7 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   <button
                     onClick={() => handleSort("offers_count")}
-                    className="flex items-center space-x-1 hover:text-gray-700 transition-colors"
+                    className="flex items-center space-x-1 hover:text-amber-600 transition-colors"
                   >
                     <span>Offers</span>
                     <SortIcon field="offers_count" />
@@ -170,11 +170,11 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                         ) : null}
                         {/* Fallback - Network name initial */}
                         <div 
-                          className={`h-16 w-16 bg-blue-100 rounded-lg flex items-center justify-center ${
+                          className={`h-16 w-16 bg-amber-100 rounded-lg flex items-center justify-center ${
                             network.logo_url ? 'hidden' : ''
                           }`}
                         >
-                          <span className="text-blue-600 font-semibold text-base">
+                          <span className="text-amber-600 font-semibold text-base">
                             {network.name.charAt(0)}
                           </span>
                         </div>
@@ -219,7 +219,7 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                     <div className="flex space-x-2">
                       <Link
                         href={`/network/${network.id}`}
-                        className="text-blue-600 hover:text-blue-900 transition-colors"
+                        className="text-amber-600 hover:text-amber-800 transition-colors"
                       >
                         View Details
                       </Link>
@@ -244,20 +244,20 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
       {totalPages > 1 && (
         <div className="flex items-center justify-between bg-white px-4 py-3 border border-gray-200 rounded-lg">
           <div className="flex-1 flex justify-between sm:hidden">
-            <button
-              onClick={() => setCurrentPage(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Previous
-            </button>
-            <button
-              onClick={() => setCurrentPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              Next
-            </button>
+                              <button
+                    onClick={() => setCurrentPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="relative inline-flex items-center px-4 py-2 border border-amber-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-amber-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="ml-3 relative inline-flex items-center px-4 py-2 border border-amber-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-amber-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Next
+                  </button>
           </div>
           <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
             <div>
@@ -272,7 +272,7 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                 <button
                   onClick={() => setCurrentPage(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-amber-300 bg-white text-sm font-medium text-gray-500 hover:bg-amber-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Previous
                 </button>
@@ -282,20 +282,20 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                     onClick={() => setCurrentPage(page)}
                     className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                       currentPage === page
-                        ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
-                        : "bg-white border-gray-300 text-gray-500 hover:bg-gray-50"
+                        ? "z-10 bg-amber-50 border-amber-500 text-amber-600"
+                        : "bg-white border-amber-300 text-gray-500 hover:bg-amber-50"
                     }`}
                   >
                     {page}
                   </button>
                 ))}
-                <button
-                  onClick={() => setCurrentPage(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Next
-                </button>
+                                  <button
+                    onClick={() => setCurrentPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-amber-300 bg-white text-sm font-medium text-gray-500 hover:bg-amber-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Next
+                  </button>
               </nav>
             </div>
           </div>
