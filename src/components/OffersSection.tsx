@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { FiExternalLink, FiDollarSign, FiMapPin, FiTag } from "react-icons/fi";
+import { useState, useEffect } from "react";
+import { FiExternalLink, FiDollarSign, FiMapPin, FiTag, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 interface Offer {
   id: string;
@@ -24,6 +24,8 @@ interface OffersSectionProps {
 
 export default function OffersSection({ offers, networks }: OffersSectionProps) {
   const [selectedVertical, setSelectedVertical] = useState<string>("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(20);
 
   // Predefined verticals list
   const verticals = [
@@ -46,15 +48,31 @@ export default function OffersSection({ offers, networks }: OffersSectionProps) 
     "Free Trial"
   ];
 
-  // Filter offers based on selected vertical
+  // Filter offers based on selected vertical from complete list
   const filteredOffers = selectedVertical === "All" 
     ? offers 
     : offers.filter(offer => offer.vertical === selectedVertical);
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredOffers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentOffers = filteredOffers.slice(startIndex, endIndex);
+
+  // Reset to first page when vertical changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedVertical]);
 
   // Get network logo by name
   const getNetworkLogo = (networkName: string) => {
     const network = networks.find(n => n.name === networkName);
     return network?.logo_url || null;
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -86,9 +104,21 @@ export default function OffersSection({ offers, networks }: OffersSectionProps) 
         ))}
       </div>
 
+      {/* Results Count */}
+      <div className="text-center mb-6">
+        <p className="text-gray-600">
+          Showing <span className="font-semibold text-amber-600">{startIndex + 1}</span> to{" "}
+          <span className="font-semibold text-amber-600">{Math.min(endIndex, filteredOffers.length)}</span> of{" "}
+          <span className="font-semibold text-amber-600">{filteredOffers.length}</span> offers
+          {selectedVertical !== "All" && (
+            <span className="text-gray-500"> in {selectedVertical}</span>
+          )}
+        </p>
+      </div>
+
       {/* Offers Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredOffers.map((offer) => {
+        {currentOffers.map((offer) => {
           const networkLogo = getNetworkLogo(offer.network);
           
           return (
@@ -170,6 +200,47 @@ export default function OffersSection({ offers, networks }: OffersSectionProps) 
           );
         })}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center mt-8">
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-amber-300 rounded-md hover:bg-amber-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <FiChevronLeft className="w-4 h-4 mr-1" />
+              Previous
+            </button>
+            
+            <div className="flex items-center space-x-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => handlePageChange(page)}
+                  className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                    currentPage === page
+                      ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white"
+                      : "text-gray-700 bg-white border border-amber-300 hover:bg-amber-50"
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+            
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-amber-300 rounded-md hover:bg-amber-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Next
+              <FiChevronRight className="w-4 h-4 ml-1" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* View All Offers Button */}
       <div className="text-center mt-12">

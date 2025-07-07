@@ -3,7 +3,7 @@
     "id": "1",
     "offerName": "Keto Gummies Trial",
     "payout": "$45 CPA",
-    "vertical": "Health",
+    "vertical": "Weight Loss",
     "country": "US",
     "network": "AdCombo"
   },
@@ -11,7 +11,7 @@
     "id": "2",
     "offerName": "Crypto Trading Platform",
     "payout": "$120 CPA",
-    "vertical": "Finance",
+    "vertical": "Crypto",
     "country": "UK",
     "network": "ClickBank"
   },
@@ -19,7 +19,7 @@
     "id": "3",
     "offerName": "Ecommerce Store Builder",
     "payout": "$30 CPA",
-    "vertical": "Ecommerce",
+    "vertical": "Smartlink",
     "country": "CA",
     "network": "Mobidea"
   },
@@ -27,7 +27,7 @@
     "id": "4",
     "offerName": "Insurance Leads",
     "payout": "$80 CPL",
-    "vertical": "Finance",
+    "vertical": "Health",
     "country": "US",
     "network": "MaxBounty"
   },
@@ -35,7 +35,7 @@
     "id": "5",
     "offerName": "Online Course Platform",
     "payout": "$25 CPA",
-    "vertical": "Education",
+    "vertical": "Free Trial",
     "country": "US",
     "network": "Commission Junction"
   },
@@ -51,7 +51,7 @@
     "id": "7",
     "offerName": "Gaming Platform",
     "payout": "$8 CPA",
-    "vertical": "Gaming",
+    "vertical": "Game",
     "country": "DE",
     "network": "AdCombo"
   },
@@ -59,7 +59,7 @@
     "id": "8",
     "offerName": "Home Security System",
     "payout": "$150 CPA",
-    "vertical": "Home Services",
+    "vertical": "COD",
     "country": "US",
     "network": "MaxBounty"
   },
@@ -67,7 +67,7 @@
     "id": "9",
     "offerName": "Credit Card Comparison",
     "payout": "$35 CPA",
-    "vertical": "Finance",
+    "vertical": "Crypto",
     "country": "AU",
     "network": "Commission Junction"
   },
@@ -75,7 +75,7 @@
     "id": "10",
     "offerName": "Fitness App Premium",
     "payout": "$22 CPA",
-    "vertical": "Health",
+    "vertical": "Weight Loss",
     "country": "UK",
     "network": "ClickBank"
   },
@@ -83,7 +83,7 @@
     "id": "11",
     "offerName": "Travel Booking Platform",
     "payout": "$12 CPA",
-    "vertical": "Travel",
+    "vertical": "Smartlink",
     "country": "CA",
     "network": "ShareASale"
   },
@@ -91,8 +91,192 @@
     "id": "12",
     "offerName": "Beauty Products Anti-Aging",
     "payout": "$18 CPA",
-    "vertical": "Beauty",
+    "vertical": "Skin",
     "country": "US",
     "network": "ShareASale"
+  },
+  {
+    "id": "13",
+    "offerName": "Casino Slots Bonus",
+    "payout": "$25 CPA",
+    "vertical": "Gambling",
+    "country": "UK",
+    "network": "AdCombo"
+  },
+  {
+    "id": "14",
+    "offerName": "Gift Card Survey",
+    "payout": "$5 CPA",
+    "vertical": "Gift Card",
+    "country": "US",
+    "network": "Mobidea"
+  },
+  {
+    "id": "15",
+    "offerName": "Health Supplement Trial",
+    "payout": "$35 CPA",
+    "vertical": "Nutra",
+    "country": "CA",
+    "network": "MaxBounty"
+  },
+  {
+    "id": "16",
+    "offerName": "Sweepstakes Entry",
+    "payout": "$3 CPA",
+    "vertical": "Sweepstakes",
+    "country": "US",
+    "network": "ClickBank"
+  },
+  {
+    "id": "17",
+    "offerName": "Mobile App Download",
+    "payout": "$8 CPA",
+    "vertical": "Mobile Offers",
+    "country": "UK",
+    "network": "AdCombo"
+  },
+  {
+    "id": "18",
+    "offerName": "Call Center Lead",
+    "payout": "$45 CPA",
+    "vertical": "Pay per Call",
+    "country": "US",
+    "network": "Commission Junction"
+  },
+  {
+    "id": "19",
+    "offerName": "Single Opt-in Newsletter",
+    "payout": "$2 CPA",
+    "vertical": "SOI",
+    "country": "CA",
+    "network": "ShareASale"
+  },
+  {
+    "id": "20",
+    "offerName": "Free Trial Subscription",
+    "payout": "$15 CPA",
+    "vertical": "Free Trial",
+    "country": "UK",
+    "network": "Mobidea"
+  },
+  {
+    "id": "21",
+    "offerName": "Weight Loss Supplement",
+    "payout": "$28 CPA",
+    "vertical": "Weight Loss",
+    "country": "US",
+    "network": "MaxBounty"
+  },
+  {
+    "id": "22",
+    "offerName": "Bitcoin Trading Course",
+    "payout": "$95 CPA",
+    "vertical": "Crypto",
+    "country": "AU",
+    "network": "ClickBank"
+  },
+  {
+    "id": "23",
+    "offerName": "Dating Site Premium",
+    "payout": "$12 CPA",
+    "vertical": "Dating",
+    "country": "DE",
+    "network": "AdCombo"
+  },
+  {
+    "id": "24",
+    "offerName": "Online Casino Bonus",
+    "payout": "$30 CPA",
+    "vertical": "Gambling",
+    "country": "UK",
+    "network": "Mobidea"
+  },
+  {
+    "id": "25",
+    "offerName": "Mobile Game Download",
+    "payout": "$6 CPA",
+    "vertical": "Game",
+    "country": "US",
+    "network": "Commission Junction"
+  },
+  {
+    "id": "26",
+    "offerName": "Cash on Delivery Product",
+    "payout": "$20 CPA",
+    "vertical": "COD",
+    "country": "CA",
+    "network": "ShareASale"
+  },
+  {
+    "id": "27",
+    "offerName": "Prize Giveaway Entry",
+    "payout": "$4 CPA",
+    "vertical": "Sweepstakes",
+    "country": "US",
+    "network": "AdCombo"
+  },
+  {
+    "id": "28",
+    "offerName": "Smartlink Traffic",
+    "payout": "$10 CPA",
+    "vertical": "Smartlink",
+    "country": "UK",
+    "network": "MaxBounty"
+  },
+  {
+    "id": "29",
+    "offerName": "Phone Call Lead",
+    "payout": "$55 CPA",
+    "vertical": "Pay per Call",
+    "country": "AU",
+    "network": "ClickBank"
+  },
+  {
+    "id": "30",
+    "offerName": "Mobile App Install",
+    "payout": "$7 CPA",
+    "vertical": "Mobile Offers",
+    "country": "DE",
+    "network": "Mobidea"
+  },
+  {
+    "id": "31",
+    "offerName": "Email Newsletter Signup",
+    "payout": "$3 CPA",
+    "vertical": "SOI",
+    "country": "US",
+    "network": "Commission Junction"
+  },
+  {
+    "id": "32",
+    "offerName": "Gift Card Rewards",
+    "payout": "$8 CPA",
+    "vertical": "Gift Card",
+    "country": "UK",
+    "network": "ShareASale"
+  },
+  {
+    "id": "33",
+    "offerName": "Skincare Anti-Aging",
+    "payout": "$25 CPA",
+    "vertical": "Skin",
+    "country": "CA",
+    "network": "AdCombo"
+  },
+  {
+    "id": "34",
+    "offerName": "Health & Wellness",
+    "payout": "$18 CPA",
+    "vertical": "Health",
+    "country": "US",
+    "network": "MaxBounty"
+  },
+  {
+    "id": "35",
+    "offerName": "Free Trial Membership",
+    "payout": "$12 CPA",
+    "vertical": "Free Trial",
+    "country": "AU",
+    "network": "ClickBank"
   }
 ] 
