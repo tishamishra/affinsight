@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Network } from "@/data/networks";
 
 interface NetworkFiltersProps {
@@ -11,6 +11,10 @@ export default function NetworkFilters({ networks, onFilterChange }: NetworkFilt
   const [trackingSoftware, setTrackingSoftware] = useState<string>("");
   const [paymentFrequency, setPaymentFrequency] = useState<string>("");
   const [paymentMethod, setPaymentMethod] = useState<string>("");
+  
+  // Use ref to store the latest onFilterChange function
+  const onFilterChangeRef = useRef(onFilterChange);
+  onFilterChangeRef.current = onFilterChange;
 
   // Get unique values for filter options
   const trackingSoftwareOptions = Array.from(
@@ -23,7 +27,7 @@ export default function NetworkFilters({ networks, onFilterChange }: NetworkFilt
     new Set(networks.flatMap(n => n.payment_methods || []))
   );
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = networks;
 
     if (trackingSoftware) {
@@ -40,20 +44,20 @@ export default function NetworkFilters({ networks, onFilterChange }: NetworkFilt
       );
     }
 
-    onFilterChange(filtered);
-  };
+    onFilterChangeRef.current(filtered);
+  }, [trackingSoftware, paymentFrequency, paymentMethod, networks]);
 
   const clearFilters = () => {
     setTrackingSoftware("");
     setPaymentFrequency("");
     setPaymentMethod("");
-    onFilterChange(networks);
+    onFilterChangeRef.current(networks);
   };
 
   // Apply filters when any filter changes
-  useState(() => {
+  useEffect(() => {
     applyFilters();
-  });
+  }, [applyFilters]);
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-amber-200 p-6 mb-8">
