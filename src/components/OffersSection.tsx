@@ -21,9 +21,11 @@ interface Network {
 interface OffersSectionProps {
   offers: Offer[];
   networks: Network[];
+  showPagination?: boolean;
+  maxItems?: number;
 }
 
-export default function OffersSection({ offers, networks }: OffersSectionProps) {
+export default function OffersSection({ offers, networks, showPagination = true, maxItems }: OffersSectionProps) {
   const [selectedVertical, setSelectedVertical] = useState<string>("All");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(20);
@@ -57,6 +59,11 @@ export default function OffersSection({ offers, networks }: OffersSectionProps) 
     ? offers 
     : offers.filter(offer => offer.vertical === selectedVertical);
 
+  // Apply maxItems limit if specified (for homepage)
+  if (maxItems && filteredOffers.length > maxItems) {
+    filteredOffers = filteredOffers.slice(0, maxItems);
+  }
+
   // Sorting logic for payout
   if (sortField === 'payout') {
     filteredOffers = [...filteredOffers].sort((a, b) => {
@@ -75,11 +82,11 @@ export default function OffersSection({ offers, networks }: OffersSectionProps) 
     });
   }
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredOffers.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentOffers = filteredOffers.slice(startIndex, endIndex);
+  // Calculate pagination - only if showPagination is true and maxItems not set
+  const totalPages = showPagination && !maxItems ? Math.ceil(filteredOffers.length / itemsPerPage) : 1;
+  const startIndex = showPagination && !maxItems ? (currentPage - 1) * itemsPerPage : 0;
+  const endIndex = showPagination && !maxItems ? startIndex + itemsPerPage : filteredOffers.length;
+  const currentOffers = showPagination && !maxItems ? filteredOffers.slice(startIndex, endIndex) : filteredOffers;
 
   // Reset to first page when vertical changes
   useEffect(() => {
@@ -119,37 +126,41 @@ export default function OffersSection({ offers, networks }: OffersSectionProps) 
         </p>
       </div>
 
-      {/* Tab Selector */}
-      <div className="flex flex-wrap justify-center gap-2 mb-8">
-        {verticals.map((vertical) => (
-          <button
-            key={vertical}
-            onClick={() => {
-              setSelectedVertical(vertical);
-              setSortField('default');
-            }}
-            className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 ${
-              selectedVertical === vertical
-                ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-md"
-                : "bg-white text-gray-700 border border-amber-200 hover:bg-amber-50 hover:border-amber-300"
-            }`}
-          >
-            {vertical}
-          </button>
-        ))}
-      </div>
+      {/* Tab Selector - only show on dedicated page */}
+      {showPagination && (
+        <div className="flex flex-wrap justify-center gap-2 mb-8">
+          {verticals.map((vertical) => (
+            <button
+              key={vertical}
+              onClick={() => {
+                setSelectedVertical(vertical);
+                setSortField('default');
+              }}
+              className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 ${
+                selectedVertical === vertical
+                  ? "bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-md"
+                  : "bg-white text-gray-700 border border-amber-200 hover:bg-amber-50 hover:border-amber-300"
+              }`}
+            >
+              {vertical}
+            </button>
+          ))}
+        </div>
+      )}
 
-      {/* Results Count */}
-      <div className="text-center mb-6">
-        <p className="text-gray-600">
-          Showing <span className="font-semibold text-amber-600">{startIndex + 1}</span> to{" "}
-          <span className="font-semibold text-amber-600">{Math.min(endIndex, filteredOffers.length)}</span> of{" "}
-          <span className="font-semibold text-amber-600">{filteredOffers.length}</span> offers
-          {selectedVertical !== "All" && (
-            <span className="text-gray-500"> in {selectedVertical}</span>
-          )}
-        </p>
-      </div>
+      {/* Results Count - only show on dedicated page */}
+      {showPagination && (
+        <div className="text-center mb-6">
+          <p className="text-gray-600">
+            Showing <span className="font-semibold text-amber-600">{startIndex + 1}</span> to{" "}
+            <span className="font-semibold text-amber-600">{Math.min(endIndex, filteredOffers.length)}</span> of{" "}
+            <span className="font-semibold text-amber-600">{filteredOffers.length}</span> offers
+            {selectedVertical !== "All" && (
+              <span className="text-gray-500"> in {selectedVertical}</span>
+            )}
+          </p>
+        </div>
+      )}
 
       {/* Desktop List View */}
       <div className="hidden lg:block bg-white rounded-lg shadow-sm border border-amber-200 overflow-x-auto mb-8">
@@ -315,7 +326,7 @@ export default function OffersSection({ offers, networks }: OffersSectionProps) 
       </div>
 
       {/* Pagination */}
-      {totalPages > 1 && (
+      {showPagination && totalPages > 1 && (
         <div className="w-full flex items-center justify-center mt-8">
           <div className="flex flex-wrap items-center justify-center gap-2 w-full max-w-full overflow-x-auto px-2">
             <button

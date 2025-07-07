@@ -81,7 +81,7 @@ export default function HomePage() {
       </div>
 
       {/* Offers Section */}
-      <OffersSection offers={allOffers.slice(0, 25)} networks={mergedNetworks} />
+      <OffersSection offers={allOffers} networks={mergedNetworks} showPagination={false} maxItems={25} />
     </div>
   );
 }
