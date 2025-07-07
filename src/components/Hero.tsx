@@ -30,14 +30,24 @@ export default function Hero() {
   const handleSuggestionClick = (network: { id: string; name: string }) => {
     setSearchQuery(network.name);
     setShowSuggestions(false);
-    router.push(`/network/${network.id}`);
+    try {
+      router.push(`/network/${network.id}`);
+    } catch (error) {
+      console.error('Navigation error:', error);
+      window.location.href = `/network/${network.id}`;
+    }
   };
 
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const match = allNetworks.find(n => n.name.toLowerCase() === searchQuery.toLowerCase());
     if (match) {
-      router.push(`/network/${match.id}`);
+      try {
+        router.push(`/network/${match.id}`);
+      } catch (error) {
+        console.error('Navigation error:', error);
+        window.location.href = `/network/${match.id}`;
+      }
     }
   };
 
@@ -46,7 +56,12 @@ export default function Hero() {
   );
 
   const handleTrendingNetworkClick = (networkId: string) => {
-    router.push(`/network/${networkId}`);
+    try {
+      router.push(`/network/${networkId}`);
+    } catch (error) {
+      console.error('Navigation error:', error);
+      window.location.href = `/network/${networkId}`;
+    }
   };
 
   return (
@@ -78,7 +93,7 @@ export default function Hero() {
             />
             <button 
               type="submit" 
-              className="ml-2 px-6 py-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-full font-semibold hover:from-amber-600 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg"
+              className="ml-2 px-6 py-2 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-full font-semibold hover:from-amber-600 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer"
             >
               Search
             </button>
@@ -90,7 +105,7 @@ export default function Hero() {
               {filteredNetworkSuggestions.slice(0, 8).map((network) => (
                 <button
                   key={network.id}
-                  className="w-full text-left px-4 py-3 hover:bg-amber-50 border-b border-amber-100 last:border-b-0"
+                  className="w-full text-left px-4 py-3 hover:bg-amber-50 border-b border-amber-100 last:border-b-0 cursor-pointer"
                   onMouseDown={() => handleSuggestionClick(network)}
                 >
                   {network.name}

@@ -6,8 +6,10 @@ import OffersSection from '@/components/OffersSection';
 import { getFeaturedNetworks, getAllNetworks } from '@/lib/networks-loader';
 import { getAllOffers } from '@/lib/offers-loader';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function HomePage() {
+  const router = useRouter();
   const allNetworks = getAllNetworks();
   const allOffers = getAllOffers();
   // Merge networks from offers
@@ -42,6 +44,10 @@ export default function HomePage() {
     setFilteredNetworks(arrangedNetworks);
   }, [mergedNetworks]);
 
+  const handleViewAllNetworks = () => {
+    router.push('/networks');
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Hero />
@@ -65,12 +71,12 @@ export default function HomePage() {
         <NetworkList networks={filteredNetworks} />
         
         <div className="text-center mt-12">
-          <a 
-            href="/networks" 
-            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg"
+          <button 
+            onClick={handleViewAllNetworks}
+            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg cursor-pointer"
           >
             View All Networks
-          </a>
+          </button>
         </div>
       </div>
 

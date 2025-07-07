@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Network } from "@/data/networks";
 import { FiChevronUp, FiChevronDown, FiExternalLink, FiStar } from "react-icons/fi";
 
@@ -13,6 +13,7 @@ type SortField = "name" | "description" | "offers_count" | "rating";
 type SortDirection = "asc" | "desc";
 
 export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkListProps) {
+  const router = useRouter();
   const [sortField, setSortField] = useState<SortField>("name");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [currentPage, setCurrentPage] = useState(1);
@@ -26,6 +27,10 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
       setSortDirection("asc");
     }
     setCurrentPage(1); // Reset to first page when sorting
+  };
+
+  const handleViewDetails = (networkId: string) => {
+    router.push(`/network/${networkId}`);
   };
 
   const sortedNetworks = [...networks].sort((a, b) => {
@@ -226,12 +231,12 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
-                      <Link
-                        href={`/network/${network.id}`}
+                      <button
+                        onClick={() => handleViewDetails(network.id)}
                         className="text-amber-600 hover:text-amber-800 transition-colors"
                       >
                         View Details
-                      </Link>
+                      </button>
                       <a
                         href={network.website}
                         target="_blank"
@@ -307,12 +312,12 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                       {network.offers_count?.toLocaleString() || "N/A"} offers
                     </div>
                     <div className="flex space-x-1">
-                      <Link
-                        href={`/network/${network.id}`}
+                      <button
+                        onClick={() => handleViewDetails(network.id)}
                         className="text-xs text-amber-600 hover:text-amber-800 font-medium"
                       >
                         Details
-                      </Link>
+                      </button>
                       <a
                         href={network.website}
                         target="_blank"
