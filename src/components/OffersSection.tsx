@@ -116,89 +116,155 @@ export default function OffersSection({ offers, networks }: OffersSectionProps) 
         </p>
       </div>
 
-      {/* Offers Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {currentOffers.map((offer) => {
-          const networkLogo = getNetworkLogo(offer.network);
-          
-          return (
-            <div
-              key={offer.id}
-              className="bg-white rounded-xl shadow-sm border border-amber-200 hover:shadow-md transition-all duration-200 overflow-hidden"
-            >
-              {/* Network Logo and Info */}
-              <div className="p-6 border-b border-amber-100">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 flex items-center justify-center">
-                      {networkLogo ? (
-                        <img
-                          src={networkLogo}
-                          alt={`${offer.network} logo`}
-                          className="w-full h-full object-contain"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'none';
-                            const fallback = target.nextElementSibling as HTMLElement;
-                            if (fallback) fallback.style.display = 'flex';
-                          }}
-                        />
-                      ) : null}
-                      {/* Fallback */}
-                      <div 
-                        className={`w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center ${
-                          networkLogo ? 'hidden' : ''
-                        }`}
-                      >
-                        <span className="text-amber-600 font-semibold text-sm">
-                          {offer.network.charAt(0)}
-                        </span>
+      {/* Desktop List View */}
+      <div className="hidden lg:block bg-white rounded-lg shadow-sm border border-amber-200 overflow-hidden mb-8">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-amber-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Offer</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Network</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Country</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payout</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-amber-200">
+              {currentOffers.map((offer) => {
+                const networkLogo = getNetworkLogo(offer.network);
+                return (
+                  <tr key={offer.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="font-semibold text-gray-900">{offer.offerName}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        {networkLogo ? (
+                          <img
+                            src={networkLogo}
+                            alt={`${offer.network} logo`}
+                            className="w-8 h-8 object-contain rounded"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 bg-amber-100 rounded flex items-center justify-center">
+                            <span className="text-amber-600 font-semibold text-sm">{offer.network.charAt(0)}</span>
+                          </div>
+                        )}
+                        <span className="text-gray-900 font-medium">{offer.network}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm text-gray-700">{offer.vertical}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-sm text-gray-700">{offer.country}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className="text-amber-600 font-semibold">{offer.payout}</span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex space-x-2">
+                        <button className="bg-gradient-to-r from-amber-500 to-orange-600 text-white py-1 px-3 rounded font-medium text-xs hover:from-amber-600 hover:to-orange-700 transition-all duration-200">
+                          View Offer
+                        </button>
+                        <button className="p-2 text-amber-600 hover:text-amber-700 border border-amber-200 rounded-lg hover:bg-amber-50 transition-colors">
+                          <FiExternalLink className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Mobile Grid View */}
+      <div className="lg:hidden">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          {currentOffers.map((offer) => {
+            const networkLogo = getNetworkLogo(offer.network);
+            return (
+              <div
+                key={offer.id}
+                className="bg-white rounded-xl shadow-sm border border-amber-200 hover:shadow-md transition-all duration-200 overflow-hidden"
+              >
+                {/* Network Logo and Info */}
+                <div className="p-6 border-b border-amber-100">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 h-12 flex items-center justify-center">
+                        {networkLogo ? (
+                          <img
+                            src={networkLogo}
+                            alt={`${offer.network} logo`}
+                            className="w-full h-full object-contain"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              const fallback = target.nextElementSibling as HTMLElement;
+                              if (fallback) fallback.style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+                        {/* Fallback */}
+                        <div 
+                          className={`w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center ${
+                            networkLogo ? 'hidden' : ''
+                          }`}
+                        >
+                          <span className="text-amber-600 font-semibold text-sm">
+                            {offer.network.charAt(0)}
+                          </span>
+                        </div>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">{offer.network}</h3>
+                        <p className="text-sm text-gray-500">Network</p>
                       </div>
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{offer.network}</h3>
-                      <p className="text-sm text-gray-500">Network</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="flex items-center text-amber-600 font-semibold">
-                      <FiDollarSign className="w-4 h-4 mr-1" />
-                      {offer.payout}
+                    <div className="text-right">
+                      <div className="flex items-center text-amber-600 font-semibold">
+                        <FiDollarSign className="w-4 h-4 mr-1" />
+                        {offer.payout}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Offer Details */}
-              <div className="p-6">
-                <h4 className="text-lg font-semibold text-gray-900 mb-3">
-                  {offer.offerName}
-                </h4>
-                
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center text-sm text-gray-600">
-                    <FiTag className="w-4 h-4 mr-2 text-amber-500" />
-                    <span className="font-medium">{offer.vertical}</span>
+                {/* Offer Details */}
+                <div className="p-6">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-3">
+                    {offer.offerName}
+                  </h4>
+                  
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center text-sm text-gray-600">
+                      <FiTag className="w-4 h-4 mr-2 text-amber-500" />
+                      <span className="font-medium">{offer.vertical}</span>
+                    </div>
+                    <div className="flex items-center text-sm text-gray-600">
+                      <FiMapPin className="w-4 h-4 mr-2 text-amber-500" />
+                      <span>{offer.country}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <FiMapPin className="w-4 h-4 mr-2 text-amber-500" />
-                    <span>{offer.country}</span>
+
+                  {/* Action Buttons */}
+                  <div className="flex space-x-2">
+                    <button className="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 text-white py-2 px-4 rounded-lg font-medium hover:from-amber-600 hover:to-orange-700 transition-all duration-200">
+                      View Offer
+                    </button>
+                    <button className="p-2 text-amber-600 hover:text-amber-700 border border-amber-200 rounded-lg hover:bg-amber-50 transition-colors">
+                      <FiExternalLink className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
-
-                {/* Action Buttons */}
-                <div className="flex space-x-2">
-                  <button className="flex-1 bg-gradient-to-r from-amber-500 to-orange-600 text-white py-2 px-4 rounded-lg font-medium hover:from-amber-600 hover:to-orange-700 transition-all duration-200">
-                    View Offer
-                  </button>
-                  <button className="p-2 text-amber-600 hover:text-amber-700 border border-amber-200 rounded-lg hover:bg-amber-50 transition-colors">
-                    <FiExternalLink className="w-4 h-4" />
-                  </button>
-                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
 
       {/* Pagination */}
