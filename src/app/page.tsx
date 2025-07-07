@@ -2,11 +2,14 @@
 import Hero from '@/components/Hero';
 import NetworkFilters from '@/components/NetworkFilters';
 import NetworkList from '@/components/NetworkList';
+import OffersSection from '@/components/OffersSection';
 import { getFeaturedNetworks, getAllNetworks } from '@/lib/networks-loader';
+import { getAllOffers } from '@/lib/offers-loader';
 import { useState, useEffect } from 'react';
 
 export default function HomePage() {
   const allNetworks = getAllNetworks();
+  const allOffers = getAllOffers();
   const [filteredNetworks, setFilteredNetworks] = useState<typeof allNetworks>([]);
 
   // Separate Ad Gain Media and shuffle other networks
@@ -54,6 +57,9 @@ export default function HomePage() {
           </a>
         </div>
       </div>
+
+      {/* Offers Section */}
+      <OffersSection offers={allOffers} networks={allNetworks} />
     </div>
   );
 }
