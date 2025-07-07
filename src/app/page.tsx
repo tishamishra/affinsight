@@ -3,11 +3,25 @@ import Hero from '@/components/Hero';
 import NetworkFilters from '@/components/NetworkFilters';
 import NetworkList from '@/components/NetworkList';
 import { getFeaturedNetworks, getAllNetworks } from '@/lib/networks-loader';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function HomePage() {
   const allNetworks = getAllNetworks();
-  const [filteredNetworks, setFilteredNetworks] = useState(allNetworks);
+  const [filteredNetworks, setFilteredNetworks] = useState<typeof allNetworks>([]);
+
+  // Separate AdBlueMedia and shuffle other networks
+  useEffect(() => {
+    const adBlueMedia = allNetworks.find(network => network.name === "AdBlueMedia");
+    const otherNetworks = allNetworks.filter(network => network.name !== "AdBlueMedia");
+    
+    // Shuffle other networks
+    const shuffledNetworks = [...otherNetworks].sort(() => Math.random() - 0.5);
+    
+    // Combine AdBlueMedia first, then shuffled networks
+    const arrangedNetworks = adBlueMedia ? [adBlueMedia, ...shuffledNetworks] : shuffledNetworks;
+    
+    setFilteredNetworks(arrangedNetworks);
+  }, [allNetworks]);
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -179,19 +179,26 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                           </span>
                         </div>
                       </div>
-                                          <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">
-                        {network.name}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {network.category}
-                      </div>
-                      <div className="mt-1">
-                        <StarRating rating={network.rating} />
+                      <div className="ml-4">
+                        <div className="flex items-center gap-2">
+                          <div className="text-sm font-medium text-gray-900">
+                            {network.name}
+                          </div>
+                          {network.name === "AdBlueMedia" && (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                              Sponsored
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {network.category}
+                        </div>
+                        <div className="mt-1">
+                          <StarRating rating={network.rating} />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </td>
+                  </td>
                   <td className="px-6 py-4">
                     <div className="text-sm text-gray-900 max-w-xs">
                       {network.description}
