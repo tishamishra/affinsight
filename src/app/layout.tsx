@@ -52,19 +52,19 @@ export default function RootLayout({
         <div className="sticky top-0 z-30 bg-white/80 backdrop-blur border-b border-gray-200">
           <Navigation />
         </div>
+        {/* Top Banner Ad Space */}
+        <div className="w-full bg-gradient-to-r from-amber-50 to-orange-50 border-b border-amber-200">
+          <div className="max-w-screen-2xl mx-auto px-4 py-3">
+            <div className="bg-white rounded-lg border border-amber-200 p-4 text-center text-amber-600 font-medium">
+              🎯 Top Banner Advertisement Space
+            </div>
+          </div>
+        </div>
         <div className="flex w-full max-w-screen-2xl mx-auto min-h-[calc(100vh-56px)] pt-4 gap-4 px-2 md:px-6">
-          {/* Left Sidebar Ads */}
-          <aside className="hidden lg:block w-56 shrink-0">
-            <LeftSidebarAds />
-          </aside>
           {/* Main Content */}
           <main className="flex-1 min-w-0">
             {children}
           </main>
-          {/* Right Sidebar Ads */}
-          <aside className="hidden xl:block w-56 shrink-0">
-            <RightSidebarAds />
-          </aside>
         </div>
         <Footer />
       </body>
