@@ -1,22 +1,45 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { getAllNetworks } from '@/lib/networks-loader';
+import { getAllOffers } from '@/lib/offers-loader';
 import { Network } from '@/data/networks';
 import NetworkList from '@/components/NetworkList';
 import Filters from '@/components/Filters';
 
 export default function NetworksPage() {
   const allNetworks = getAllNetworks();
-  const [filteredNetworks, setFilteredNetworks] = useState<Network[]>(allNetworks);
+  const allOffers = getAllOffers();
+  // Merge networks from offers
+  const offerNetworkNames = Array.from(new Set(allOffers.map(o => o.network)));
+  const allNetworkNames = new Set(allNetworks.map(n => n.name));
+  const missingNetworks = offerNetworkNames.filter(name => !allNetworkNames.has(name));
+  const placeholderNetworks = missingNetworks.map((name, idx) => ({
+    id: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+    name,
+    category: 'Unknown',
+    website: '',
+    logo_url: '',
+    rating: 0,
+    countries: [],
+    description: '',
+    commission_rate: '',
+    offers_count: allOffers.filter(o => o.network === name).length,
+    payment_frequency: '',
+    payment_methods: [],
+    tracking_software: '',
+    minimum_payout: ''
+  }));
+  const mergedNetworks = [...allNetworks, ...placeholderNetworks];
+  const [filteredNetworks, setFilteredNetworks] = useState<Network[]>(mergedNetworks);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
 
-  const categories = ['all', ...Array.from(new Set(allNetworks.map((n: Network) => n.category)))];
-  const allCountries = Array.from(new Set(allNetworks.flatMap((n: Network) => n.countries))).sort();
+  const categories = ['all', ...Array.from(new Set(mergedNetworks.map((n: Network) => n.category)))];
+  const allCountries = Array.from(new Set(mergedNetworks.flatMap((n: Network) => n.countries))).sort();
 
   useEffect(() => {
-    let filtered = allNetworks;
+    let filtered = mergedNetworks;
 
     // Filter by category
     if (selectedCategory !== 'all') {
@@ -39,7 +62,7 @@ export default function NetworksPage() {
     }
 
     setFilteredNetworks(filtered);
-  }, [selectedCategory, selectedCountries, searchTerm]);
+  }, [selectedCategory, selectedCountries, searchTerm, mergedNetworks]);
 
   return (
     <div className="min-h-screen bg-gray-50">

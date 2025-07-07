@@ -10,21 +10,37 @@ import { useState, useEffect } from 'react';
 export default function HomePage() {
   const allNetworks = getAllNetworks();
   const allOffers = getAllOffers();
-  const [filteredNetworks, setFilteredNetworks] = useState<typeof allNetworks>([]);
+  // Merge networks from offers
+  const offerNetworkNames = Array.from(new Set(allOffers.map(o => o.network)));
+  const allNetworkNames = new Set(allNetworks.map(n => n.name));
+  const missingNetworks = offerNetworkNames.filter(name => !allNetworkNames.has(name));
+  const placeholderNetworks = missingNetworks.map((name, idx) => ({
+    id: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+    name,
+    category: 'Unknown',
+    website: '',
+    logo_url: '',
+    rating: 0,
+    countries: [],
+    description: '',
+    commission_rate: '',
+    offers_count: allOffers.filter(o => o.network === name).length,
+    payment_frequency: '',
+    payment_methods: [],
+    tracking_software: '',
+    minimum_payout: ''
+  }));
+  const mergedNetworks = [...allNetworks, ...placeholderNetworks];
+  const [filteredNetworks, setFilteredNetworks] = useState<typeof mergedNetworks>([]);
 
   // Separate Ad Gain Media and shuffle other networks
   useEffect(() => {
-    const adGainMedia = allNetworks.find(network => network.name === "Ad Gain Media");
-    const otherNetworks = allNetworks.filter(network => network.name !== "Ad Gain Media");
-    
-    // Shuffle other networks
+    const adGainMedia = mergedNetworks.find(network => network.name === "Ad Gain Media");
+    const otherNetworks = mergedNetworks.filter(network => network.name !== "Ad Gain Media");
     const shuffledNetworks = [...otherNetworks].sort(() => Math.random() - 0.5);
-    
-    // Combine Ad Gain Media first, then shuffled networks
     const arrangedNetworks = adGainMedia ? [adGainMedia, ...shuffledNetworks] : shuffledNetworks;
-    
     setFilteredNetworks(arrangedNetworks);
-  }, [allNetworks]);
+  }, [mergedNetworks]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -42,7 +58,7 @@ export default function HomePage() {
         </div>
         
         <NetworkFilters 
-          networks={allNetworks} 
+          networks={mergedNetworks} 
           onFilterChange={setFilteredNetworks} 
         />
         
@@ -59,7 +75,7 @@ export default function HomePage() {
       </div>
 
       {/* Offers Section */}
-      <OffersSection offers={allOffers} networks={allNetworks} />
+      <OffersSection offers={allOffers} networks={mergedNetworks} />
     </div>
   );
 }

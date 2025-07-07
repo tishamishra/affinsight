@@ -316,8 +316,8 @@ export default function OffersSection({ offers, networks }: OffersSectionProps) 
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center mt-8">
-          <div className="flex items-center space-x-2">
+        <div className="w-full flex items-center justify-center mt-8">
+          <div className="flex flex-wrap items-center justify-center gap-2 w-full max-w-full overflow-x-auto px-2">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
