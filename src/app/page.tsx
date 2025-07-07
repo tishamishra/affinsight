@@ -9,16 +9,16 @@ export default function HomePage() {
   const allNetworks = getAllNetworks();
   const [filteredNetworks, setFilteredNetworks] = useState<typeof allNetworks>([]);
 
-  // Separate AdBlueMedia and shuffle other networks
+  // Separate Ad Gain Media and shuffle other networks
   useEffect(() => {
-    const adBlueMedia = allNetworks.find(network => network.name === "AdBlueMedia");
-    const otherNetworks = allNetworks.filter(network => network.name !== "AdBlueMedia");
+    const adGainMedia = allNetworks.find(network => network.name === "Ad Gain Media");
+    const otherNetworks = allNetworks.filter(network => network.name !== "Ad Gain Media");
     
     // Shuffle other networks
     const shuffledNetworks = [...otherNetworks].sort(() => Math.random() - 0.5);
     
-    // Combine AdBlueMedia first, then shuffled networks
-    const arrangedNetworks = adBlueMedia ? [adBlueMedia, ...shuffledNetworks] : shuffledNetworks;
+    // Combine Ad Gain Media first, then shuffled networks
+    const arrangedNetworks = adGainMedia ? [adGainMedia, ...shuffledNetworks] : shuffledNetworks;
     
     setFilteredNetworks(arrangedNetworks);
   }, [allNetworks]);

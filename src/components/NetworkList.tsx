@@ -184,8 +184,8 @@ export default function NetworkList({ networks, itemsPerPage = 20 }: NetworkList
                           <div className="text-sm font-medium text-gray-900">
                             {network.name}
                           </div>
-                          {network.name === "AdBlueMedia" && (
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                          {network.name === "Ad Gain Media" && (
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-400 to-yellow-600 text-white shadow-sm">
                               Sponsored
                             </span>
                           )}
