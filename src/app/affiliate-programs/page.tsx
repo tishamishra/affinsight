@@ -6,14 +6,13 @@ export default function AffiliateProgramsPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Affiliate Programs Directory</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Affiliate Programs</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Explore a curated directory of affiliate programs from leading SaaS, software, and online services across the internet. <br />
-            <span className="text-amber-600 font-semibold">Note:</span> These programs are not operated by this website; they are provided for informational purposes only.
+            Explore our comprehensive list of affiliate programs across various categories. Join programs that align with your audience to maximize your earning potential.
           </p>
         </div>
         <div className="overflow-x-auto bg-white rounded-lg shadow border border-amber-100">
-          <table className="min-w-full divide-y divide-amber-100 text-sm">
+          <table className="min-w-full max-w-full w-full divide-y divide-amber-100 text-sm">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Program</th>
