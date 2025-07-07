@@ -5,32 +5,37 @@ import NetworkList from '@/components/NetworkList';
 import OffersSection from '@/components/OffersSection';
 import { getFeaturedNetworks, getAllNetworks } from '@/lib/networks-loader';
 import { getAllOffers } from '@/lib/offers-loader';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 export default function HomePage() {
   const allNetworks = getAllNetworks();
   const allOffers = getAllOffers();
-  // Merge networks from offers
-  const offerNetworkNames = Array.from(new Set(allOffers.map(o => o.network)));
-  const allNetworkNames = new Set(allNetworks.map(n => n.name));
-  const missingNetworks = offerNetworkNames.filter(name => !allNetworkNames.has(name));
-  const placeholderNetworks = missingNetworks.map((name, idx) => ({
-    id: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-    name,
-    category: 'Unknown',
-    website: '',
-    logo_url: '',
-    rating: 0,
-    countries: [],
-    description: '',
-    commission_rate: '',
-    offers_count: allOffers.filter(o => o.network === name).length,
-    payment_frequency: '',
-    payment_methods: [],
-    tracking_software: '',
-    minimum_payout: ''
-  }));
-  const mergedNetworks = [...allNetworks, ...placeholderNetworks];
+  
+  // Memoize the merged networks to prevent constant re-renders
+  const mergedNetworks = useMemo(() => {
+    // Merge networks from offers
+    const offerNetworkNames = Array.from(new Set(allOffers.map(o => o.network)));
+    const allNetworkNames = new Set(allNetworks.map(n => n.name));
+    const missingNetworks = offerNetworkNames.filter(name => !allNetworkNames.has(name));
+    const placeholderNetworks = missingNetworks.map((name, idx) => ({
+      id: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      name,
+      category: 'Unknown',
+      website: '',
+      logo_url: '',
+      rating: 0,
+      countries: [],
+      description: '',
+      commission_rate: '',
+      offers_count: allOffers.filter(o => o.network === name).length,
+      payment_frequency: '',
+      payment_methods: [],
+      tracking_software: '',
+      minimum_payout: ''
+    }));
+    return [...allNetworks, ...placeholderNetworks];
+  }, [allNetworks, allOffers]);
+
   const [filteredNetworks, setFilteredNetworks] = useState<typeof mergedNetworks>([]);
 
   // Separate Ad Gain Media and shuffle other networks, limit to 20 for homepage
