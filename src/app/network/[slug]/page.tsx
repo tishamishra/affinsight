@@ -20,37 +20,50 @@ import {
 } from "react-icons/fi";
 import { getNetworkByName } from "@/lib/networks-loader";
 import { Network } from "@/data/networks";
-import ReviewModal from "@/components/ReviewModal";
-import UserReviews from "@/components/UserReviews";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { getAllOffers } from '@/lib/offers-loader';
 
-// Safely register Chart.js components
-let ChartRegistered = false;
-const registerChart = () => {
-  if (typeof window !== 'undefined' && !ChartRegistered) {
-    try {
-      const { Chart, ArcElement, Tooltip, Legend } = require('chart.js');
-      Chart.register(ArcElement, Tooltip, Legend);
-      ChartRegistered = true;
-    } catch (error) {
-      console.warn('Chart.js registration failed:', error);
-    }
+// Simple error boundary component
+const ErrorBoundary = ({ children }: { children: React.ReactNode }) => {
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    const handleError = (error: ErrorEvent) => {
+      console.error('Network detail page error:', error);
+      setHasError(true);
+    };
+
+    window.addEventListener('error', handleError);
+    return () => window.removeEventListener('error', handleError);
+  }, []);
+
+  if (hasError) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">Something went wrong</h1>
+          <p className="text-gray-600 mb-8">Please try refreshing the page.</p>
+          <button 
+            onClick={() => window.location.reload()}
+            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200"
+          >
+            Refresh Page
+          </button>
+        </div>
+      </div>
+    );
   }
+
+  return <>{children}</>;
 };
 
 export default function NetworkDetailPage() {
-  // All hooks at the top!
   const params = useParams();
   const [network, setNetwork] = useState<Network | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showFullDescription, setShowFullDescription] = useState(false);
-  const [reviewModalOpen, setReviewModalOpen] = useState(false);
-  const supabase = createClientComponentClient();
   const [reviews, setReviews] = useState<any[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
-  const [chartReady, setChartReady] = useState(false);
   
   const allOffers = getAllOffers();
   const networkOffers = useMemo(() => {
@@ -76,12 +89,6 @@ export default function NetworkDetailPage() {
     filteredOffers.slice((currentPage - 1) * offersPerPage, currentPage * offersPerPage), 
     [filteredOffers, currentPage, offersPerPage]
   );
-
-  useEffect(() => {
-    // Register Chart.js on client side
-    registerChart();
-    setChartReady(true);
-  }, []);
 
   useEffect(() => {
     function loadNetwork() {
@@ -112,32 +119,11 @@ export default function NetworkDetailPage() {
     }
   }, [params?.slug]);
 
+  // Simple reviews loading without Supabase for now
   useEffect(() => {
-    async function fetchReviews() {
-      try {
-        setReviewsLoading(true);
-        const { data, error } = await supabase
-          .from("reviews")
-          .select("overall_rating, offers_rating, payout_rating, tracking_rating, support_rating")
-          .eq("network_slug", params?.slug as string)
-          .eq("status", "approved");
-        
-        if (!error && data) {
-          setReviews(data);
-        } else {
-          console.warn('Error fetching reviews:', error);
-        }
-      } catch (err) {
-        console.error('Error fetching reviews:', err);
-      } finally {
-        setReviewsLoading(false);
-      }
-    }
-    
-    if (params?.slug) {
-      fetchReviews();
-    }
-  }, [params?.slug, supabase]);
+    setReviewsLoading(false);
+    setReviews([]); // Empty for now, will be implemented later
+  }, [params?.slug]);
 
   const avg = (field: string) => {
     if (!reviews || reviews.length === 0) return "-";
@@ -146,17 +132,6 @@ export default function NetworkDetailPage() {
   };
   
   const reviewCount = reviews.length;
-
-  // Mock data for enhanced features
-  const mockData = {
-    reviews: 14,
-    offersCount: network?.offers_count || 0,
-    trackingSoftwareRating: 4.2,
-    supportRating: 4.5,
-    referralCommission: "5%",
-    trackingLink: "https://tracking.example.com",
-    affiliateManagers: "John Smith, Sarah Johnson"
-  };
 
   const StarRating = ({ rating }: { rating: number }) => {
     const stars = [];
@@ -185,37 +160,6 @@ export default function NetworkDetailPage() {
     return <div className="flex items-center space-x-1">{stars}</div>;
   };
 
-  // Only create chart data if Chart.js is ready
-  const donutData = chartReady ? {
-    labels: ['Offers', 'Payout', 'Tracking', 'Support'],
-    datasets: [
-      {
-        data: [
-          Number(avg('offers_rating')) || 0,
-          Number(avg('payout_rating')) || 0,
-          Number(avg('tracking_rating')) || 0,
-          Number(avg('support_rating')) || 0,
-        ],
-        backgroundColor: [
-          '#f87171', // red-400
-          '#60a5fa', // blue-400
-          '#34d399', // green-400
-          '#a78bfa', // purple-400
-        ],
-        borderWidth: 2,
-      },
-    ],
-  } : null;
-  
-  const donutOptions = {
-    cutout: '70%',
-    plugins: {
-      legend: { display: true, position: 'bottom' as const },
-      tooltip: { enabled: true },
-    },
-  };
-
-  // Now, after all hooks, do the early returns:
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -285,343 +229,328 @@ export default function NetworkDetailPage() {
     : network.description;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <ReviewModal
-        open={reviewModalOpen}
-        onClose={() => setReviewModalOpen(false)}
-        networkName={network.name}
-        networkSlug={params?.slug as string}
-      />
-      {/* Hero Bar */}
-      <div className="bg-white border-b border-gray-200">
+    <ErrorBoundary>
+      <div className="min-h-screen bg-gray-50">
+        {/* Hero Bar */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+              <div className="flex items-center gap-6">
+                {/* Network Logo */}
+                <div className="flex-shrink-0">
+                  {network.logo_url ? (
+                    <img
+                      src={network.logo_url}
+                      alt={`${network.name} logo`}
+                      className="w-24 h-24 object-contain rounded-lg border border-gray-200"
+                    />
+                  ) : (
+                    <div className="w-24 h-24 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg flex items-center justify-center border border-gray-200">
+                      <span className="text-3xl font-bold text-amber-600">
+                        {network.name.charAt(0)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Network Info */}
+                <div className="flex-1">
+                  <h1 className="text-4xl font-bold text-gray-900 mb-2">{network.name}</h1>
+                  <div className="flex items-center gap-4 mb-3">
+                    <StarRating rating={Number(avg("overall_rating")) || network.rating} />
+                    <span className="text-gray-600 font-medium">{reviewCount} reviews</span>
+                  </div>
+                  <p className="text-gray-600 text-lg">{network.category} Network</p>
+                </div>
+              </div>
+
+              {/* Social Icons */}
+              <div className="flex items-center gap-4">
+                <a href={`mailto:contact@${network.name.toLowerCase().replace(/\s+/g, '')}.com`} className="p-2 text-gray-400 hover:text-amber-600 transition-colors">
+                  <FiMail className="w-5 h-5" />
+                </a>
+                <a href={network.website} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-amber-600 transition-colors">
+                  <FiExternalLink className="w-5 h-5" />
+                </a>
+                <a href="#" className="p-2 text-gray-400 hover:text-amber-600 transition-colors">
+                  <FiFacebook className="w-5 h-5" />
+                </a>
+                <a href="#" className="p-2 text-gray-400 hover:text-amber-600 transition-colors">
+                  <FiLinkedin className="w-5 h-5" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Metric Badges Row */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="flex flex-wrap gap-4">
+              <div className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-full">
+                <FiTrendingUp className="w-4 h-4" />
+                <span className="font-medium">OFFERS</span>
+                <span className="bg-red-200 px-2 py-1 rounded-full text-xs font-bold">
+                  {network.offers_count?.toLocaleString() || "-"}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full">
+                <FiDollarSign className="w-4 h-4" />
+                <span className="font-medium">PAYOUT</span>
+                <span className="bg-blue-200 px-2 py-1 rounded-full text-xs font-bold">
+                  {avg("payout_rating")}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-full">
+                <FiShield className="w-4 h-4" />
+                <span className="font-medium">TRACKING</span>
+                <span className="bg-green-200 px-2 py-1 rounded-full text-xs font-bold">
+                  {avg("tracking_rating")}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-full">
+                <FiHeadphones className="w-4 h-4" />
+                <span className="font-medium">SUPPORT</span>
+                <span className="bg-purple-200 px-2 py-1 rounded-full text-xs font-bold">
+                  {avg("support_rating")}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Primary CTAs */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                onClick={() => alert('Review system coming soon!')}
+              >
+                <FiMessageCircle className="w-5 h-5" />
+                Write a Review
+              </button>
+              <a
+                href={network.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 font-medium"
+              >
+                <FiExternalLink className="w-5 h-5" />
+                Join Now
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Truncated Overview */}
+        <div className="bg-white border-b border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="bg-gray-50 rounded-lg p-6">
+              <p className="text-gray-700 leading-relaxed">
+                {showFullDescription ? network.description : truncatedDescription}
+              </p>
+              {network.description && network.description.length > 200 && (
+                <button
+                  onClick={() => setShowFullDescription(!showFullDescription)}
+                  className="text-amber-600 hover:text-amber-700 font-medium mt-2"
+                >
+                  {showFullDescription ? "[Show Less]" : "[More]"}
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div className="flex items-center gap-6">
-              {/* Network Logo */}
-              <div className="flex-shrink-0">
-                {network.logo_url ? (
-                  <img
-                    src={network.logo_url}
-                    alt={`${network.name} logo`}
-                    className="w-24 h-24 object-contain rounded-lg border border-gray-200"
-                  />
-                ) : (
-                  <div className="w-24 h-24 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg flex items-center justify-center border border-gray-200">
-                    <span className="text-3xl font-bold text-amber-600">
-                      {network.name.charAt(0)}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Network Details */}
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Affiliate Network Details</h2>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                    <span className="text-gray-600 font-medium">Number of Offers</span>
+                    <span className="text-gray-900 font-semibold">{network.offers_count?.toLocaleString() || 'N/A'}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                    <span className="text-gray-600 font-medium">Commission Type</span>
+                    <span className="text-gray-900 font-semibold">{network.commission_rate || 'N/A'}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                    <span className="text-gray-600 font-medium">Minimum Payment</span>
+                    <span className="text-gray-900 font-semibold">{network.minimum_payout || 'N/A'}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                    <span className="text-gray-600 font-medium">Payment Frequency</span>
+                    <span className="text-gray-900 font-semibold">{network.payment_frequency || 'N/A'}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                    <span className="text-gray-600 font-medium">Tracking Software</span>
+                    <span className="text-gray-900 font-semibold">{network.tracking_software || 'N/A'}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                    <span className="text-gray-600 font-medium">Payment Methods</span>
+                    <span className="text-gray-900 font-semibold">
+                      {network.payment_methods ? network.payment_methods.join(', ') : 'N/A'}
                     </span>
                   </div>
-                )}
-              </div>
-
-              {/* Network Info */}
-              <div className="flex-1">
-                <h1 className="text-4xl font-bold text-gray-900 mb-2">{network.name}</h1>
-                <div className="flex items-center gap-4 mb-3">
-                  <StarRating rating={Number(avg("overall_rating")) || network.rating} />
-                  <span className="text-gray-600 font-medium">{reviewCount} reviews</span>
-                </div>
-                <p className="text-gray-600 text-lg">{network.category} Network</p>
-              </div>
-            </div>
-
-            {/* Social Icons */}
-            <div className="flex items-center gap-4">
-              <a href={`mailto:contact@${network.name.toLowerCase().replace(/\s+/g, '')}.com`} className="p-2 text-gray-400 hover:text-amber-600 transition-colors">
-                <FiMail className="w-5 h-5" />
-              </a>
-              <a href={network.website} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-amber-600 transition-colors">
-                <FiExternalLink className="w-5 h-5" />
-              </a>
-              <a href="#" className="p-2 text-gray-400 hover:text-amber-600 transition-colors">
-                <FiFacebook className="w-5 h-5" />
-              </a>
-              <a href="#" className="p-2 text-gray-400 hover:text-amber-600 transition-colors">
-                <FiLinkedin className="w-5 h-5" />
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Metric Badges Row */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-wrap gap-4">
-            <div className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-full">
-              <FiTrendingUp className="w-4 h-4" />
-              <span className="font-medium">OFFERS</span>
-              <span className="bg-red-200 px-2 py-1 rounded-full text-xs font-bold">
-                {network.offers_count?.toLocaleString() || "-"}
-              </span>
-            </div>
-            <div className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full">
-              <FiDollarSign className="w-4 h-4" />
-              <span className="font-medium">PAYOUT</span>
-              <span className="bg-blue-200 px-2 py-1 rounded-full text-xs font-bold">
-                {avg("payout_rating")}
-              </span>
-            </div>
-            <div className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-full">
-              <FiShield className="w-4 h-4" />
-              <span className="font-medium">TRACKING</span>
-              <span className="bg-green-200 px-2 py-1 rounded-full text-xs font-bold">
-                {avg("tracking_rating")}
-              </span>
-            </div>
-            <div className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-full">
-              <FiHeadphones className="w-4 h-4" />
-              <span className="font-medium">SUPPORT</span>
-              <span className="bg-purple-200 px-2 py-1 rounded-full text-xs font-bold">
-                {avg("support_rating")}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Primary CTAs */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col sm:flex-row gap-4">
-            <button
-              className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-              onClick={() => setReviewModalOpen(true)}
-            >
-              <FiMessageCircle className="w-5 h-5" />
-              Write a Review
-            </button>
-            <a
-              href={network.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 font-medium"
-            >
-              <FiExternalLink className="w-5 h-5" />
-              Join Now
-            </a>
-          </div>
-        </div>
-      </div>
-
-      {/* Truncated Overview */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="bg-gray-50 rounded-lg p-6">
-            <p className="text-gray-700 leading-relaxed">
-              {showFullDescription ? network.description : truncatedDescription}
-            </p>
-            {network.description && network.description.length > 200 && (
-              <button
-                onClick={() => setShowFullDescription(!showFullDescription)}
-                className="text-amber-600 hover:text-amber-700 font-medium mt-2"
-              >
-                {showFullDescription ? "[Show Less]" : "[More]"}
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Network Details */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Affiliate Network Details</h2>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600 font-medium">Number of Offers</span>
-                  <span className="text-gray-900 font-semibold">{network.offers_count?.toLocaleString() || 'N/A'}</span>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600 font-medium">Commission Type</span>
-                  <span className="text-gray-900 font-semibold">{network.commission_rate || 'N/A'}</span>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600 font-medium">Minimum Payment</span>
-                  <span className="text-gray-900 font-semibold">{network.minimum_payout || 'N/A'}</span>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600 font-medium">Payment Frequency</span>
-                  <span className="text-gray-900 font-semibold">{network.payment_frequency || 'N/A'}</span>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600 font-medium">Tracking Software</span>
-                  <span className="text-gray-900 font-semibold">{network.tracking_software || 'N/A'}</span>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600 font-medium">Payment Methods</span>
-                  <span className="text-gray-900 font-semibold">
-                    {network.payment_methods ? network.payment_methods.join(', ') : 'N/A'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600 font-medium">Available Countries</span>
-                  <span className="text-gray-900 font-semibold">
-                    {network.countries ? network.countries.join(', ') : 'N/A'}
-                  </span>
+                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                    <span className="text-gray-600 font-medium">Available Countries</span>
+                    <span className="text-gray-900 font-semibold">
+                      {network.countries ? network.countries.join(', ') : 'N/A'}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Offers Section */}
-            {networkOffers.length > 0 && (
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Available Offers</h2>
-                
-                {/* Category Filter */}
-                {offerVerticals.length > 1 && (
-                  <div className="mb-6">
-                    <div className="flex flex-wrap gap-2">
-                      <button
-                        onClick={() => setSelectedVertical('All')}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                          selectedVertical === 'All'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}
-                      >
-                        All ({networkOffers.length})
-                      </button>
-                      {offerVerticals.map(vertical => (
+              {/* Offers Section */}
+              {networkOffers.length > 0 && (
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Available Offers</h2>
+                  
+                  {/* Category Filter */}
+                  {offerVerticals.length > 1 && (
+                    <div className="mb-6">
+                      <div className="flex flex-wrap gap-2">
                         <button
-                          key={vertical}
-                          onClick={() => setSelectedVertical(vertical)}
+                          onClick={() => setSelectedVertical('All')}
                           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                            selectedVertical === vertical
+                            selectedVertical === 'All'
                               ? 'bg-blue-600 text-white'
                               : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                           }`}
                         >
-                          {vertical} ({networkOffers.filter(o => o.vertical === vertical).length})
+                          All ({networkOffers.length})
                         </button>
-                      ))}
+                        {offerVerticals.map(vertical => (
+                          <button
+                            key={vertical}
+                            onClick={() => setSelectedVertical(vertical)}
+                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                              selectedVertical === vertical
+                                ? 'bg-blue-600 text-white'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            }`}
+                          >
+                            {vertical} ({networkOffers.filter(o => o.vertical === vertical).length})
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {/* Offers Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                  {paginatedOffers.map((offer, index) => (
-                    <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-semibold text-gray-900 text-sm">{offer.offerName}</h3>
-                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                          {offer.vertical}
-                        </span>
-                      </div>
-                      <div className="space-y-1 text-xs text-gray-600">
-                        <div className="flex justify-between">
-                          <span>Payout:</span>
-                          <span className="font-medium text-green-600">{offer.payout}</span>
+                  {/* Offers Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                    {paginatedOffers.map((offer, index) => (
+                      <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="font-semibold text-gray-900 text-sm">{offer.offerName}</h3>
+                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                            {offer.vertical}
+                          </span>
                         </div>
-                        <div className="flex justify-between">
-                          <span>Country:</span>
-                          <span>{offer.country}</span>
+                        <div className="space-y-1 text-xs text-gray-600">
+                          <div className="flex justify-between">
+                            <span>Payout:</span>
+                            <span className="font-medium text-green-600">{offer.payout}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Country:</span>
+                            <span>{offer.country}</span>
+                          </div>
                         </div>
                       </div>
+                    ))}
+                  </div>
+
+                  {/* Pagination */}
+                  {totalPages > 1 && (
+                    <div className="flex justify-center items-center gap-2">
+                      <button
+                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                        disabled={currentPage === 1}
+                        className="px-3 py-2 text-sm border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                      >
+                        Previous
+                      </button>
+                      <span className="px-3 py-2 text-sm text-gray-600">
+                        Page {currentPage} of {totalPages}
+                      </span>
+                      <button
+                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                        disabled={currentPage === totalPages}
+                        className="px-3 py-2 text-sm border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                      >
+                        Next
+                      </button>
                     </div>
-                  ))}
+                  )}
                 </div>
+              )}
 
-                {/* Pagination */}
-                {totalPages > 1 && (
-                  <div className="flex justify-center items-center gap-2">
-                    <button
-                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                      disabled={currentPage === 1}
-                      className="px-3 py-2 text-sm border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                    >
-                      Previous
-                    </button>
-                    <span className="px-3 py-2 text-sm text-gray-600">
-                      Page {currentPage} of {totalPages}
-                    </span>
-                    <button
-                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                      disabled={currentPage === totalPages}
-                      className="px-3 py-2 text-sm border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                    >
-                      Next
-                    </button>
-                  </div>
-                )}
+              {/* Reviews Section */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">User Reviews</h2>
+                <div className="text-center py-8 text-gray-500">
+                  <p>Review system coming soon!</p>
+                </div>
               </div>
-            )}
-
-            {/* Reviews Section */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">User Reviews</h2>
-              <UserReviews networkSlug={params?.slug as string} />
             </div>
-          </div>
 
-          {/* Right Column - Sidebar */}
-          <div className="space-y-6">
-            {/* Rating Chart */}
-            {chartReady && donutData && (
+            {/* Right Column - Sidebar */}
+            <div className="space-y-6">
+              {/* Quick Stats */}
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Rating Breakdown</h3>
-                <div className="w-full h-64">
-                  {/* We'll add the chart component here when Chart.js is ready */}
-                  <div className="flex items-center justify-center h-full text-gray-500">
-                    Rating data available
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Stats</h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Total Reviews</span>
+                    <span className="font-semibold text-gray-900">{reviewCount}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Average Rating</span>
+                    <span className="font-semibold text-gray-900">
+                      {Number(avg("overall_rating")) || network.rating}/5
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Offers Available</span>
+                    <span className="font-semibold text-gray-900">{networkOffers.length}</span>
                   </div>
                 </div>
               </div>
-            )}
 
-            {/* Quick Stats */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Stats</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Total Reviews</span>
-                  <span className="font-semibold text-gray-900">{reviewCount}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Average Rating</span>
-                  <span className="font-semibold text-gray-900">
-                    {Number(avg("overall_rating")) || network.rating}/5
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">Offers Available</span>
-                  <span className="font-semibold text-gray-900">{networkOffers.length}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Contact Info */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <FiGlobe className="w-5 h-5 text-gray-400" />
-                  <a 
-                    href={network.website} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-700 text-sm"
-                  >
-                    Visit Website
-                  </a>
-                </div>
-                <div className="flex items-center gap-3">
-                  <FiMail className="w-5 h-5 text-gray-400" />
-                  <span className="text-gray-600 text-sm">contact@{network.name.toLowerCase().replace(/\s+/g, '')}.com</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <FiUsers className="w-5 h-5 text-gray-400" />
-                  <span className="text-gray-600 text-sm">Affiliate Managers</span>
+              {/* Contact Info */}
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <FiGlobe className="w-5 h-5 text-gray-400" />
+                    <a 
+                      href={network.website} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-700 text-sm"
+                    >
+                      Visit Website
+                    </a>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <FiMail className="w-5 h-5 text-gray-400" />
+                    <span className="text-gray-600 text-sm">contact@{network.name.toLowerCase().replace(/\s+/g, '')}.com</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <FiUsers className="w-5 h-5 text-gray-400" />
+                    <span className="text-gray-600 text-sm">Affiliate Managers</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </ErrorBoundary>
   );
 } 
