@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import ReviewButton from "./ReviewButton";
 
 interface NetworkReviewSectionProps {
@@ -22,7 +21,6 @@ interface Review {
 }
 
 export default function NetworkReviewSection({ networkName, networkSlug }: NetworkReviewSectionProps) {
-  const supabase = createClientComponentClient();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [averageRating, setAverageRating] = useState(0);
@@ -30,31 +28,47 @@ export default function NetworkReviewSection({ networkName, networkSlug }: Netwo
   useEffect(() => {
     async function fetchReviews() {
       try {
-        const { data, error } = await supabase
-          .from('reviews')
-          .select('*')
-          .eq('network_slug', networkSlug)
-          .order('created_at', { ascending: false });
+        // Check if Supabase is available
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-        if (error) {
-          console.error('Error fetching reviews:', error);
-          return;
-        }
+        if (supabaseUrl && supabaseKey) {
+          // Try to fetch from Supabase
+          const { createClientComponentClient } = await import("@supabase/auth-helpers-nextjs");
+          const supabase = createClientComponentClient();
+          
+          const { data, error } = await supabase
+            .from('reviews')
+            .select('*')
+            .eq('network_slug', networkSlug)
+            .order('created_at', { ascending: false });
 
-        if (data && data.length > 0) {
-          setReviews(data);
-          const avg = data.reduce((sum, review) => sum + review.overall_rating, 0) / data.length;
-          setAverageRating(+(avg).toFixed(1));
+          if (!error && data && data.length > 0) {
+            setReviews(data);
+            const avg = data.reduce((sum, review) => sum + review.overall_rating, 0) / data.length;
+            setAverageRating(+(avg).toFixed(1));
+          } else {
+            // Fallback to empty reviews
+            setReviews([]);
+            setAverageRating(0);
+          }
+        } else {
+          // No Supabase available, use fallback
+          setReviews([]);
+          setAverageRating(0);
         }
       } catch (error) {
-        console.error('Error:', error);
+        console.error('Error fetching reviews:', error);
+        // Fallback to empty reviews
+        setReviews([]);
+        setAverageRating(0);
       } finally {
         setLoading(false);
       }
     }
 
     fetchReviews();
-  }, [networkSlug, supabase]);
+  }, [networkSlug]);
 
   if (loading) {
     return (

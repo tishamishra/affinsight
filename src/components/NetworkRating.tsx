@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 
 interface NetworkRatingProps {
   networkSlug: string;
@@ -17,7 +16,6 @@ interface Review {
 }
 
 export default function NetworkRating({ networkSlug }: NetworkRatingProps) {
-  const supabase = createClientComponentClient();
   const [averageRating, setAverageRating] = useState(0);
   const [totalReviews, setTotalReviews] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -25,30 +23,46 @@ export default function NetworkRating({ networkSlug }: NetworkRatingProps) {
   useEffect(() => {
     async function fetchRating() {
       try {
-        const { data, error } = await supabase
-          .from('reviews')
-          .select('overall_rating')
-          .eq('network_slug', networkSlug);
+        // Check if Supabase is available
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-        if (error) {
-          console.error('Error fetching rating:', error);
-          return;
-        }
+        if (supabaseUrl && supabaseKey) {
+          // Try to fetch from Supabase
+          const { createClientComponentClient } = await import("@supabase/auth-helpers-nextjs");
+          const supabase = createClientComponentClient();
+          
+          const { data, error } = await supabase
+            .from('reviews')
+            .select('overall_rating')
+            .eq('network_slug', networkSlug);
 
-        if (data && data.length > 0) {
-          const avg = data.reduce((sum, review) => sum + review.overall_rating, 0) / data.length;
-          setAverageRating(+(avg).toFixed(1));
-          setTotalReviews(data.length);
+          if (!error && data && data.length > 0) {
+            const avg = data.reduce((sum, review) => sum + review.overall_rating, 0) / data.length;
+            setAverageRating(+(avg).toFixed(1));
+            setTotalReviews(data.length);
+          } else {
+            // Fallback to no reviews
+            setAverageRating(0);
+            setTotalReviews(0);
+          }
+        } else {
+          // No Supabase available, use fallback
+          setAverageRating(0);
+          setTotalReviews(0);
         }
       } catch (error) {
-        console.error('Error:', error);
+        console.error('Error fetching rating:', error);
+        // Fallback to no reviews
+        setAverageRating(0);
+        setTotalReviews(0);
       } finally {
         setLoading(false);
       }
     }
 
     fetchRating();
-  }, [networkSlug, supabase]);
+  }, [networkSlug]);
 
   if (loading) {
     return (
