@@ -1,636 +1,151 @@
-"use client";
+import offers from '@/data/offers.json'
+import affiliateNetworksData from '@/data/affiliate-networks.json'
+import UserReviews from '@/components/UserReviews'
+import ReviewButton from '@/components/ReviewButton'
+import NetworkHeaderRating from '@/components/NetworkHeaderRating'
+import NetworkDescription from '@/components/NetworkDescription'
+import NetworkDetailsTable from '@/components/NetworkDetailsTable'
+import NetworkStats from '@/components/NetworkStats'
 
-import { useState, useEffect } from "react";
-import { 
-  FiStar, 
-  FiUsers, 
-  FiGlobe, 
-  FiDollarSign, 
-  FiCalendar, 
-  FiExternalLink,
-  FiMail,
-  FiFacebook,
-  FiLinkedin,
-  FiMessageCircle,
-  FiTrendingUp,
-  FiShield,
-  FiHeadphones,
-  FiBarChart
-} from "react-icons/fi";
-import { getNetworkByName } from "@/lib/networks-loader";
-import { Network } from "@/data/networks";
-import { getAllOffers } from '@/lib/offers-loader';
-import ReviewModal from "@/components/ReviewModal";
-import UserReviews from "@/components/UserReviews";
+export const dynamic = 'force-dynamic';
 
-interface NetworkDetailPageProps {
-  params: Promise<{ slug: string }>;
+interface PageProps {
+  params: Promise<{ slug: string }>
 }
 
-interface Review {
-  id: string;
-  overall_rating: number;
-  offers_rating: number;
-  payout_rating: number;
-  tracking_rating: number;
-  support_rating: number;
-  review_text: string;
-  screenshot_url?: string;
-  name: string;
-  created_at: string;
-}
-
-// Simple error boundary component
-const ErrorBoundary = ({ children }: { children: React.ReactNode }) => {
-  const [hasError, setHasError] = useState(false);
-
-  useEffect(() => {
-    const handleError = (error: ErrorEvent) => {
-      console.error('Network detail page error:', error);
-      setHasError(true);
-    };
-
-    window.addEventListener('error', handleError);
-    return () => window.removeEventListener('error', handleError);
-  }, []);
-
-  if (hasError) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Something went wrong</h1>
-          <p className="text-gray-600 mb-8">Please try refreshing the page.</p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200"
-          >
-            Refresh Page
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return <>{children}</>;
-};
-
-export default function NetworkDetailPage({ params }: NetworkDetailPageProps) {
-  const [network, setNetwork] = useState<Network | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [showFullDescription, setShowFullDescription] = useState(false);
-  const [reviews, setReviews] = useState<any[]>([]);
-  const [reviewsLoading, setReviewsLoading] = useState(true);
-  const [resolvedParams, setResolvedParams] = useState<{ slug: string } | null>(null);
-  const [showReviewModal, setShowReviewModal] = useState(false);
-
-  // Offers filtering logic with error handling
-  const [allOffers, setAllOffers] = useState<any[]>([]);
-  const [selectedVertical, setSelectedVertical] = useState('All');
-  const [currentPage, setCurrentPage] = useState(1);
-  const offersPerPage = 6;
-
-  // Safely get offers with error handling
-  useEffect(() => {
-    try {
-      const offers = getAllOffers();
-      setAllOffers(offers || []);
-    } catch (err) {
-      console.error('Error loading offers:', err);
-      setAllOffers([]);
-    }
-  }, []);
-
-  // Filter offers by network name with safety checks
-  const networkOffers = network && allOffers.length > 0 ? allOffers.filter(offer => {
-    try {
-      return offer.network && offer.network.toLowerCase() === network.name.toLowerCase();
-    } catch (err) {
-      console.error('Error filtering offer:', err, offer);
-      return false;
-    }
-  }) : [];
-
-  // Get unique verticals for filter with safety checks
-  const offerVerticals = networkOffers.length > 0 ? [...new Set(networkOffers.map(offer => offer.vertical).filter(Boolean))] : [];
-
-  // Filter offers by selected vertical with safety checks
-  const filteredOffers = selectedVertical === 'All' 
-    ? networkOffers 
-    : networkOffers.filter(offer => {
-        try {
-          return offer.vertical === selectedVertical;
-        } catch (err) {
-          console.error('Error filtering by vertical:', err, offer);
-          return false;
-        }
-      });
-
-  // Pagination with safety checks
-  const totalPages = Math.ceil(filteredOffers.length / offersPerPage);
-  const paginatedOffers = filteredOffers.slice((currentPage - 1) * offersPerPage, currentPage * offersPerPage);
-
-  // Resolve params Promise with error handling
-  useEffect(() => {
-    try {
-      params.then((resolved) => {
-        setResolvedParams(resolved);
-      }).catch((err) => {
-        console.error('Error resolving params:', err);
-        setError('Failed to load page parameters');
-      });
-    } catch (err) {
-      console.error('Error with params:', err);
-      setError('Failed to load page parameters');
-    }
-  }, [params]);
-
-  useEffect(() => {
-    function loadNetwork() {
-      try {
-        setLoading(true);
-        const slug = resolvedParams?.slug;
-        if (!slug) {
-          setError('Network slug is required');
-          return;
-        }
-        
-        const data = getNetworkByName(slug);
-        if (data) {
-          setNetwork(data);
-        } else {
-          setError('Network not found');
-        }
-      } catch (err) {
-        console.error('Error loading network:', err);
-        setError('Failed to load network details');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    if (resolvedParams?.slug) {
-      loadNetwork();
-    }
-  }, [resolvedParams?.slug]);
-
-  // Simple reviews loading without Supabase for now
-  useEffect(() => {
-    try {
-      setReviewsLoading(false);
-      setReviews([]); // Empty for now, will be implemented later
-    } catch (err) {
-      console.error('Error loading reviews:', err);
-      setReviews([]);
-    }
-  }, [resolvedParams?.slug]);
-
-  const avg = (field: string) => {
-    try {
-      if (!reviews || reviews.length === 0) return "-";
-      const sum = reviews.reduce((acc, r) => acc + (r[field] || 0), 0);
-      return (sum / reviews.length).toFixed(1);
-    } catch (err) {
-      console.error('Error calculating average:', err);
-      return "-";
-    }
-  };
+export default async function NetworkPage({ params }: PageProps) {
+  const { slug } = await params
   
-  const reviewCount = reviews.length;
-
-  const StarRating = ({ rating }: { rating: number }) => {
-    try {
-      const stars = [];
-      const fullStars = Math.floor(rating);
-      const hasHalfStar = rating % 1 !== 0;
-
-      for (let i = 0; i < 5; i++) {
-        if (i < fullStars) {
-          stars.push(
-            <FiStar key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-          );
-        } else if (i === fullStars && hasHalfStar) {
-          stars.push(
-            <div key={i} className="relative">
-              <FiStar className="w-5 h-5 text-gray-300" />
-              <FiStar className="w-5 h-5 text-yellow-400 fill-current absolute inset-0" style={{ clipPath: 'inset(0 50% 0 0)' }} />
-            </div>
-          );
-        } else {
-          stars.push(
-            <FiStar key={i} className="w-5 h-5 text-gray-300" />
-          );
-        }
-      }
-
-      return <div className="flex items-center space-x-1">{stars}</div>;
-    } catch (err) {
-      console.error('Error rendering star rating:', err);
-      return <div className="flex items-center space-x-1">★★★★★</div>;
-    }
-  };
-
-  if (loading) {
+  // Convert slug to network name for matching
+  const networkName = slug
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+  
+  const network = affiliateNetworksData.networks.find(n => 
+    n.name.toLowerCase() === networkName.toLowerCase() ||
+    n.name.toLowerCase().replace(/\s+/g, '-') === slug.toLowerCase()
+  )
+  
+  if (!network) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="animate-pulse">
-          {/* Hero Loading */}
-          <div className="bg-white border-b border-gray-200">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-              <div className="flex items-center gap-6">
-                <div className="w-24 h-24 bg-gray-200 rounded-lg"></div>
-                <div className="space-y-3">
-                  <div className="h-8 bg-gray-200 rounded w-64"></div>
-                  <div className="h-4 bg-gray-200 rounded w-48"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Metrics Loading */}
-          <div className="bg-white border-b border-gray-200">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-              <div className="flex flex-wrap gap-4">
-                {[1, 2, 3, 4].map(i => (
-                  <div key={i} className="h-8 bg-gray-200 rounded-full w-24"></div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Content Loading */}
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2 space-y-6">
-                <div className="h-64 bg-gray-200 rounded-lg"></div>
-                <div className="h-32 bg-gray-200 rounded-lg"></div>
-                <div className="h-32 bg-gray-200 rounded-lg"></div>
-              </div>
-              <div className="space-y-6">
-                <div className="h-48 bg-gray-200 rounded-lg"></div>
-                <div className="h-32 bg-gray-200 rounded-lg"></div>
-              </div>
-            </div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">Network Not Found</h1>
+            <p className="text-gray-600">The network you're looking for doesn't exist.</p>
           </div>
         </div>
       </div>
-    );
+    )
   }
 
-  if (error || !network) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Network Not Found</h1>
-          <p className="text-gray-600 mb-8">{error || 'The requested network could not be found.'}</p>
-          <a
-            href="/networks"
-            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200"
-          >
-            Browse All Networks
-          </a>
-        </div>
-      </div>
-    );
-  }
-
-  const truncatedDescription = network.description && network.description.length > 200 
-    ? network.description.substring(0, 200) + "..."
-    : network.description;
+  // Filter offers by network name
+  const networkOffers = offers.filter(offer => 
+    offer.network.toLowerCase().includes(network.name.toLowerCase()) ||
+    network.name.toLowerCase().includes(offer.network.toLowerCase())
+  )
 
   return (
-    <ErrorBoundary>
-      <div className="min-h-screen bg-gray-50">
-        {/* Hero Bar */}
-        <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-              <div className="flex items-center gap-6">
-                {/* Network Logo */}
-                <div className="flex-shrink-0">
-                  {network.logo_url ? (
-                    <img
-                      src={network.logo_url}
-                      alt={`${network.name} logo`}
-                      className="w-24 h-24 object-contain rounded-lg border border-gray-200"
-                    />
-                  ) : (
-                    <div className="w-24 h-24 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg flex items-center justify-center border border-gray-200">
-                      <span className="text-3xl font-bold text-amber-600">
-                        {network.name.charAt(0)}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                
-                {/* Network Info */}
-                <div className="flex-1">
-                  <h1 className="text-4xl font-bold text-gray-900 mb-2">{network.name}</h1>
-                  <div className="flex items-center gap-4 mb-3">
-                    <StarRating rating={Number(avg("overall_rating")) || network.rating} />
-                    <span className="text-gray-600 font-medium">{reviewCount} reviews</span>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8" style={{fontFamily: 'Inter, ui-sans-serif, system-ui'}}>
+      <div className="max-w-6xl mx-auto">
+        {/* Header Section */}
+        <div className="bg-white rounded-2xl shadow-xl border border-[#e6c77c] p-8 mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-8">
+              {/* Network Logo with Rating */}
+              {network.logo_url && (
+                <div className="flex-shrink-0 relative">
+                  <img 
+                    src={network.logo_url} 
+                    alt={`${network.name} logo`}
+                    className="w-24 h-24 object-contain rounded-xl border border-[#e6c77c] bg-white p-3 shadow-sm"
+                  />
+                  {/* Small Rating Label on top of logo */}
+                  <div className="absolute -top-2 -right-2 bg-gradient-to-r from-[#bfa14a] to-[#e6c77c] text-white text-xs font-medium px-2 py-1 rounded-full shadow-sm">
+                    <NetworkHeaderRating networkSlug={slug} compact={true} />
                   </div>
-                  <p className="text-gray-600 text-lg">{network.category} Network</p>
                 </div>
-              </div>
-
-              {/* Social Icons */}
-              <div className="flex items-center gap-4">
-                <a href={`mailto:contact@${network.name.toLowerCase().replace(/\s+/g, '')}.com`} className="p-2 text-gray-400 hover:text-amber-600 transition-colors">
-                  <FiMail className="w-5 h-5" />
-                </a>
-                <a href={network.website} target="_blank" rel="noopener noreferrer" className="p-2 text-gray-400 hover:text-amber-600 transition-colors">
-                  <FiExternalLink className="w-5 h-5" />
-                </a>
-                <a href="#" className="p-2 text-gray-400 hover:text-amber-600 transition-colors">
-                  <FiFacebook className="w-5 h-5" />
-                </a>
-                <a href="#" className="p-2 text-gray-400 hover:text-amber-600 transition-colors">
-                  <FiLinkedin className="w-5 h-5" />
-                </a>
+              )}
+              <div>
+                <h1 className="text-3xl font-semibold text-gray-900 mb-3 tracking-wide" style={{letterSpacing: '0.02em'}}>
+                  {network.name}
+                </h1>
+                {network.category && (
+                  <span className="inline-block px-4 py-2 bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] text-white text-sm font-medium rounded-full shadow-sm">
+                    {network.category}
+                  </span>
+                )}
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Metric Badges Row */}
-        <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="flex flex-wrap gap-4">
-              <div className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-full">
-                <FiTrendingUp className="w-4 h-4" />
-                <span className="font-medium">OFFERS</span>
-                <span className="bg-red-200 px-2 py-1 rounded-full text-xs font-bold">
-                  {networkOffers.length}
-                </span>
-              </div>
-              <div className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-full">
-                <FiDollarSign className="w-4 h-4" />
-                <span className="font-medium">PAYOUT</span>
-                <span className="bg-blue-200 px-2 py-1 rounded-full text-xs font-bold">
-                  {avg("payout_rating")}
-                </span>
-              </div>
-              <div className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-full">
-                <FiShield className="w-4 h-4" />
-                <span className="font-medium">TRACKING</span>
-                <span className="bg-green-200 px-2 py-1 rounded-full text-xs font-bold">
-                  {avg("tracking_rating")}
-                </span>
-              </div>
-              <div className="flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-full">
-                <FiHeadphones className="w-4 h-4" />
-                <span className="font-medium">SUPPORT</span>
-                <span className="bg-purple-200 px-2 py-1 rounded-full text-xs font-bold">
-                  {avg("support_rating")}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Primary CTAs */}
-        <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <button
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-                onClick={() => setShowReviewModal(true)}
-              >
-                <FiMessageCircle className="w-5 h-5" />
-                Write a Review
-              </button>
-              <a
-                href={network.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 font-medium"
-              >
-                <FiExternalLink className="w-5 h-5" />
-                Join Now
-              </a>
-            </div>
-          </div>
-        </div>
-
-        {/* Truncated Overview */}
-        <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="bg-gray-50 rounded-lg p-6">
-              <p className="text-gray-700 leading-relaxed">
-                {showFullDescription ? network.description : truncatedDescription}
-              </p>
-              {network.description && network.description.length > 200 && (
-                <button
-                  onClick={() => setShowFullDescription(!showFullDescription)}
-                  className="text-amber-600 hover:text-amber-700 font-medium mt-2"
+            <div className="flex items-center gap-6">
+              {/* Metrics Display */}
+              <NetworkStats networkSlug={slug} />
+              
+              {/* Action Buttons */}
+              <div className="flex items-center gap-3">
+                <a
+                  href={network.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-gradient-to-r from-[#bfa14a] to-[#e6c77c] hover:from-[#e6c77c] hover:to-[#bfa14a] text-white font-medium py-2 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md text-sm"
                 >
-                  {showFullDescription ? "[Show Less]" : "[More]"}
-                </button>
-              )}
+                  Visit Website
+                </a>
+                <ReviewButton networkName={network.name} networkSlug={slug} />
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column - Network Details */}
-            <div className="lg:col-span-2">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Affiliate Network Details</h2>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                    <span className="text-gray-600 font-medium">Number of Offers</span>
-                    <span className="text-gray-900 font-semibold">{networkOffers.length}</span>
-                  </div>
-                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                    <span className="text-gray-600 font-medium">Commission Type</span>
-                    <span className="text-gray-900 font-semibold">{network.commission_rate || 'N/A'}</span>
-                  </div>
-                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                    <span className="text-gray-600 font-medium">Minimum Payment</span>
-                    <span className="text-gray-900 font-semibold">{network.minimum_payout || 'N/A'}</span>
-                  </div>
-                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                    <span className="text-gray-600 font-medium">Payment Frequency</span>
-                    <span className="text-gray-900 font-semibold">{network.payment_frequency || 'N/A'}</span>
-                  </div>
-                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                    <span className="text-gray-600 font-medium">Tracking Software</span>
-                    <span className="text-gray-900 font-semibold">{network.tracking_software || 'N/A'}</span>
-                  </div>
-                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                    <span className="text-gray-600 font-medium">Payment Methods</span>
-                    <span className="text-gray-900 font-semibold">
-                      {network.payment_methods ? network.payment_methods.join(', ') : 'N/A'}
+        {/* Network Description Section */}
+        <NetworkDescription networkName={network.name} network={network} />
+        <NetworkDetailsTable network={network} />
+
+        {/* Offers Section */}
+        <div className="bg-white rounded-2xl shadow-xl border border-[#e6c77c] p-8 mb-8">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-8 flex items-center tracking-wide" style={{letterSpacing: '0.02em'}}>
+            <span className="w-2 h-8 bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] rounded-full mr-4"></span>
+            Available Offers ({networkOffers.length})
+          </h2>
+          {networkOffers.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {networkOffers.map((offer, index) => (
+                <div key={index} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-[#e6c77c]">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-lg text-gray-900" style={{letterSpacing: '0.01em'}}>{offer.offerName}</h3>
+                    <span className="bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] text-white text-xs font-medium px-3 py-1 rounded-full">
+                      {offer.vertical}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                    <span className="text-gray-600 font-medium">Available Countries</span>
-                    <span className="text-gray-900 font-semibold">
-                      {network.countries ? network.countries.join(', ') : 'N/A'}
-                    </span>
+                  <p className="text-gray-600 text-sm mb-4 font-light">Payout: {offer.payout} | Country: {offer.country}</p>
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-bold text-[#bfa14a]">${offer.payout}</span>
+                    <button className="bg-gradient-to-r from-[#bfa14a] to-[#e6c77c] hover:from-[#e6c77c] hover:to-[#bfa14a] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-all duration-300 transform hover:scale-105">
+                      View Offer
+                    </button>
                   </div>
                 </div>
-              </div>
-
-              {/* Offers Section - Auto-filtered by network */}
-              {networkOffers.length > 0 && (
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6">Available Offers</h2>
-                  
-                  {/* Category Filter */}
-                  {offerVerticals.length > 1 && (
-                    <div className="mb-6">
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          onClick={() => setSelectedVertical('All')}
-                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                            selectedVertical === 'All'
-                              ? 'bg-blue-600 text-white'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          }`}
-                        >
-                          All ({networkOffers.length})
-                        </button>
-                        {offerVerticals.map(vertical => (
-                          <button
-                            key={vertical}
-                            onClick={() => setSelectedVertical(vertical)}
-                            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                              selectedVertical === vertical
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
-                          >
-                            {vertical} ({networkOffers.filter(o => o.vertical === vertical).length})
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Offers Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                    {paginatedOffers.map((offer, index) => (
-                      <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                        <div className="flex justify-between items-start mb-2">
-                          <h3 className="font-semibold text-gray-900 text-sm">{offer.offerName}</h3>
-                          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                            {offer.vertical}
-                          </span>
-                        </div>
-                        <div className="space-y-1 text-xs text-gray-600">
-                          <div className="flex justify-between">
-                            <span>Payout:</span>
-                            <span className="font-medium text-green-600">{offer.payout}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span>Country:</span>
-                            <span>{offer.country}</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Pagination */}
-                  {totalPages > 1 && (
-                    <div className="flex justify-center items-center gap-2">
-                      <button
-                        onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                        disabled={currentPage === 1}
-                        className="px-3 py-2 text-sm border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                      >
-                        Previous
-                      </button>
-                      <span className="px-3 py-2 text-sm text-gray-600">
-                        Page {currentPage} of {totalPages}
-                      </span>
-                      <button
-                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                        disabled={currentPage === totalPages}
-                        className="px-3 py-2 text-sm border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-                      >
-                        Next
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Reviews Section */}
-              {resolvedParams && <UserReviews networkSlug={resolvedParams.slug} />}
+              ))}
             </div>
-
-            {/* Right Column - Sidebar */}
-            <div className="space-y-6">
-              {/* Quick Stats */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Stats</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Total Reviews</span>
-                    <span className="font-semibold text-gray-900">{reviewCount}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Average Rating</span>
-                    <span className="font-semibold text-gray-900">
-                      {Number(avg("overall_rating")) || network.rating}/5
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Offers Available</span>
-                    <span className="font-semibold text-gray-900">{networkOffers.length}</span>
-                  </div>
-                </div>
+          ) : (
+            <div className="text-center py-16">
+              <div className="w-20 h-20 bg-gradient-to-br from-[#e6c77c] to-[#bfa14a] rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
               </div>
-
-              {/* Contact Info */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <FiGlobe className="w-5 h-5 text-gray-400" />
-                    <a
-                      href={network.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-700 text-sm"
-                    >
-                      Visit Website
-                    </a>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <FiMail className="w-5 h-5 text-gray-400" />
-                    <span className="text-gray-600 text-sm">contact@{network.name.toLowerCase().replace(/\s+/g, '')}.com</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <FiUsers className="w-5 h-5 text-gray-400" />
-                    <span className="text-gray-600 text-sm">Affiliate Managers</span>
-                  </div>
-                </div>
-              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-3 tracking-wide" style={{letterSpacing: '0.02em'}}>No Offers Available</h3>
+              <p className="text-gray-600 font-light">Currently no offers are available for this network.</p>
             </div>
-          </div>
+          )}
+        </div>
+
+        {/* User Reviews Section */}
+        <div className="bg-white rounded-2xl shadow-xl border border-[#e6c77c] p-8">
+          <UserReviews networkSlug={slug} />
         </div>
       </div>
-
-      {/* Review Modal */}
-      {resolvedParams && (
-        <ReviewModal
-          open={showReviewModal}
-          onClose={() => setShowReviewModal(false)}
-          networkName={network.name}
-          networkSlug={resolvedParams.slug}
-          onSubmitted={() => {
-            setShowReviewModal(false);
-            // Refresh reviews after submission
-            window.location.reload();
-          }}
-        />
-      )}
-    </ErrorBoundary>
-  );
+    </div>
+  )
 } 

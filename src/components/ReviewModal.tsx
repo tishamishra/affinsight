@@ -83,37 +83,37 @@ export default function ReviewModal({ open, onClose, networkName, networkSlug, o
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-8 relative">
-        <button className="absolute top-4 right-4 text-gray-400 hover:text-gray-700" onClick={onClose}>
-          <FiX className="w-6 h-6" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 p-4">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative">
+        <button className="absolute top-3 right-3 text-gray-400 hover:text-gray-700" onClick={onClose}>
+          <FiX className="w-5 h-5" />
         </button>
-        <h2 className="text-2xl font-bold text-blue-700 mb-6">{networkName}</h2>
+        <h2 className="text-xl font-bold text-blue-700 mb-4">{networkName}</h2>
         {success ? (
-          <div className="text-green-600 font-semibold text-center py-8">
+          <div className="text-green-600 font-semibold text-center py-6">
             Thank you! Your review has been submitted for approval.
           </div>
         ) : (
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block font-semibold text-gray-600 mb-2">Your overall rating of this network <span className="text-red-500">*</span></label>
+            <label className="block font-semibold text-gray-600 mb-2 text-sm">Your overall rating of this network <span className="text-red-500">*</span></label>
             <div className="flex items-center gap-1">
               {[1,2,3,4,5].map(i => (
                 <button type="button" key={i} onClick={() => handleStar(i)} className="focus:outline-none">
-                  <FiStar className={`w-8 h-8 ${i <= overall ? 'text-blue-400 fill-current' : 'text-gray-300'}`} />
+                  <FiStar className={`w-6 h-6 ${i <= overall ? 'text-blue-400 fill-current' : 'text-gray-300'}`} />
                 </button>
               ))}
             </div>
           </div>
           <div>
-            <label className="block font-semibold text-gray-600 mb-2">Could you say a little more about it? <span className="text-red-500">*</span></label>
-            <div className="grid grid-cols-2 gap-4">
+            <label className="block font-semibold text-gray-600 mb-2 text-sm">Could you say a little more about it? <span className="text-red-500">*</span></label>
+            <div className="grid grid-cols-2 gap-3">
               <div>
                 <div className="text-xs font-bold text-gray-400 mb-1">OFFERS</div>
                 <div className="flex gap-1">
                   {[1,2,3,4,5].map(i => (
                     <button type="button" key={i} onClick={() => handleSubRating('offers', i)} className="focus:outline-none">
-                      <div className={`w-5 h-5 rounded ${i <= ratings.offers ? 'bg-blue-200' : 'bg-blue-50'}`}></div>
+                      <div className={`w-4 h-4 rounded ${i <= ratings.offers ? 'bg-blue-200' : 'bg-blue-50'}`}></div>
                     </button>
                   ))}
                 </div>
@@ -123,7 +123,7 @@ export default function ReviewModal({ open, onClose, networkName, networkSlug, o
                 <div className="flex gap-1">
                   {[1,2,3,4,5].map(i => (
                     <button type="button" key={i} onClick={() => handleSubRating('payout', i)} className="focus:outline-none">
-                      <div className={`w-5 h-5 rounded ${i <= ratings.payout ? 'bg-blue-200' : 'bg-blue-50'}`}></div>
+                      <div className={`w-4 h-4 rounded ${i <= ratings.payout ? 'bg-blue-200' : 'bg-blue-50'}`}></div>
                     </button>
                   ))}
                 </div>
@@ -133,7 +133,7 @@ export default function ReviewModal({ open, onClose, networkName, networkSlug, o
                 <div className="flex gap-1">
                   {[1,2,3,4,5].map(i => (
                     <button type="button" key={i} onClick={() => handleSubRating('tracking', i)} className="focus:outline-none">
-                      <div className={`w-5 h-5 rounded ${i <= ratings.tracking ? 'bg-blue-200' : 'bg-blue-50'}`}></div>
+                      <div className={`w-4 h-4 rounded ${i <= ratings.tracking ? 'bg-blue-200' : 'bg-blue-50'}`}></div>
                     </button>
                   ))}
                 </div>
@@ -143,7 +143,7 @@ export default function ReviewModal({ open, onClose, networkName, networkSlug, o
                 <div className="flex gap-1">
                   {[1,2,3,4,5].map(i => (
                     <button type="button" key={i} onClick={() => handleSubRating('support', i)} className="focus:outline-none">
-                      <div className={`w-5 h-5 rounded ${i <= ratings.support ? 'bg-blue-200' : 'bg-blue-50'}`}></div>
+                      <div className={`w-4 h-4 rounded ${i <= ratings.support ? 'bg-blue-200' : 'bg-blue-50'}`}></div>
                     </button>
                   ))}
                 </div>
@@ -151,30 +151,30 @@ export default function ReviewModal({ open, onClose, networkName, networkSlug, o
             </div>
           </div>
           <div>
-            <label className="block font-semibold text-gray-600 mb-2">Your review <span className="text-red-500">*</span></label>
-            <textarea className="w-full min-h-[100px] bg-gray-50 border border-gray-200 rounded-lg p-3" value={review} onChange={e => setReview(e.target.value)} required maxLength={1000} />
+            <label className="block font-semibold text-gray-600 mb-2 text-sm">Your review <span className="text-red-500">*</span></label>
+            <textarea className="w-full min-h-[80px] bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm" value={review} onChange={e => setReview(e.target.value)} required maxLength={1000} />
           </div>
           <div>
-            <label className="block font-semibold text-gray-600 mb-2">Upload your payment screenshot! <span className="text-gray-400 font-normal">(optional)</span></label>
-            <label className="inline-flex items-center gap-2 px-3 py-2 border border-blue-200 rounded cursor-pointer bg-blue-50 hover:bg-blue-100">
-              <FiUpload className="w-5 h-5 text-blue-400" />
+            <label className="block font-semibold text-gray-600 mb-2 text-sm">Upload your payment screenshot! <span className="text-gray-400 font-normal">(optional)</span></label>
+            <label className="inline-flex items-center gap-2 px-3 py-2 border border-blue-200 rounded cursor-pointer bg-blue-50 hover:bg-blue-100 text-sm">
+              <FiUpload className="w-4 h-4 text-blue-400" />
               <span className="font-semibold text-blue-600">UPLOAD IMAGE</span>
               <input type="file" accept="image/*" className="hidden" onChange={handleScreenshot} />
             </label>
             {screenshot && <span className="ml-2 text-xs text-gray-500">{screenshot.name}</span>}
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block font-semibold text-gray-600 mb-2">Name <span className="text-red-500">*</span></label>
-              <input className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2" value={name} onChange={e => setName(e.target.value)} required />
+              <label className="block font-semibold text-gray-600 mb-2 text-sm">Name <span className="text-red-500">*</span></label>
+              <input className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm" value={name} onChange={e => setName(e.target.value)} required />
             </div>
             <div>
-              <label className="block font-semibold text-gray-600 mb-2">Email <span className="text-red-500">*</span></label>
-              <input className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2" value={email} onChange={e => setEmail(e.target.value)} required type="email" />
+              <label className="block font-semibold text-gray-600 mb-2 text-sm">Email <span className="text-red-500">*</span></label>
+              <input className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm" value={email} onChange={e => setEmail(e.target.value)} required type="email" />
             </div>
           </div>
           {error && <div className="text-red-600 text-sm font-medium">{error}</div>}
-          <button type="submit" className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition" disabled={uploading}>
+          <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition text-sm" disabled={uploading}>
             {uploading ? "Submitting..." : "Submit Review"}
           </button>
         </form>
