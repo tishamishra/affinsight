@@ -59,6 +59,7 @@ export default function AdminDashboard() {
     try {
       const { data: { user } } = await client.auth.getUser();
       if (user) {
+        // Check profiles table for admin role
         const { data: profile } = await client
           .from('profiles')
           .select('*')
@@ -67,16 +68,32 @@ export default function AdminDashboard() {
         
         if (profile?.role === 'admin') {
           setUser(user);
-        } else {
-          // Check raw_user_meta_data for admin role
-          const userMetaData = user.user_metadata;
-          if (userMetaData?.role === 'admin') {
-            setUser(user);
-          } else {
-            alert('Access denied. Admin privileges required.');
-            window.location.href = '/';
-          }
+          return;
         }
+
+        // Check raw_user_meta_data for admin role
+        const userMetaData = user.user_metadata;
+        if (userMetaData?.role === 'admin') {
+          setUser(user);
+          return;
+        }
+
+        // Check user_roles table for admin role
+        const { data: userRoles } = await client
+          .from('user_roles')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('role', 'admin')
+          .single();
+        
+        if (userRoles) {
+          setUser(user);
+          return;
+        }
+
+        // If no admin role found, deny access
+        alert('Access denied. Admin privileges required.');
+        window.location.href = '/';
       } else {
         window.location.href = '/admin/login';
       }

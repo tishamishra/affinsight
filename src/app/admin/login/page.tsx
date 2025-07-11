@@ -41,27 +41,44 @@ export default function AdminLogin() {
       if (error) {
         setError(error.message);
       } else if (data.user) {
-        // Check if user has admin role
+        // Check if user has admin role in user_metadata
         const userMetaData = data.user.user_metadata;
         if (userMetaData?.role === 'admin') {
           router.push('/admin');
-        } else {
-          // Check profiles table for admin role
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', data.user.id)
-            .single();
-          
-          if (profile?.role === 'admin') {
-            router.push('/admin');
-          } else {
-            setError('Access denied. Admin privileges required.');
-            await supabase.auth.signOut();
-          }
+          return;
         }
+
+        // Check profiles table for admin role
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+        
+        if (profile?.role === 'admin') {
+          router.push('/admin');
+          return;
+        }
+
+        // Check user_roles table for admin role
+        const { data: userRoles } = await supabase
+          .from('user_roles')
+          .select('*')
+          .eq('user_id', data.user.id)
+          .eq('role', 'admin')
+          .single();
+        
+        if (userRoles) {
+          router.push('/admin');
+          return;
+        }
+
+        // If no admin role found, deny access
+        setError('Access denied. Admin privileges required.');
+        await supabase.auth.signOut();
       }
     } catch (err) {
+      console.error('Login error:', err);
       setError('An unexpected error occurred.');
     } finally {
       setLoading(false);
