@@ -1,0 +1,185 @@
+import { useState } from "react";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { FiStar, FiUpload, FiX } from "react-icons/fi";
+
+interface ReviewModalProps {
+  open: boolean;
+  onClose: () => void;
+  networkName: string;
+  networkSlug: string;
+  onSubmitted?: () => void;
+}
+
+const initialRatings = { offers: 0, payout: 0, tracking: 0, support: 0 };
+
+export default function ReviewModal({ open, onClose, networkName, networkSlug, onSubmitted }: ReviewModalProps) {
+  const supabase = createClientComponentClient();
+  const [overall, setOverall] = useState(0);
+  const [ratings, setRatings] = useState(initialRatings);
+  const [review, setReview] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [screenshot, setScreenshot] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+
+  if (!open) return null;
+
+  const handleStar = (val: number) => setOverall(val);
+  const handleSubRating = (field: keyof typeof ratings, val: number) => setRatings(r => ({ ...r, [field]: val }));
+
+  const handleScreenshot = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) setScreenshot(e.target.files[0]);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setSuccess(false);
+    if (!overall || !review || !name || !email) {
+      setError("Please fill all required fields and provide a rating.");
+      return;
+    }
+    setUploading(true);
+    let screenshot_url = null;
+    if (screenshot) {
+      const { data, error: uploadError } = await supabase.storage.from("general-images").upload(`payment-screenshots/${Date.now()}-${screenshot.name}`, screenshot);
+      if (uploadError) {
+        setError("Failed to upload screenshot.");
+        setUploading(false);
+        return;
+      }
+      screenshot_url = data?.path ? supabase.storage.from("general-images").getPublicUrl(data.path).data.publicUrl : null;
+    }
+    const { error: insertError } = await supabase.from("reviews").insert([
+      {
+        network_slug: networkSlug,
+        overall_rating: overall,
+        offers_rating: ratings.offers,
+        payout_rating: ratings.payout,
+        tracking_rating: ratings.tracking,
+        support_rating: ratings.support,
+        review_text: review,
+        screenshot_url,
+        name,
+        email,
+        status: "pending"
+      }
+    ]);
+    setUploading(false);
+    if (insertError) {
+      setError("Failed to submit review. Please try again.");
+      return;
+    }
+    setSuccess(true);
+    setOverall(0);
+    setRatings(initialRatings);
+    setReview("");
+    setName("");
+    setEmail("");
+    setScreenshot(null);
+    if (onSubmitted) onSubmitted();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-8 relative">
+        <button className="absolute top-4 right-4 text-gray-400 hover:text-gray-700" onClick={onClose}>
+          <FiX className="w-6 h-6" />
+        </button>
+        <h2 className="text-2xl font-bold text-blue-700 mb-6">{networkName}</h2>
+        {success ? (
+          <div className="text-green-600 font-semibold text-center py-8">
+            Thank you! Your review has been submitted for approval.
+          </div>
+        ) : (
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block font-semibold text-gray-600 mb-2">Your overall rating of this network <span className="text-red-500">*</span></label>
+            <div className="flex items-center gap-1">
+              {[1,2,3,4,5].map(i => (
+                <button type="button" key={i} onClick={() => handleStar(i)} className="focus:outline-none">
+                  <FiStar className={`w-8 h-8 ${i <= overall ? 'text-blue-400 fill-current' : 'text-gray-300'}`} />
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="block font-semibold text-gray-600 mb-2">Could you say a little more about it? <span className="text-red-500">*</span></label>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="text-xs font-bold text-gray-400 mb-1">OFFERS</div>
+                <div className="flex gap-1">
+                  {[1,2,3,4,5].map(i => (
+                    <button type="button" key={i} onClick={() => handleSubRating('offers', i)} className="focus:outline-none">
+                      <div className={`w-5 h-5 rounded ${i <= ratings.offers ? 'bg-blue-200' : 'bg-blue-50'}`}></div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs font-bold text-gray-400 mb-1">PAYOUT</div>
+                <div className="flex gap-1">
+                  {[1,2,3,4,5].map(i => (
+                    <button type="button" key={i} onClick={() => handleSubRating('payout', i)} className="focus:outline-none">
+                      <div className={`w-5 h-5 rounded ${i <= ratings.payout ? 'bg-blue-200' : 'bg-blue-50'}`}></div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs font-bold text-gray-400 mb-1">TRACKING</div>
+                <div className="flex gap-1">
+                  {[1,2,3,4,5].map(i => (
+                    <button type="button" key={i} onClick={() => handleSubRating('tracking', i)} className="focus:outline-none">
+                      <div className={`w-5 h-5 rounded ${i <= ratings.tracking ? 'bg-blue-200' : 'bg-blue-50'}`}></div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div className="text-xs font-bold text-gray-400 mb-1">SUPPORT</div>
+                <div className="flex gap-1">
+                  {[1,2,3,4,5].map(i => (
+                    <button type="button" key={i} onClick={() => handleSubRating('support', i)} className="focus:outline-none">
+                      <div className={`w-5 h-5 rounded ${i <= ratings.support ? 'bg-blue-200' : 'bg-blue-50'}`}></div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <label className="block font-semibold text-gray-600 mb-2">Your review <span className="text-red-500">*</span></label>
+            <textarea className="w-full min-h-[100px] bg-gray-50 border border-gray-200 rounded-lg p-3" value={review} onChange={e => setReview(e.target.value)} required maxLength={1000} />
+          </div>
+          <div>
+            <label className="block font-semibold text-gray-600 mb-2">Upload your payment screenshot! <span className="text-gray-400 font-normal">(optional)</span></label>
+            <label className="inline-flex items-center gap-2 px-3 py-2 border border-blue-200 rounded cursor-pointer bg-blue-50 hover:bg-blue-100">
+              <FiUpload className="w-5 h-5 text-blue-400" />
+              <span className="font-semibold text-blue-600">UPLOAD IMAGE</span>
+              <input type="file" accept="image/*" className="hidden" onChange={handleScreenshot} />
+            </label>
+            {screenshot && <span className="ml-2 text-xs text-gray-500">{screenshot.name}</span>}
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block font-semibold text-gray-600 mb-2">Name <span className="text-red-500">*</span></label>
+              <input className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2" value={name} onChange={e => setName(e.target.value)} required />
+            </div>
+            <div>
+              <label className="block font-semibold text-gray-600 mb-2">Email <span className="text-red-500">*</span></label>
+              <input className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2" value={email} onChange={e => setEmail(e.target.value)} required type="email" />
+            </div>
+          </div>
+          {error && <div className="text-red-600 text-sm font-medium">{error}</div>}
+          <button type="submit" className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition" disabled={uploading}>
+            {uploading ? "Submitting..." : "Submit Review"}
+          </button>
+        </form>
+        )}
+      </div>
+    </div>
+  );
+} 
