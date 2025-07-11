@@ -8,12 +8,8 @@ export const dynamic = 'force-dynamic';
 
 // Dynamically create Supabase client to avoid SSR issues
 const createSupabaseClient = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  
-  if (!supabaseUrl || !supabaseKey) {
-    throw new Error('Supabase environment variables are not configured');
-  }
+  const supabaseUrl = 'https://hvhaavxjbujkpvbvftkj.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2aGFhdnhqYnVqa3B2YnZmdGtqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE4MDIxNTksImV4cCI6MjA2NzM3ODE1OX0.Rtyf3tRc8cDiXtuf23BnvGrBw0cbJ4QOTBhm93Typ40';
   
   return createClient(supabaseUrl, supabaseKey);
 };
@@ -59,42 +55,38 @@ export default function AdminDashboard() {
     try {
       const { data: { user } } = await client.auth.getUser();
       if (user) {
-        // Check profiles table for admin role
-        const { data: profile } = await client
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
+        console.log('User found:', user.email);
         
-        if (profile?.role === 'admin') {
-          setUser(user);
-          return;
-        }
-
         // Check raw_user_meta_data for admin role
         const userMetaData = user.user_metadata;
         if (userMetaData?.role === 'admin') {
+          console.log('Admin role found in user_metadata');
           setUser(user);
           return;
         }
 
-        // Check user_roles table for admin role
-        const { data: userRoles } = await client
+        // Check user_roles table for admin role (skip profiles table)
+        const { data: userRoles, error: userRolesError } = await client
           .from('user_roles')
           .select('*')
           .eq('user_id', user.id)
           .eq('role', 'admin')
           .single();
         
-        if (userRoles) {
+        if (userRolesError) {
+          console.log('No admin role in user_roles table:', userRolesError.message);
+        } else if (userRoles) {
+          console.log('Admin role found in user_roles table');
           setUser(user);
           return;
         }
 
         // If no admin role found, deny access
+        console.log('No admin role found, denying access');
         alert('Access denied. Admin privileges required.');
         window.location.href = '/';
       } else {
+        console.log('No user found, redirecting to login');
         window.location.href = '/admin/login';
       }
     } catch (error) {

@@ -7,14 +7,10 @@ import { useRouter } from 'next/navigation';
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
 
-// Dynamically create Supabase client to avoid SSR issues
+// Use hardcoded Supabase credentials to avoid client-side env issues
 const createSupabaseClient = () => {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  
-  if (!supabaseUrl || !supabaseKey) {
-    throw new Error('Supabase environment variables are not configured');
-  }
+  const supabaseUrl = 'https://hvhaavxjbujkpvbvftkj.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2aGFhdnhqYnVqa3B2YnZmdGtqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE4MDIxNTksImV4cCI6MjA2NzM3ODE1OX0.Rtyf3tRc8cDiXtuf23BnvGrBw0cbJ4QOTBhm93Typ40';
   
   return createClient(supabaseUrl, supabaseKey);
 };
@@ -33,47 +29,45 @@ export default function AdminLogin() {
 
     try {
       const supabase = createSupabaseClient();
+      console.log('Attempting login with:', email);
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
+        console.error('Supabase auth error:', error);
         setError(error.message);
       } else if (data.user) {
+        console.log('User authenticated:', data.user.email);
+        
         // Check if user has admin role in user_metadata
         const userMetaData = data.user.user_metadata;
         if (userMetaData?.role === 'admin') {
+          console.log('Admin role found in user_metadata');
           router.push('/admin');
           return;
         }
 
-        // Check profiles table for admin role
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', data.user.id)
-          .single();
-        
-        if (profile?.role === 'admin') {
-          router.push('/admin');
-          return;
-        }
-
-        // Check user_roles table for admin role
-        const { data: userRoles } = await supabase
+        // Check user_roles table for admin role (skip profiles table)
+        const { data: userRoles, error: userRolesError } = await supabase
           .from('user_roles')
           .select('*')
           .eq('user_id', data.user.id)
           .eq('role', 'admin')
           .single();
         
-        if (userRoles) {
+        if (userRolesError) {
+          console.log('No admin role in user_roles table:', userRolesError.message);
+        } else if (userRoles) {
+          console.log('Admin role found in user_roles table');
           router.push('/admin');
           return;
         }
 
         // If no admin role found, deny access
+        console.log('No admin role found, denying access');
         setError('Access denied. Admin privileges required.');
         await supabase.auth.signOut();
       }
