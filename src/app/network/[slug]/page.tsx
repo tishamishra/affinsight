@@ -8,7 +8,7 @@ import ReviewModal from "@/components/ReviewModal";
 import UserReviews from "@/components/UserReviews";
 
 interface NetworkDetailPageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 interface Review {
@@ -48,17 +48,25 @@ export default function NetworkDetailPage({ params }: NetworkDetailPageProps) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [resolvedParams, setResolvedParams] = useState<{ slug: string } | null>(null);
 
   const itemsPerPage = 9;
   const truncatedDescription = network?.description?.length > 200 
     ? network.description.substring(0, 200) + '...' 
     : network.description;
 
+  // Resolve params Promise
+  useEffect(() => {
+    params.then((resolved) => {
+      setResolvedParams(resolved);
+    });
+  }, [params]);
+
   useEffect(() => {
     function loadNetwork() {
       try {
         setLoading(true);
-        const slug = params?.slug as string;
+        const slug = resolvedParams?.slug;
         if (!slug) {
           setError('Network slug is required');
           return;
@@ -78,10 +86,10 @@ export default function NetworkDetailPage({ params }: NetworkDetailPageProps) {
       }
     }
 
-    if (params?.slug) {
+    if (resolvedParams?.slug) {
       loadNetwork();
     }
-  }, [params?.slug]);
+  }, [resolvedParams?.slug]);
 
   // Load offers for this network
   useEffect(() => {
@@ -418,7 +426,7 @@ export default function NetworkDetailPage({ params }: NetworkDetailPageProps) {
               )}
 
               {/* Reviews Section */}
-              <UserReviews networkSlug={params.slug} />
+              {resolvedParams && <UserReviews networkSlug={resolvedParams.slug} />}
             </div>
 
             {/* Right Column - Sidebar */}
@@ -479,17 +487,19 @@ export default function NetworkDetailPage({ params }: NetworkDetailPageProps) {
       </div>
 
       {/* Review Modal */}
-      <ReviewModal
-        open={showReviewModal}
-        onClose={() => setShowReviewModal(false)}
-        networkName={network.name}
-        networkSlug={params.slug}
-        onSubmitted={() => {
-          setShowReviewModal(false);
-          // Refresh reviews after submission
-          window.location.reload();
-        }}
-      />
+      {resolvedParams && (
+        <ReviewModal
+          open={showReviewModal}
+          onClose={() => setShowReviewModal(false)}
+          networkName={network.name}
+          networkSlug={resolvedParams.slug}
+          onSubmitted={() => {
+            setShowReviewModal(false);
+            // Refresh reviews after submission
+            window.location.reload();
+          }}
+        />
+      )}
     </ErrorBoundary>
   );
 } 
