@@ -65,17 +65,16 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-
-    // Get all messages (for admin use)
+    // Get all contact submissions (for admin use)
     const { data, error } = await supabase
-      .from('messages')
+      .from('contact_submissions')
       .select('*')
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error('Error fetching messages:', error);
+      console.error('Error fetching contact submissions:', error);
       return NextResponse.json(
-        { error: 'Failed to fetch messages' },
+        { error: 'Failed to fetch contact submissions' },
         { status: 500 }
       );
     }
@@ -83,7 +82,7 @@ export async function GET() {
     return NextResponse.json({ messages: data });
 
   } catch (error) {
-    console.error('Error fetching messages:', error);
+    console.error('Error fetching contact submissions:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

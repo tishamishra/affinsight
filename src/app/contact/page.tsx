@@ -18,11 +18,12 @@ export default function ContactPage() {
       if (response.ok) {
         setIsSubmitted(true);
       } else {
-        const error = await response.json();
-        alert(`Error: ${error.error}`);
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to send message');
       }
     } catch (error) {
-      alert('Failed to send message. Please try again.');
+      console.error('Contact form error:', error);
+      throw error; // Re-throw to let ContactForm handle the error display
     }
   };
 

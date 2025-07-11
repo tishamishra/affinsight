@@ -78,7 +78,7 @@ export default function ContactForm({ onSubmit }: ContactFormProps) {
                 value={formData.name}
                 onChange={handleChange}
                 required
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl leading-5 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="Your name"
               />
             </div>
@@ -99,7 +99,7 @@ export default function ContactForm({ onSubmit }: ContactFormProps) {
                 value={formData.email}
                 onChange={handleChange}
                 required
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl leading-5 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="your@email.com"
               />
             </div>
@@ -117,7 +117,7 @@ export default function ContactForm({ onSubmit }: ContactFormProps) {
             value={formData.subject}
             onChange={handleChange}
             required
-            className="block w-full px-4 py-3 border border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
+            className="block w-full px-4 py-3 border border-gray-300 rounded-xl leading-5 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500"
             placeholder="What's this about?"
           />
         </div>
@@ -137,7 +137,7 @@ export default function ContactForm({ onSubmit }: ContactFormProps) {
               onChange={handleChange}
               required
               rows={6}
-              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
+              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-xl leading-5 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 resize-none"
               placeholder="Tell us more about your inquiry..."
             />
           </div>
