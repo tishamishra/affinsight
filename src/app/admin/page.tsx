@@ -3,10 +3,20 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
+// Dynamically create Supabase client to avoid SSR issues
+const createSupabaseClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Supabase environment variables are not configured');
+  }
+  
+  return createClient(supabaseUrl, supabaseKey);
+};
 
 interface Review {
   id: string;
@@ -30,87 +40,126 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
+  const [supabase, setSupabase] = useState<any>(null);
 
   useEffect(() => {
-    checkUser();
-    fetchReviews();
+    // Initialize Supabase client on client side only
+    try {
+      const client = createSupabaseClient();
+      setSupabase(client);
+      checkUser(client);
+      fetchReviews(client);
+    } catch (error) {
+      console.error('Failed to initialize Supabase:', error);
+      setLoading(false);
+    }
   }, []);
 
-  const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-      
-      if (profile?.role === 'admin') {
-        setUser(user);
-      } else {
-        // Check raw_user_meta_data for admin role
-        const userMetaData = user.user_metadata;
-        if (userMetaData?.role === 'admin') {
+  const checkUser = async (client: any) => {
+    try {
+      const { data: { user } } = await client.auth.getUser();
+      if (user) {
+        const { data: profile } = await client
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile?.role === 'admin') {
           setUser(user);
         } else {
-          alert('Access denied. Admin privileges required.');
-          window.location.href = '/';
+          // Check raw_user_meta_data for admin role
+          const userMetaData = user.user_metadata;
+          if (userMetaData?.role === 'admin') {
+            setUser(user);
+          } else {
+            alert('Access denied. Admin privileges required.');
+            window.location.href = '/';
+          }
         }
+      } else {
+        window.location.href = '/admin/login';
       }
-    } else {
+    } catch (error) {
+      console.error('Error checking user:', error);
       window.location.href = '/admin/login';
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
-  const fetchReviews = async () => {
-    const { data, error } = await supabase
-      .from('reviews')
-      .select('*')
-      .order('created_at', { ascending: false });
+  const fetchReviews = async (client: any) => {
+    try {
+      const { data, error } = await client
+        .from('reviews')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-    if (error) {
+      if (error) {
+        console.error('Error fetching reviews:', error);
+      } else {
+        setReviews(data || []);
+      }
+    } catch (error) {
       console.error('Error fetching reviews:', error);
-    } else {
-      setReviews(data || []);
     }
   };
 
   const updateReviewStatus = async (reviewId: string, status: 'approved' | 'rejected') => {
-    const { error } = await supabase
-      .from('reviews')
-      .update({ status })
-      .eq('id', reviewId);
+    if (!supabase) return;
+    
+    try {
+      const { error } = await supabase
+        .from('reviews')
+        .update({ status })
+        .eq('id', reviewId);
 
-    if (error) {
+      if (error) {
+        console.error('Error updating review:', error);
+        alert('Error updating review status');
+      } else {
+        fetchReviews(supabase);
+        alert(`Review ${status} successfully`);
+      }
+    } catch (error) {
       console.error('Error updating review:', error);
       alert('Error updating review status');
-    } else {
-      fetchReviews();
-      alert(`Review ${status} successfully`);
     }
   };
 
   const deleteReview = async (reviewId: string) => {
+    if (!supabase) return;
+    
     if (confirm('Are you sure you want to delete this review?')) {
-      const { error } = await supabase
-        .from('reviews')
-        .delete()
-        .eq('id', reviewId);
+      try {
+        const { error } = await supabase
+          .from('reviews')
+          .delete()
+          .eq('id', reviewId);
 
-      if (error) {
+        if (error) {
+          console.error('Error deleting review:', error);
+          alert('Error deleting review');
+        } else {
+          fetchReviews(supabase);
+          alert('Review deleted successfully');
+        }
+      } catch (error) {
         console.error('Error deleting review:', error);
         alert('Error deleting review');
-      } else {
-        fetchReviews();
-        alert('Review deleted successfully');
       }
     }
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    window.location.href = '/';
+    if (!supabase) return;
+    
+    try {
+      await supabase.auth.signOut();
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
   };
 
   const filteredReviews = reviews.filter(review => {
