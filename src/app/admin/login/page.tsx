@@ -40,32 +40,30 @@ export default function AdminLogin() {
         console.error('Supabase auth error:', error);
         setError(error.message);
       } else if (data.user) {
-        console.log('User authenticated:', data.user.email);
-        
-        // Check if user has admin role in user_metadata
         const userMetaData = data.user.user_metadata;
-        if (userMetaData?.role === 'admin') {
+        console.log('AUTH USER:', data.user);
+        console.log('USER METADATA:', userMetaData);
+
+        // Case-insensitive check for user_metadata
+        if (userMetaData?.role?.toLowerCase() === 'admin') {
           console.log('Admin role found in user_metadata');
           router.push('/admin');
           return;
         }
 
-        // Check user_roles table for admin role (skip profiles table)
+        // Check user_roles table for admin role (case-insensitive)
         const { data: userRoles, error: userRolesError } = await supabase
           .from('user_roles')
           .select('*')
           .eq('user_id', data.user.id)
-          .eq('user_role', 'admin') // <-- use 'user_role' column
+          .eq('user_role', 'admin')
           .single();
-        
-        console.log('User ID:', data.user.id);
-        console.log('User roles query result:', userRoles);
-        console.log('User roles query error:', userRolesError);
-        
-        if (userRolesError) {
-          console.log('No admin role in user_roles table:', userRolesError.message);
-        } else if (userRoles) {
-          console.log('Admin role found in user_roles table:', userRoles);
+
+        console.log('USER ROLES QUERY RESULT:', userRoles);
+        console.log('USER ROLES QUERY ERROR:', userRolesError);
+
+        if (userRoles && userRoles.user_role?.toLowerCase() === 'admin') {
+          console.log('Admin role found in user_roles table');
           router.push('/admin');
           return;
         }
