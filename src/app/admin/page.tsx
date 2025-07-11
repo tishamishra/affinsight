@@ -70,7 +70,7 @@ export default function AdminDashboard() {
           .from('user_roles')
           .select('*')
           .eq('user_id', user.id)
-          .eq('role', 'admin')
+          .eq('user_role', 'admin') // <-- use 'user_role' column
           .single();
         
         if (userRolesError) {

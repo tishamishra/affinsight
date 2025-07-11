@@ -55,13 +55,17 @@ export default function AdminLogin() {
           .from('user_roles')
           .select('*')
           .eq('user_id', data.user.id)
-          .eq('role', 'admin')
+          .eq('user_role', 'admin') // <-- use 'user_role' column
           .single();
+        
+        console.log('User ID:', data.user.id);
+        console.log('User roles query result:', userRoles);
+        console.log('User roles query error:', userRolesError);
         
         if (userRolesError) {
           console.log('No admin role in user_roles table:', userRolesError.message);
         } else if (userRoles) {
-          console.log('Admin role found in user_roles table');
+          console.log('Admin role found in user_roles table:', userRoles);
           router.push('/admin');
           return;
         }
