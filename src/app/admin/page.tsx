@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { FiCheck, FiX, FiTrash2, FiRefreshCw, FiStar } from 'react-icons/fi';
+import { FiCheck, FiX, FiTrash2, FiRefreshCw, FiStar, FiMail } from 'react-icons/fi';
+import { getNetworkByName } from '@/lib/networks-loader';
 
 const supabaseUrl = 'https://hvhaavxjbujkpvbvftkj.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2aGFhdnhqYnVqa3B2YnZmdGtqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE4MDIxNTksImV4cCI6MjA2NzM3ODE1OX0.Rtyf3tRc8cDiXtuf23BnvGrBw0cbJ4QOTBhm93Typ40';
@@ -24,11 +25,22 @@ interface Review {
   created_at: string;
 }
 
+interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  created_at: string;
+}
+
 export default function AdminDashboard() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
   const [refreshing, setRefreshing] = useState(false);
+  const [contactMessages, setContactMessages] = useState<ContactMessage[]>([]);
+  const [loadingMessages, setLoadingMessages] = useState(true);
 
   const fetchReviews = async () => {
     setLoading(true);
@@ -52,6 +64,25 @@ export default function AdminDashboard() {
   const deleteReview = async (id: string) => {
     await supabase.from('reviews').delete().eq('id', id);
     fetchReviews();
+  };
+
+  const fetchContactMessages = async () => {
+    setLoadingMessages(true);
+    const { data, error } = await supabase
+      .from('contact_submissions')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (!error && data) setContactMessages(data as ContactMessage[]);
+    setLoadingMessages(false);
+  };
+
+  useEffect(() => {
+    fetchContactMessages();
+  }, []);
+
+  const deleteContactMessage = async (id: string) => {
+    await supabase.from('contact_submissions').delete().eq('id', id);
+    fetchContactMessages();
   };
 
   const filteredReviews = filter === 'all' ? reviews : reviews.filter(r => r.status === filter);
@@ -108,7 +139,16 @@ export default function AdminDashboard() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredReviews.map((review) => (
                   <tr key={review.id} className="hover:bg-blue-50 transition">
-                    <td className="px-6 py-4 whitespace-nowrap font-semibold text-blue-800">{review.network_slug}</td>
+                    <td className="px-6 py-4 whitespace-nowrap font-semibold text-blue-800">
+                      <a
+                        href={`/network/${review.network_slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-700 underline hover:text-blue-900"
+                      >
+                        {getNetworkByName(review.network_slug)?.name || review.network_slug}
+                      </a>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-gray-700">{review.name}<br /><span className="text-xs text-gray-400">{review.email}</span></td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="inline-flex items-center gap-1 font-bold text-yellow-500">
@@ -157,6 +197,55 @@ export default function AdminDashboard() {
                           <FiTrash2 />
                         </button>
                       </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+      <div className="mt-16">
+        <h2 className="text-2xl font-bold text-blue-800 mb-4">Contact Messages</h2>
+        {loadingMessages ? (
+          <div className="flex justify-center py-10">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+          </div>
+        ) : contactMessages.length === 0 ? (
+          <div className="text-center text-gray-500 py-10 text-lg">No contact messages found.</div>
+        ) : (
+          <div className="overflow-x-auto rounded-lg shadow bg-white">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-blue-100">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">Email</th>
+                  <th className="px-6 py-3 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">Subject</th>
+                  <th className="px-6 py-3 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">Message</th>
+                  <th className="px-6 py-3 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-bold text-blue-700 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {contactMessages.map((msg) => (
+                  <tr key={msg.id} className="hover:bg-blue-50 transition">
+                    <td className="px-6 py-4 whitespace-nowrap font-semibold text-blue-800">{msg.name}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-blue-700">
+                      <a href={`mailto:${msg.email}`} className="flex items-center gap-1 hover:underline">
+                        <FiMail /> {msg.email}
+                      </a>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-gray-700">{msg.subject}</td>
+                    <td className="px-6 py-4 whitespace-pre-line text-gray-700 max-w-xs break-words">{msg.message}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(msg.created_at).toLocaleDateString()}</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <button
+                        onClick={() => deleteContactMessage(msg.id)}
+                        className="p-2 rounded bg-gray-100 text-gray-700 hover:bg-gray-200 transition"
+                        title="Delete"
+                      >
+                        <FiTrash2 />
+                      </button>
                     </td>
                   </tr>
                 ))}
