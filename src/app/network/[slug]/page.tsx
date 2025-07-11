@@ -84,34 +84,65 @@ export default function NetworkDetailPage({ params }: NetworkDetailPageProps) {
   const [resolvedParams, setResolvedParams] = useState<{ slug: string } | null>(null);
   const [showReviewModal, setShowReviewModal] = useState(false);
 
-  // Offers filtering logic
-  const allOffers = getAllOffers();
+  // Offers filtering logic with error handling
+  const [allOffers, setAllOffers] = useState<any[]>([]);
   const [selectedVertical, setSelectedVertical] = useState('All');
   const [currentPage, setCurrentPage] = useState(1);
   const offersPerPage = 6;
 
-  // Filter offers by network name
-  const networkOffers = network ? allOffers.filter(offer => 
-    offer.network.toLowerCase() === network.name.toLowerCase()
-  ) : [];
+  // Safely get offers with error handling
+  useEffect(() => {
+    try {
+      const offers = getAllOffers();
+      setAllOffers(offers || []);
+    } catch (err) {
+      console.error('Error loading offers:', err);
+      setAllOffers([]);
+    }
+  }, []);
 
-  // Get unique verticals for filter
-  const offerVerticals = [...new Set(networkOffers.map(offer => offer.vertical))];
+  // Filter offers by network name with safety checks
+  const networkOffers = network && allOffers.length > 0 ? allOffers.filter(offer => {
+    try {
+      return offer.network && offer.network.toLowerCase() === network.name.toLowerCase();
+    } catch (err) {
+      console.error('Error filtering offer:', err, offer);
+      return false;
+    }
+  }) : [];
 
-  // Filter offers by selected vertical
+  // Get unique verticals for filter with safety checks
+  const offerVerticals = networkOffers.length > 0 ? [...new Set(networkOffers.map(offer => offer.vertical).filter(Boolean))] : [];
+
+  // Filter offers by selected vertical with safety checks
   const filteredOffers = selectedVertical === 'All' 
     ? networkOffers 
-    : networkOffers.filter(offer => offer.vertical === selectedVertical);
+    : networkOffers.filter(offer => {
+        try {
+          return offer.vertical === selectedVertical;
+        } catch (err) {
+          console.error('Error filtering by vertical:', err, offer);
+          return false;
+        }
+      });
 
-  // Pagination
+  // Pagination with safety checks
   const totalPages = Math.ceil(filteredOffers.length / offersPerPage);
   const paginatedOffers = filteredOffers.slice((currentPage - 1) * offersPerPage, currentPage * offersPerPage);
 
-  // Resolve params Promise
+  // Resolve params Promise with error handling
   useEffect(() => {
-    params.then((resolved) => {
-      setResolvedParams(resolved);
-    });
+    try {
+      params.then((resolved) => {
+        setResolvedParams(resolved);
+      }).catch((err) => {
+        console.error('Error resolving params:', err);
+        setError('Failed to load page parameters');
+      });
+    } catch (err) {
+      console.error('Error with params:', err);
+      setError('Failed to load page parameters');
+    }
   }, [params]);
 
   useEffect(() => {
@@ -131,8 +162,8 @@ export default function NetworkDetailPage({ params }: NetworkDetailPageProps) {
           setError('Network not found');
         }
       } catch (err) {
-        setError('Failed to load network details');
         console.error('Error loading network:', err);
+        setError('Failed to load network details');
       } finally {
         setLoading(false);
       }
@@ -145,43 +176,58 @@ export default function NetworkDetailPage({ params }: NetworkDetailPageProps) {
 
   // Simple reviews loading without Supabase for now
   useEffect(() => {
-    setReviewsLoading(false);
-    setReviews([]); // Empty for now, will be implemented later
+    try {
+      setReviewsLoading(false);
+      setReviews([]); // Empty for now, will be implemented later
+    } catch (err) {
+      console.error('Error loading reviews:', err);
+      setReviews([]);
+    }
   }, [resolvedParams?.slug]);
 
   const avg = (field: string) => {
-    if (!reviews || reviews.length === 0) return "-";
-    const sum = reviews.reduce((acc, r) => acc + (r[field] || 0), 0);
-    return (sum / reviews.length).toFixed(1);
+    try {
+      if (!reviews || reviews.length === 0) return "-";
+      const sum = reviews.reduce((acc, r) => acc + (r[field] || 0), 0);
+      return (sum / reviews.length).toFixed(1);
+    } catch (err) {
+      console.error('Error calculating average:', err);
+      return "-";
+    }
   };
   
   const reviewCount = reviews.length;
 
   const StarRating = ({ rating }: { rating: number }) => {
-    const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 !== 0;
+    try {
+      const stars = [];
+      const fullStars = Math.floor(rating);
+      const hasHalfStar = rating % 1 !== 0;
 
-    for (let i = 0; i < 5; i++) {
-      if (i < fullStars) {
-        stars.push(
-          <FiStar key={i} className="w-5 h-5 text-yellow-400 fill-current" />
-        );
-      } else if (i === fullStars && hasHalfStar) {
-        stars.push(
-          <div key={i} className="relative">
-            <FiStar className="w-5 h-5 text-gray-300" />
-            <FiStar className="w-5 h-5 text-yellow-400 fill-current absolute inset-0" style={{ clipPath: 'inset(0 50% 0 0)' }} />
-          </div>
-        );
-      } else {
-        stars.push(
-          <FiStar key={i} className="w-5 h-5 text-gray-300" />
-        );
+      for (let i = 0; i < 5; i++) {
+        if (i < fullStars) {
+          stars.push(
+            <FiStar key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+          );
+        } else if (i === fullStars && hasHalfStar) {
+          stars.push(
+            <div key={i} className="relative">
+              <FiStar className="w-5 h-5 text-gray-300" />
+              <FiStar className="w-5 h-5 text-yellow-400 fill-current absolute inset-0" style={{ clipPath: 'inset(0 50% 0 0)' }} />
+            </div>
+          );
+        } else {
+          stars.push(
+            <FiStar key={i} className="w-5 h-5 text-gray-300" />
+          );
+        }
       }
-    }
 
-    return <div className="flex items-center space-x-1">{stars}</div>;
+      return <div className="flex items-center space-x-1">{stars}</div>;
+    } catch (err) {
+      console.error('Error rendering star rating:', err);
+      return <div className="flex items-center space-x-1">★★★★★</div>;
+    }
   };
 
   if (loading) {
