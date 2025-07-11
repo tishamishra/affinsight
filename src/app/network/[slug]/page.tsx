@@ -23,10 +23,21 @@ import { Network } from "@/data/networks";
 import ReviewModal from "@/components/ReviewModal";
 import UserReviews from "@/components/UserReviews";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { Doughnut } from 'react-chartjs-2';
-import { Chart, ArcElement, Tooltip, Legend } from 'chart.js';
-Chart.register(ArcElement, Tooltip, Legend);
 import { getAllOffers } from '@/lib/offers-loader';
+
+// Safely register Chart.js components
+let ChartRegistered = false;
+const registerChart = () => {
+  if (typeof window !== 'undefined' && !ChartRegistered) {
+    try {
+      const { Chart, ArcElement, Tooltip, Legend } = require('chart.js');
+      Chart.register(ArcElement, Tooltip, Legend);
+      ChartRegistered = true;
+    } catch (error) {
+      console.warn('Chart.js registration failed:', error);
+    }
+  }
+};
 
 export default function NetworkDetailPage() {
   // All hooks at the top!
@@ -39,27 +50,49 @@ export default function NetworkDetailPage() {
   const supabase = createClientComponentClient();
   const [reviews, setReviews] = useState<any[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [chartReady, setChartReady] = useState(false);
+  
   const allOffers = getAllOffers();
   const networkOffers = useMemo(() => {
     if (!network) return [];
     return allOffers.filter(o => o.network === network.name);
   }, [allOffers, network?.name]);
+  
   const offerVerticals = useMemo(() => {
     if (!networkOffers) return [];
     return Array.from(new Set(networkOffers.map(o => o.vertical)));
   }, [networkOffers]);
+  
   const [selectedVertical, setSelectedVertical] = useState('All');
-  const filteredOffers = useMemo(() => selectedVertical === 'All' ? networkOffers : networkOffers.filter(o => o.vertical === selectedVertical), [networkOffers, selectedVertical]);
+  const filteredOffers = useMemo(() => 
+    selectedVertical === 'All' ? networkOffers : networkOffers.filter(o => o.vertical === selectedVertical), 
+    [networkOffers, selectedVertical]
+  );
+  
   const offersPerPage = 6;
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = useMemo(() => Math.ceil(filteredOffers.length / offersPerPage), [filteredOffers.length]);
-  const paginatedOffers = useMemo(() => filteredOffers.slice((currentPage - 1) * offersPerPage, currentPage * offersPerPage), [filteredOffers, currentPage, offersPerPage]);
+  const paginatedOffers = useMemo(() => 
+    filteredOffers.slice((currentPage - 1) * offersPerPage, currentPage * offersPerPage), 
+    [filteredOffers, currentPage, offersPerPage]
+  );
+
+  useEffect(() => {
+    // Register Chart.js on client side
+    registerChart();
+    setChartReady(true);
+  }, []);
 
   useEffect(() => {
     function loadNetwork() {
       try {
         setLoading(true);
         const slug = params?.slug as string;
+        if (!slug) {
+          setError('Network slug is required');
+          return;
+        }
+        
         const data = getNetworkByName(slug);
         if (data) {
           setNetwork(data);
@@ -81,20 +114,37 @@ export default function NetworkDetailPage() {
 
   useEffect(() => {
     async function fetchReviews() {
-      setReviewsLoading(true);
-      const { data, error } = await supabase
-        .from("reviews")
-        .select("overall_rating, offers_rating, payout_rating, tracking_rating, support_rating")
-        .eq("network_slug", params?.slug as string)
-        .eq("status", "approved");
-      if (!error && data) setReviews(data);
-      setReviewsLoading(false);
+      try {
+        setReviewsLoading(true);
+        const { data, error } = await supabase
+          .from("reviews")
+          .select("overall_rating, offers_rating, payout_rating, tracking_rating, support_rating")
+          .eq("network_slug", params?.slug as string)
+          .eq("status", "approved");
+        
+        if (!error && data) {
+          setReviews(data);
+        } else {
+          console.warn('Error fetching reviews:', error);
+        }
+      } catch (err) {
+        console.error('Error fetching reviews:', err);
+      } finally {
+        setReviewsLoading(false);
+      }
     }
-    if (params?.slug) fetchReviews();
-  }, [params?.slug]);
+    
+    if (params?.slug) {
+      fetchReviews();
+    }
+  }, [params?.slug, supabase]);
 
-  const avg = (field: string) =>
-    reviews.length ? (reviews.reduce((sum, r) => sum + (r[field] || 0), 0) / reviews.length).toFixed(1) : "-";
+  const avg = (field: string) => {
+    if (!reviews || reviews.length === 0) return "-";
+    const sum = reviews.reduce((acc, r) => acc + (r[field] || 0), 0);
+    return (sum / reviews.length).toFixed(1);
+  };
+  
   const reviewCount = reviews.length;
 
   // Mock data for enhanced features
@@ -135,7 +185,8 @@ export default function NetworkDetailPage() {
     return <div className="flex items-center space-x-1">{stars}</div>;
   };
 
-  const donutData = {
+  // Only create chart data if Chart.js is ready
+  const donutData = chartReady ? {
     labels: ['Offers', 'Payout', 'Tracking', 'Support'],
     datasets: [
       {
@@ -154,7 +205,8 @@ export default function NetworkDetailPage() {
         borderWidth: 2,
       },
     ],
-  };
+  } : null;
+  
   const donutOptions = {
     cutout: '70%',
     plugins: {
@@ -198,6 +250,7 @@ export default function NetworkDetailPage() {
               <div className="lg:col-span-2 space-y-6">
                 <div className="h-64 bg-gray-200 rounded-lg"></div>
                 <div className="h-32 bg-gray-200 rounded-lg"></div>
+                <div className="h-32 bg-gray-200 rounded-lg"></div>
               </div>
               <div className="space-y-6">
                 <div className="h-48 bg-gray-200 rounded-lg"></div>
@@ -230,9 +283,6 @@ export default function NetworkDetailPage() {
   const truncatedDescription = network.description && network.description.length > 200 
     ? network.description.substring(0, 200) + "..."
     : network.description;
-
-  console.log('network.name', network?.name);
-  console.log('networkOffers', networkOffers);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -398,197 +448,180 @@ export default function NetworkDetailPage() {
                   <span className="text-gray-900 font-semibold">{network.payment_frequency || 'N/A'}</span>
                 </div>
                 <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600 font-medium">Payment Methods</span>
-                  <div className="flex flex-wrap gap-1">
-                    {network.payment_methods?.map((method: string) => (
-                      <span key={method} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
-                        {method}
-                      </span>
-                    )) || <span className="text-gray-500">N/A</span>}
-                  </div>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600 font-medium">Referral Commission</span>
-                  <span className="text-gray-900 font-semibold">{mockData.referralCommission}</span>
-                </div>
-                <div className="flex items-center justify-between py-3 border-b border-gray-100">
                   <span className="text-gray-600 font-medium">Tracking Software</span>
                   <span className="text-gray-900 font-semibold">{network.tracking_software || 'N/A'}</span>
                 </div>
                 <div className="flex items-center justify-between py-3 border-b border-gray-100">
-                  <span className="text-gray-600 font-medium">Tracking Link</span>
-                  <a href={mockData.trackingLink} className="text-amber-600 hover:text-amber-700 font-medium">
-                    View Link
-                  </a>
+                  <span className="text-gray-600 font-medium">Payment Methods</span>
+                  <span className="text-gray-900 font-semibold">
+                    {network.payment_methods ? network.payment_methods.join(', ') : 'N/A'}
+                  </span>
                 </div>
-                <div className="flex items-center justify-between py-3">
-                  <span className="text-gray-600 font-medium">Affiliate Managers</span>
-                  <span className="text-gray-900 font-semibold">{mockData.affiliateManagers}</span>
+                <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                  <span className="text-gray-600 font-medium">Available Countries</span>
+                  <span className="text-gray-900 font-semibold">
+                    {network.countries ? network.countries.join(', ') : 'N/A'}
+                  </span>
                 </div>
               </div>
+            </div>
+
+            {/* Offers Section */}
+            {networkOffers.length > 0 && (
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Available Offers</h2>
+                
+                {/* Category Filter */}
+                {offerVerticals.length > 1 && (
+                  <div className="mb-6">
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => setSelectedVertical('All')}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                          selectedVertical === 'All'
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        All ({networkOffers.length})
+                      </button>
+                      {offerVerticals.map(vertical => (
+                        <button
+                          key={vertical}
+                          onClick={() => setSelectedVertical(vertical)}
+                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            selectedVertical === vertical
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          {vertical} ({networkOffers.filter(o => o.vertical === vertical).length})
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Offers Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                  {paginatedOffers.map((offer, index) => (
+                    <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-semibold text-gray-900 text-sm">{offer.offerName}</h3>
+                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                          {offer.vertical}
+                        </span>
+                      </div>
+                      <div className="space-y-1 text-xs text-gray-600">
+                        <div className="flex justify-between">
+                          <span>Payout:</span>
+                          <span className="font-medium text-green-600">{offer.payout}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Country:</span>
+                          <span>{offer.country}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex justify-center items-center gap-2">
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1}
+                      className="px-3 py-2 text-sm border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                    >
+                      Previous
+                    </button>
+                    <span className="px-3 py-2 text-sm text-gray-600">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <button
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      disabled={currentPage === totalPages}
+                      className="px-3 py-2 text-sm border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Reviews Section */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">User Reviews</h2>
+              <UserReviews networkSlug={params?.slug as string} />
             </div>
           </div>
 
-          {/* Right Column - Rating Distribution */}
+          {/* Right Column - Sidebar */}
           <div className="space-y-6">
-            {/* Rating Distribution Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Rating Distribution</h3>
-              <div className="space-y-4">
-                {/* Donut Chart Placeholder */}
-                <div className="flex flex-col items-center justify-center h-32 bg-gray-50 rounded-lg">
-                  <span className="text-5xl font-bold text-blue-600">{avg("overall_rating")}</span>
-                  <div className="flex gap-1 mt-2">
-                    {[1,2,3,4,5].map(i => (
-                      <FiStar key={i} className={`w-6 h-6 ${i <= Math.round(Number(avg("overall_rating"))) ? "text-blue-400 fill-current" : "text-gray-300"}`} />
-                    ))}
+            {/* Rating Chart */}
+            {chartReady && donutData && (
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Rating Breakdown</h3>
+                <div className="w-full h-64">
+                  {/* We'll add the chart component here when Chart.js is ready */}
+                  <div className="flex items-center justify-center h-full text-gray-500">
+                    Rating data available
                   </div>
-                  <span className="text-sm text-gray-500 mt-1">Overall Network Rating</span>
                 </div>
-                
-                {/* Rating Bars */}
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Offers</span>
-                    <div className="flex items-center gap-2">
-                      <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div className="h-full bg-red-500 rounded-full" style={{ width: '85%' }}></div>
-                      </div>
-                      <span className="text-sm font-medium text-gray-900">4.2</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Payout</span>
-                    <div className="flex items-center gap-2">
-                      <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div className="h-full bg-blue-500 rounded-full" style={{ width: '90%' }}></div>
-                      </div>
-                      <span className="text-sm font-medium text-gray-900">4.5</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Tracking</span>
-                    <div className="flex items-center gap-2">
-                      <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div className="h-full bg-green-500 rounded-full" style={{ width: '84%' }}></div>
-                      </div>
-                      <span className="text-sm font-medium text-gray-900">4.2</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Support</span>
-                    <div className="flex items-center gap-2">
-                      <div className="w-20 h-2 bg-gray-200 rounded-full overflow-hidden">
-                        <div className="h-full bg-purple-500 rounded-full" style={{ width: '90%' }}></div>
-                      </div>
-                      <span className="text-sm font-medium text-gray-900">4.5</span>
-                    </div>
-                  </div>
+              </div>
+            )}
+
+            {/* Quick Stats */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Stats</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Total Reviews</span>
+                  <span className="font-semibold text-gray-900">{reviewCount}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Average Rating</span>
+                  <span className="font-semibold text-gray-900">
+                    {Number(avg("overall_rating")) || network.rating}/5
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Offers Available</span>
+                  <span className="font-semibold text-gray-900">{networkOffers.length}</span>
                 </div>
               </div>
             </div>
 
-            {/* Quick Actions */}
+            {/* Contact Info */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Contact Information</h3>
               <div className="space-y-3">
-                <a
-                  href={network.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-gradient-to-r from-amber-500 to-orange-600 text-white rounded-lg hover:from-amber-600 hover:to-orange-700 transition-all duration-200 font-medium"
-                >
-                  <FiExternalLink className="w-5 h-5" />
-                  Visit Website
-                </a>
-                <button className="flex items-center justify-center gap-2 w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
-                  <FiMessageCircle className="w-5 h-5" />
-                  Contact Network
-                </button>
-                                 <button className="flex items-center justify-center gap-2 w-full px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
-                   <FiBarChart className="w-5 h-5" />
-                   View Analytics
-                 </button>
+                <div className="flex items-center gap-3">
+                  <FiGlobe className="w-5 h-5 text-gray-400" />
+                  <a 
+                    href={network.website} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-700 text-sm"
+                  >
+                    Visit Website
+                  </a>
+                </div>
+                <div className="flex items-center gap-3">
+                  <FiMail className="w-5 h-5 text-gray-400" />
+                  <span className="text-gray-600 text-sm">contact@{network.name.toLowerCase().replace(/\s+/g, '')}.com</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <FiUsers className="w-5 h-5 text-gray-400" />
+                  <span className="text-gray-600 text-sm">Affiliate Managers</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-      {networkOffers.length > 0 ? (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Offers from {network.name}</h2>
-          {offerVerticals.length > 1 && (
-            <div className="flex flex-wrap gap-2 mb-6">
-              <button
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${selectedVertical === 'All' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
-                onClick={() => { setSelectedVertical('All'); setCurrentPage(1); }}
-              >
-                All
-              </button>
-              {offerVerticals.map(v => (
-                <button
-                  key={v}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${selectedVertical === v ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
-                  onClick={() => { setSelectedVertical(v); setCurrentPage(1); }}
-                >
-                  {v}
-                </button>
-              ))}
-            </div>
-          )}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {paginatedOffers.map(offer => (
-              <div key={offer.id} className="bg-white rounded-xl shadow-md border border-amber-200 p-6 flex flex-col justify-between hover:shadow-lg transition-all duration-200">
-                <div>
-                  <div className="font-bold text-lg text-gray-900 mb-2 flex items-center gap-2">
-                    <span>{offer.offerName}</span>
-                    <span className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 ml-2">{offer.vertical}</span>
-                  </div>
-                  <div className="text-sm text-gray-600 mb-1">Country: <span className="font-medium">{offer.country}</span></div>
-                </div>
-                <div className="mt-4 flex items-center justify-between">
-                  <span className="text-amber-600 font-bold text-xl">{offer.payout}</span>
-                  <a href="/offers" className="text-blue-600 hover:underline text-sm font-medium">View Details</a>
-                </div>
-              </div>
-            ))}
-          </div>
-          {/* Pagination Controls */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center mt-8 gap-2">
-              <button
-                onClick={() => setCurrentPage(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="px-4 py-2 rounded bg-gray-100 text-gray-700 font-medium disabled:opacity-50"
-              >
-                Previous
-              </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                <button
-                  key={page}
-                  onClick={() => setCurrentPage(page)}
-                  className={`px-4 py-2 rounded font-medium ${currentPage === page ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700'}`}
-                >
-                  {page}
-                </button>
-              ))}
-              <button
-                onClick={() => setCurrentPage(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="px-4 py-2 rounded bg-gray-100 text-gray-700 font-medium disabled:opacity-50"
-              >
-                Next
-              </button>
-            </div>
-          )}
-        </section>
-      ) : (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center text-gray-500">
-          No offers found for this network.
-        </div>
-      )}
-      <UserReviews networkSlug={params?.slug as string} />
-      {/* Footer */}
     </div>
   );
 } 
