@@ -94,14 +94,16 @@ export default async function NetworkPage({ params }: PageProps) {
               
               {/* Action Buttons */}
               <div className="flex items-center gap-3">
-                <a
-                  href={network.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-gradient-to-r from-[#bfa14a] to-[#e6c77c] hover:from-[#e6c77c] hover:to-[#bfa14a] text-white font-medium py-2 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md text-sm"
-                >
-                  Visit Website
-                </a>
+                {network.website && (
+                  <a
+                    href={network.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-gradient-to-r from-[#bfa14a] to-[#e6c77c] hover:from-[#e6c77c] hover:to-[#bfa14a] text-white font-medium py-2 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md text-sm"
+                  >
+                    Visit Website
+                  </a>
+                )}
                 <ReviewButton networkName={network.name} networkSlug={slug} />
               </div>
             </div>
@@ -114,25 +116,25 @@ export default async function NetworkPage({ params }: PageProps) {
             <span className="w-2 h-8 bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] rounded-full mr-4"></span>
             About {network.name}
           </h2>
-          <p className="text-gray-700 leading-relaxed mb-6">{network.description}</p>
+          <p className="text-gray-700 leading-relaxed mb-6">{network.description || 'No description available.'}</p>
           
           {/* Network Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
               <h3 className="font-semibold text-gray-900 mb-2">Commission Rate</h3>
-              <p className="text-[#bfa14a] font-medium">{network.commission_rate}</p>
+              <p className="text-[#bfa14a] font-medium">{network.commission_rate || 'N/A'}</p>
             </div>
             <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
               <h3 className="font-semibold text-gray-900 mb-2">Minimum Payout</h3>
-              <p className="text-[#bfa14a] font-medium">{network.minimum_payout}</p>
+              <p className="text-[#bfa14a] font-medium">{network.minimum_payout || 'N/A'}</p>
             </div>
             <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
               <h3 className="font-semibold text-gray-900 mb-2">Payment Frequency</h3>
-              <p className="text-[#bfa14a] font-medium">{network.payment_frequency}</p>
+              <p className="text-[#bfa14a] font-medium">{network.payment_frequency || 'N/A'}</p>
             </div>
             <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
               <h3 className="font-semibold text-gray-900 mb-2">Offers Available</h3>
-              <p className="text-[#bfa14a] font-medium">{network.offers_count}</p>
+              <p className="text-[#bfa14a] font-medium">{network.offers_count || networkOffers.length}</p>
             </div>
           </div>
         </div>
@@ -148,14 +150,14 @@ export default async function NetworkPage({ params }: PageProps) {
               {networkOffers.map((offer, index) => (
                 <div key={index} className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-all duration-300 hover:border-[#e6c77c]">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-semibold text-lg text-gray-900" style={{letterSpacing: '0.01em'}}>{offer.offerName}</h3>
+                    <h3 className="font-semibold text-lg text-gray-900" style={{letterSpacing: '0.01em'}}>{offer.offerName || 'Unnamed Offer'}</h3>
                     <span className="bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] text-white text-xs font-medium px-3 py-1 rounded-full">
-                      {offer.vertical}
+                      {offer.vertical || 'General'}
                     </span>
                   </div>
-                  <p className="text-gray-600 text-sm mb-4 font-light">Payout: {offer.payout} | Country: {offer.country}</p>
+                  <p className="text-gray-600 text-sm mb-4 font-light">Payout: {offer.payout || 'N/A'} | Country: {offer.country || 'Global'}</p>
                   <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-[#bfa14a]">${offer.payout}</span>
+                    <span className="text-2xl font-bold text-[#bfa14a]">${offer.payout || '0'}</span>
                     <button className="bg-gradient-to-r from-[#bfa14a] to-[#e6c77c] hover:from-[#e6c77c] hover:to-[#bfa14a] text-white text-sm font-semibold px-4 py-2 rounded-lg transition-all duration-300 transform hover:scale-105">
                       View Offer
                     </button>

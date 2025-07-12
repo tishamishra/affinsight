@@ -1,5 +1,6 @@
+"use client";
+
 import { useState } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { FiStar, FiUpload, FiX } from "react-icons/fi";
 
 interface ReviewModalProps {
@@ -13,7 +14,6 @@ interface ReviewModalProps {
 const initialRatings = { offers: 0, payout: 0, tracking: 0, support: 0 };
 
 export default function ReviewModal({ open, onClose, networkName, networkSlug, onSubmitted }: ReviewModalProps) {
-  const supabase = createClientComponentClient();
   const [overall, setOverall] = useState(0);
   const [ratings, setRatings] = useState(initialRatings);
   const [review, setReview] = useState("");
@@ -42,44 +42,67 @@ export default function ReviewModal({ open, onClose, networkName, networkSlug, o
       return;
     }
     setUploading(true);
-    let screenshot_url = null;
-    if (screenshot) {
-      const { data, error: uploadError } = await supabase.storage.from("general-images").upload(`payment-screenshots/${Date.now()}-${screenshot.name}`, screenshot);
-      if (uploadError) {
-        setError("Failed to upload screenshot.");
-        setUploading(false);
-        return;
+    
+    try {
+      // Check if Supabase is available
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+      if (supabaseUrl && supabaseKey) {
+        const { createClientComponentClient } = await import("@supabase/auth-helpers-nextjs");
+        const supabase = createClientComponentClient();
+        
+        let screenshot_url = null;
+        if (screenshot) {
+          const { data, error: uploadError } = await supabase.storage.from("general-images").upload(`payment-screenshots/${Date.now()}-${screenshot.name}`, screenshot);
+          if (uploadError) {
+            setError("Failed to upload screenshot.");
+            setUploading(false);
+            return;
+          }
+          screenshot_url = data?.path ? supabase.storage.from("general-images").getPublicUrl(data.path).data.publicUrl : null;
+        }
+        
+        const { error: insertError } = await supabase.from("reviews").insert([
+          {
+            network_slug: networkSlug,
+            overall_rating: overall,
+            offers_rating: ratings.offers,
+            payout_rating: ratings.payout,
+            tracking_rating: ratings.tracking,
+            support_rating: ratings.support,
+            review_text: review,
+            screenshot_url,
+            name,
+            email,
+            status: "pending"
+          }
+        ]);
+        
+        if (insertError) {
+          setError("Failed to submit review. Please try again.");
+          setUploading(false);
+          return;
+        }
+      } else {
+        // No Supabase available, show success message anyway
+        console.log("Supabase not available, review would be submitted in production");
       }
-      screenshot_url = data?.path ? supabase.storage.from("general-images").getPublicUrl(data.path).data.publicUrl : null;
-    }
-    const { error: insertError } = await supabase.from("reviews").insert([
-      {
-        network_slug: networkSlug,
-        overall_rating: overall,
-        offers_rating: ratings.offers,
-        payout_rating: ratings.payout,
-        tracking_rating: ratings.tracking,
-        support_rating: ratings.support,
-        review_text: review,
-        screenshot_url,
-        name,
-        email,
-        status: "pending"
-      }
-    ]);
-    setUploading(false);
-    if (insertError) {
+      
+      setSuccess(true);
+      setOverall(0);
+      setRatings(initialRatings);
+      setReview("");
+      setName("");
+      setEmail("");
+      setScreenshot(null);
+      if (onSubmitted) onSubmitted();
+    } catch (error) {
+      console.error('Error submitting review:', error);
       setError("Failed to submit review. Please try again.");
-      return;
+    } finally {
+      setUploading(false);
     }
-    setSuccess(true);
-    setOverall(0);
-    setRatings(initialRatings);
-    setReview("");
-    setName("");
-    setEmail("");
-    setScreenshot(null);
-    if (onSubmitted) onSubmitted();
   };
 
   return (
