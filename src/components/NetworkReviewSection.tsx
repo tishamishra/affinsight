@@ -93,7 +93,7 @@ export default function NetworkReviewSection({ networkName, networkSlug }: Netwo
             {reviews.length} review{reviews.length !== 1 ? 's' : ''} • Average: {averageRating}★
           </p>
         </div>
-        <ReviewButton networkName={networkName} networkSlug={networkName.toLowerCase().replace(/\s+/g, '-')} />
+        <ReviewButton networkName={networkName} networkSlug={networkSlug} />
       </div>
 
       {reviews.length > 0 ? (
@@ -141,7 +141,7 @@ export default function NetworkReviewSection({ networkName, networkSlug }: Netwo
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-2">No Reviews Yet</h3>
           <p className="text-gray-600 mb-4">Be the first to review this network!</p>
-          <ReviewButton networkName={networkName} networkSlug={networkName.toLowerCase().replace(/\s+/g, '-')} />
+          <ReviewButton networkName={networkName} networkSlug={networkSlug} />
         </div>
       )}
     </div>
