@@ -3,8 +3,6 @@ import affiliateNetworksData from '@/data/affiliate-networks.json'
 import UserReviews from '@/components/UserReviews'
 import ReviewButton from '@/components/ReviewButton'
 import NetworkHeaderRating from '@/components/NetworkHeaderRating'
-import NetworkDescription from '@/components/NetworkDescription'
-import NetworkDetailsTable from '@/components/NetworkDetailsTable'
 import NetworkStats from '@/components/NetworkStats'
 
 export const dynamic = 'force-dynamic';
@@ -99,8 +97,33 @@ export default async function NetworkPage({ params }: PageProps) {
         </div>
 
         {/* Network Description Section */}
-        <NetworkDescription networkName={network.name} network={network} />
-        <NetworkDetailsTable network={network} />
+        <div className="bg-white rounded-2xl shadow-xl border border-[#e6c77c] p-8 mb-8">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center tracking-wide" style={{letterSpacing: '0.02em'}}>
+            <span className="w-2 h-8 bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] rounded-full mr-4"></span>
+            About {network.name}
+          </h2>
+          <p className="text-gray-700 leading-relaxed mb-6">{network.description}</p>
+          
+          {/* Network Details */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+              <h3 className="font-semibold text-gray-900 mb-2">Commission Rate</h3>
+              <p className="text-[#bfa14a] font-medium">{network.commission_rate}</p>
+            </div>
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+              <h3 className="font-semibold text-gray-900 mb-2">Minimum Payout</h3>
+              <p className="text-[#bfa14a] font-medium">{network.minimum_payout}</p>
+            </div>
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+              <h3 className="font-semibold text-gray-900 mb-2">Payment Frequency</h3>
+              <p className="text-[#bfa14a] font-medium">{network.payment_frequency}</p>
+            </div>
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
+              <h3 className="font-semibold text-gray-900 mb-2">Offers Available</h3>
+              <p className="text-[#bfa14a] font-medium">{network.offers_count}</p>
+            </div>
+          </div>
+        </div>
 
         {/* Offers Section */}
         <div className="bg-white rounded-2xl shadow-xl border border-[#e6c77c] p-8 mb-8">
