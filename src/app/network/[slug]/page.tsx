@@ -72,7 +72,7 @@ export default async function NetworkPage({ params }: PageProps) {
                     className="w-24 h-24 object-contain rounded-xl border border-[#e6c77c] bg-white p-3 shadow-sm"
                   />
                   {/* Small Rating Label on top of logo */}
-                  <div className="absolute -top-2 -right-2 bg-gradient-to-r from-[#bfa14a] to-[#e6c77c] text-white text-xs font-medium px-2 py-1 rounded-full shadow-sm">
+                  <div className="absolute -top-2 -right-2">
                     <NetworkHeaderRating networkSlug={slug} compact={true} />
                   </div>
                 </div>
