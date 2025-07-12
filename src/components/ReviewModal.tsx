@@ -11,7 +11,7 @@ interface ReviewModalProps {
   onSubmitted?: () => void;
 }
 
-const initialRatings = { offers: 0, payout: 0, tracking: 0, support: 0 };
+const initialRatings = { ease_of_use: 0, payment_speed: 0, support_quality: 0 };
 
 export default function ReviewModal({ open, onClose, networkName, networkSlug, onSubmitted }: ReviewModalProps) {
   const [overall, setOverall] = useState(0);
@@ -54,10 +54,9 @@ export default function ReviewModal({ open, onClose, networkName, networkSlug, o
       console.log('Network Slug:', networkSlug);
       console.log('Review Data:', {
         overall_rating: overall,
-        offers_rating: ratings.offers,
-        payout_rating: ratings.payout,
-        tracking_rating: ratings.tracking,
-        support_rating: ratings.support,
+        ease_of_use: ratings.ease_of_use,
+        payment_speed: ratings.payment_speed,
+        support_quality: ratings.support_quality,
         review_text: review,
         name,
         email
@@ -70,6 +69,22 @@ export default function ReviewModal({ open, onClose, networkName, networkSlug, o
         const supabase = createClientComponentClient();
         
         console.log('✅ Supabase client created successfully');
+        
+        // Test database connection
+        console.log('🔍 Testing database connection...');
+        const { data: testData, error: testError } = await supabase
+          .from('reviews')
+          .select('count')
+          .limit(1);
+        
+        if (testError) {
+          console.error('❌ Database connection test failed:', testError);
+          setError(`Database connection failed: ${testError.message}`);
+          setUploading(false);
+          return;
+        }
+        
+        console.log('✅ Database connection successful');
         
         let screenshot_url = null;
         if (screenshot) {
@@ -87,16 +102,15 @@ export default function ReviewModal({ open, onClose, networkName, networkSlug, o
         
         const reviewData = {
           network_slug: networkSlug,
+          network_name: networkName,
+          user_name: name,
+          rating: overall,
           overall_rating: overall,
-          offers_rating: ratings.offers,
-          payout_rating: ratings.payout,
-          tracking_rating: ratings.tracking,
-          support_rating: ratings.support,
+          ease_of_use: ratings.ease_of_use,
+          payment_speed: ratings.payment_speed,
+          support_quality: ratings.support_quality,
           review_text: review,
-          screenshot_url: screenshot_url,
-          name,
-          email,
-          status: "pending"
+          screenshot_url: screenshot_url
         };
         
         console.log('📝 Submitting review data to Supabase:', reviewData);
@@ -118,15 +132,14 @@ export default function ReviewModal({ open, onClose, networkName, networkSlug, o
         console.log('❌ Supabase credentials not found');
         console.log('Review data that would be submitted:', {
           network_slug: networkSlug,
+          network_name: networkName,
+          user_name: name,
+          rating: overall,
           overall_rating: overall,
-          offers_rating: ratings.offers,
-          payout_rating: ratings.payout,
-          tracking_rating: ratings.tracking,
-          support_rating: ratings.support,
-          review_text: review,
-          name,
-          email,
-          status: "pending"
+          ease_of_use: ratings.ease_of_use,
+          payment_speed: ratings.payment_speed,
+          support_quality: ratings.support_quality,
+          review_text: review
         });
       }
       
@@ -170,44 +183,34 @@ export default function ReviewModal({ open, onClose, networkName, networkSlug, o
             </div>
           </div>
           <div>
-            <label className="block font-semibold text-gray-600 mb-2 text-sm">Could you say a little more about it? <span className="text-red-500">*</span></label>
+            <label className="block font-semibold text-gray-600 mb-2 text-sm">Rate different aspects <span className="text-red-500">*</span></label>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <div className="text-xs font-bold text-gray-400 mb-1">OFFERS</div>
+                <div className="text-xs font-bold text-gray-400 mb-1">EASE OF USE</div>
                 <div className="flex gap-1">
                   {[1,2,3,4,5].map(i => (
-                    <button type="button" key={i} onClick={() => handleSubRating('offers', i)} className="focus:outline-none">
-                      <div className={`w-4 h-4 rounded ${i <= ratings.offers ? 'bg-blue-200' : 'bg-blue-50'}`}></div>
+                    <button type="button" key={i} onClick={() => handleSubRating('ease_of_use', i)} className="focus:outline-none">
+                      <div className={`w-4 h-4 rounded ${i <= ratings.ease_of_use ? 'bg-blue-200' : 'bg-blue-50'}`}></div>
                     </button>
                   ))}
                 </div>
               </div>
               <div>
-                <div className="text-xs font-bold text-gray-400 mb-1">PAYOUT</div>
+                <div className="text-xs font-bold text-gray-400 mb-1">PAYMENT SPEED</div>
                 <div className="flex gap-1">
                   {[1,2,3,4,5].map(i => (
-                    <button type="button" key={i} onClick={() => handleSubRating('payout', i)} className="focus:outline-none">
-                      <div className={`w-4 h-4 rounded ${i <= ratings.payout ? 'bg-blue-200' : 'bg-blue-50'}`}></div>
+                    <button type="button" key={i} onClick={() => handleSubRating('payment_speed', i)} className="focus:outline-none">
+                      <div className={`w-4 h-4 rounded ${i <= ratings.payment_speed ? 'bg-blue-200' : 'bg-blue-50'}`}></div>
                     </button>
                   ))}
                 </div>
               </div>
               <div>
-                <div className="text-xs font-bold text-gray-400 mb-1">TRACKING</div>
+                <div className="text-xs font-bold text-gray-400 mb-1">SUPPORT QUALITY</div>
                 <div className="flex gap-1">
                   {[1,2,3,4,5].map(i => (
-                    <button type="button" key={i} onClick={() => handleSubRating('tracking', i)} className="focus:outline-none">
-                      <div className={`w-4 h-4 rounded ${i <= ratings.tracking ? 'bg-blue-200' : 'bg-blue-50'}`}></div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <div className="text-xs font-bold text-gray-400 mb-1">SUPPORT</div>
-                <div className="flex gap-1">
-                  {[1,2,3,4,5].map(i => (
-                    <button type="button" key={i} onClick={() => handleSubRating('support', i)} className="focus:outline-none">
-                      <div className={`w-4 h-4 rounded ${i <= ratings.support ? 'bg-blue-200' : 'bg-blue-50'}`}></div>
+                    <button type="button" key={i} onClick={() => handleSubRating('support_quality', i)} className="focus:outline-none">
+                      <div className={`w-4 h-4 rounded ${i <= ratings.support_quality ? 'bg-blue-200' : 'bg-blue-50'}`}></div>
                     </button>
                   ))}
                 </div>
