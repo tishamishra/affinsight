@@ -250,26 +250,22 @@ export default function UserReviews({ networkSlug, networkName }: UserReviewsPro
               </div>
             </div>
 
-            {/* Screenshot Preview */}
+            {/* Payment Proof Link */}
             {review.screenshot_url && (
               <div className="mt-4">
                 <div className="flex items-center gap-2 mb-3">
                   <FiImage className="w-5 h-5 text-[#bfa14a]" />
                   <span className="text-sm font-medium text-gray-700">Payment Proof</span>
                 </div>
-                <div className="relative group">
-                  <img
-                    src={review.screenshot_url}
-                    alt="Payment proof"
-                    className="w-full max-w-md h-auto rounded-lg border-2 border-[#e6c77c] shadow-sm cursor-pointer transition-transform duration-200 hover:scale-105"
-                    onClick={() => window.open(review.screenshot_url, '_blank')}
-                  />
-                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200 rounded-lg flex items-center justify-center">
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                      <FiEye className="w-8 h-8 text-white drop-shadow-lg" />
-                    </div>
-                  </div>
-                </div>
+                <a
+                  href={review.screenshot_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] text-white rounded-lg hover:from-[#bfa14a] hover:to-[#e6c77c] transition-all duration-200 shadow-sm hover:shadow-md"
+                >
+                  <FiEye className="w-4 h-4" />
+                  View Payment Proof
+                </a>
               </div>
             )}
           </div>
