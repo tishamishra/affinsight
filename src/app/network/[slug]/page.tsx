@@ -1,6 +1,5 @@
 import offers from '@/data/offers.json'
 import affiliateNetworksData from '@/data/affiliate-networks.json'
-import UserReviews from '@/components/UserReviews'
 import ReviewButton from '@/components/ReviewButton'
 import NetworkHeaderRating from '@/components/NetworkHeaderRating'
 import NetworkStats from '@/components/NetworkStats'
@@ -140,7 +139,7 @@ export default async function NetworkPage({ params }: PageProps) {
         </div>
 
         {/* Offers Section */}
-        <div className="bg-white rounded-2xl shadow-xl border border-[#e6c77c] p-8 mb-8">
+        <div className="bg-white rounded-2xl shadow-xl border border-[#e6c77c] p-8">
           <h2 className="text-2xl font-semibold text-gray-900 mb-8 flex items-center tracking-wide" style={{letterSpacing: '0.02em'}}>
             <span className="w-2 h-8 bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] rounded-full mr-4"></span>
             Available Offers ({networkOffers.length})
@@ -176,11 +175,6 @@ export default async function NetworkPage({ params }: PageProps) {
               <p className="text-gray-600 font-light">Currently no offers are available for this network.</p>
             </div>
           )}
-        </div>
-
-        {/* User Reviews Section */}
-        <div className="bg-white rounded-2xl shadow-xl border border-[#e6c77c] p-8">
-          <UserReviews networkSlug={slug} />
         </div>
       </div>
     </div>
