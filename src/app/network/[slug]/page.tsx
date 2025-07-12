@@ -3,6 +3,7 @@ import affiliateNetworksData from '@/data/affiliate-networks.json'
 import ReviewButton from '@/components/ReviewButton'
 import NetworkHeaderRating from '@/components/NetworkHeaderRating'
 import NetworkStats from '@/components/NetworkStats'
+import UserReviews from '@/components/UserReviews'
 
 export const dynamic = 'force-dynamic';
 
@@ -177,13 +178,18 @@ export default async function NetworkPage({ params }: PageProps) {
           )}
         </div>
 
-        {/* Simple Reviews Section */}
+        {/* User Reviews Section */}
         <div className="bg-white rounded-2xl shadow-xl border border-[#e6c77c] p-8 mb-8">
           <h2 className="text-2xl font-semibold text-gray-900 mb-6 flex items-center tracking-wide" style={{letterSpacing: '0.02em'}}>
             <span className="w-2 h-8 bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] rounded-full mr-4"></span>
             User Reviews
           </h2>
-          <div className="text-center py-8">
+          
+          {/* Display Reviews */}
+          <UserReviews networkSlug={slug} networkName={network.name} />
+          
+          {/* Add Review Button */}
+          <div className="text-center pt-8 border-t border-gray-200">
             <p className="text-gray-600 mb-4">Share your experience with {network.name}</p>
             <ReviewButton networkName={network.name} networkSlug={slug} />
           </div>
