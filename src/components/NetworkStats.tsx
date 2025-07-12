@@ -11,10 +11,9 @@ export default function NetworkStats({ networkSlug }: NetworkStatsProps) {
   const [stats, setStats] = useState({
     reviewCount: 0,
     offersCount: 0,
-    offersAvg: 0,
-    payoutAvg: 0,
-    trackingAvg: 0,
-    supportAvg: 0
+    paymentSpeed: 0,
+    supportQuality: 0,
+    overallRating: 0
   });
   const [loading, setLoading] = useState(true);
 
@@ -42,33 +41,29 @@ export default function NetworkStats({ networkSlug }: NetworkStatsProps) {
             .eq('network_slug', networkSlug);
 
           if (!error && data && data.length > 0) {
-            const totalOffers = data.reduce((sum, review) => sum + (review.offers_rating || 0), 0);
-            const totalPayout = data.reduce((sum, review) => sum + (review.payout_rating || 0), 0);
-            const totalTracking = data.reduce((sum, review) => sum + (review.tracking_rating || 0), 0);
-            const totalSupport = data.reduce((sum, review) => sum + (review.support_rating || 0), 0);
+            const totalPaymentSpeed = data.reduce((sum, review) => sum + (review.payment_speed || 0), 0);
+            const totalSupportQuality = data.reduce((sum, review) => sum + (review.support_quality || 0), 0);
+            const totalOverallRating = data.reduce((sum, review) => sum + (review.overall_rating || 0), 0);
             
-            const averageOffers = totalOffers / data.length;
-            const averagePayout = totalPayout / data.length;
-            const averageTracking = totalTracking / data.length;
-            const averageSupport = totalSupport / data.length;
+            const averagePaymentSpeed = totalPaymentSpeed / data.length;
+            const averageSupportQuality = totalSupportQuality / data.length;
+            const averageOverallRating = totalOverallRating / data.length;
             
             setStats({
               reviewCount: data.length,
               offersCount: networkOffers.length,
-              offersAvg: +(averageOffers).toFixed(1),
-              payoutAvg: +(averagePayout).toFixed(1),
-              trackingAvg: +(averageTracking).toFixed(1),
-              supportAvg: +(averageSupport).toFixed(1)
+              paymentSpeed: +(averagePaymentSpeed).toFixed(1),
+              supportQuality: +(averageSupportQuality).toFixed(1),
+              overallRating: +(averageOverallRating).toFixed(1)
             });
           } else {
             // Fallback to default stats
             setStats({
               reviewCount: 0,
               offersCount: networkOffers.length,
-              offersAvg: 0,
-              payoutAvg: 0,
-              trackingAvg: 0,
-              supportAvg: 0
+              paymentSpeed: 0,
+              supportQuality: 0,
+              overallRating: 0
             });
           }
         } else {
@@ -76,10 +71,9 @@ export default function NetworkStats({ networkSlug }: NetworkStatsProps) {
           setStats({
             reviewCount: 0,
             offersCount: networkOffers.length,
-            offersAvg: 0,
-            payoutAvg: 0,
-            trackingAvg: 0,
-            supportAvg: 0
+            paymentSpeed: 0,
+            supportQuality: 0,
+            overallRating: 0
           });
         }
       } catch (error) {
@@ -92,10 +86,9 @@ export default function NetworkStats({ networkSlug }: NetworkStatsProps) {
         setStats({
           reviewCount: 0,
           offersCount: networkOffers.length,
-          offersAvg: 0,
-          payoutAvg: 0,
-          trackingAvg: 0,
-          supportAvg: 0
+          paymentSpeed: 0,
+          supportQuality: 0,
+          overallRating: 0
         });
       } finally {
         setLoading(false);
@@ -107,44 +100,60 @@ export default function NetworkStats({ networkSlug }: NetworkStatsProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center gap-4">
-        <div className="text-center">
-          <div className="text-2xl font-bold text-[#bfa14a]">-</div>
-          <div className="text-xs text-gray-500 font-medium">Reviews</div>
+      <div className="flex items-center gap-2">
+        <div className="bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">
+          <div className="text-center">
+            <div className="text-sm font-bold">-</div>
+            <div className="text-xs opacity-90">Reviews</div>
+          </div>
         </div>
-        <div className="text-center">
-          <div className="text-2xl font-bold text-[#bfa14a]">-</div>
-          <div className="text-xs text-gray-500 font-medium">Offers</div>
+        <div className="bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">
+          <div className="text-center">
+            <div className="text-sm font-bold">-</div>
+            <div className="text-xs opacity-90">Offers</div>
+          </div>
         </div>
-        <div className="text-center">
-          <div className="text-2xl font-bold text-[#bfa14a]">-</div>
-          <div className="text-xs text-gray-500 font-medium">Payout</div>
+        <div className="bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">
+          <div className="text-center">
+            <div className="text-sm font-bold">-</div>
+            <div className="text-xs opacity-90">Payment</div>
+          </div>
         </div>
-        <div className="text-center">
-          <div className="text-2xl font-bold text-[#bfa14a]">-</div>
-          <div className="text-xs text-gray-500 font-medium">Tracking</div>
+        <div className="bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">
+          <div className="text-center">
+            <div className="text-sm font-bold">-</div>
+            <div className="text-xs opacity-90">Support</div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex items-center gap-4">
-      <div className="text-center">
-        <div className="text-2xl font-bold text-[#bfa14a]">{stats.reviewCount}</div>
-        <div className="text-xs text-gray-500 font-medium">Reviews</div>
+    <div className="flex items-center gap-2">
+      <div className="bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">
+        <div className="text-center">
+          <div className="text-sm font-bold">{stats.reviewCount}</div>
+          <div className="text-xs opacity-90">Reviews</div>
+        </div>
       </div>
-      <div className="text-center">
-        <div className="text-2xl font-bold text-[#bfa14a]">{stats.offersCount}</div>
-        <div className="text-xs text-gray-500 font-medium">Offers</div>
+      <div className="bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">
+        <div className="text-center">
+          <div className="text-sm font-bold">{stats.offersCount}</div>
+          <div className="text-xs opacity-90">Offers</div>
+        </div>
       </div>
-      <div className="text-center">
-        <div className="text-2xl font-bold text-[#bfa14a]">{stats.payoutAvg > 0 ? stats.payoutAvg : 'N/A'}</div>
-        <div className="text-xs text-gray-500 font-medium">Payout</div>
+      <div className="bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">
+        <div className="text-center">
+          <div className="text-sm font-bold">{stats.paymentSpeed > 0 ? stats.paymentSpeed : '-'}</div>
+          <div className="text-xs opacity-90">Payment</div>
+        </div>
       </div>
-      <div className="text-center">
-        <div className="text-2xl font-bold text-[#bfa14a]">{stats.trackingAvg > 0 ? stats.trackingAvg : 'N/A'}</div>
-        <div className="text-xs text-gray-500 font-medium">Tracking</div>
+      <div className="bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">
+        <div className="text-center">
+          <div className="text-sm font-bold">{stats.supportQuality > 0 ? stats.supportQuality : '-'}</div>
+          <div className="text-xs opacity-90">Support</div>
+        </div>
       </div>
     </div>
   );
