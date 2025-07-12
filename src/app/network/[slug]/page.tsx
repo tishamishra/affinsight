@@ -20,10 +20,21 @@ export default async function NetworkPage({ params }: PageProps) {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ')
   
-  const network = affiliateNetworksData.networks.find(n => 
-    n.name.toLowerCase() === networkName.toLowerCase() ||
-    n.name.toLowerCase().replace(/\s+/g, '-') === slug.toLowerCase()
-  )
+  // Improved network matching logic
+  const network = affiliateNetworksData.networks.find(n => {
+    const networkNameLower = n.name.toLowerCase();
+    const slugLower = slug.toLowerCase();
+    const networkNameSlug = networkNameLower.replace(/\s+/g, '-');
+    const networkNameSlugAlt = networkNameLower.replace(/[^a-z0-9]/g, '');
+    
+    return (
+      networkNameLower === networkName.toLowerCase() ||
+      networkNameSlug === slugLower ||
+      networkNameSlugAlt === slugLower ||
+      networkNameLower.includes(slugLower) ||
+      slugLower.includes(networkNameLower.replace(/\s+/g, ''))
+    );
+  })
   
   if (!network) {
     return (
@@ -32,6 +43,7 @@ export default async function NetworkPage({ params }: PageProps) {
           <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
             <h1 className="text-3xl font-bold text-gray-900 mb-4">Network Not Found</h1>
             <p className="text-gray-600">The network you're looking for doesn't exist.</p>
+            <p className="text-sm text-gray-500 mt-2">Searched for: {slug}</p>
           </div>
         </div>
       </div>
