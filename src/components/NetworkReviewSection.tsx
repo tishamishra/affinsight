@@ -10,11 +10,12 @@ interface NetworkReviewSectionProps {
 
 interface Review {
   id: string;
+  rating: number;
   overall_rating: number;
-  offers_rating: number;
-  payout_rating: number;
-  tracking_rating: number;
-  support_rating: number;
+  offer_quality: number;
+  payment_speed: number;
+  support_quality: number;
+  ease_of_use: number;
   review_text: string;
   created_at: string;
   user_name: string;
@@ -40,12 +41,12 @@ export default function NetworkReviewSection({ networkName, networkSlug }: Netwo
           const { data, error } = await supabase
             .from('reviews')
             .select('*')
-            .eq('network_slug', networkSlug)
+            .eq('network_id', networkSlug)
             .order('created_at', { ascending: false });
 
           if (!error && data && data.length > 0) {
             setReviews(data);
-            const avg = data.reduce((sum, review) => sum + review.overall_rating, 0) / data.length;
+            const avg = data.reduce((sum, review) => sum + review.rating, 0) / data.length;
             setAverageRating(+(avg).toFixed(1));
           } else {
             // Fallback to empty reviews
@@ -111,7 +112,7 @@ export default function NetworkReviewSection({ networkName, networkSlug }: Netwo
                   {[...Array(5)].map((_, i) => (
                     <svg
                       key={i}
-                      className={`w-4 h-4 ${i < review.overall_rating ? 'text-yellow-400' : 'text-gray-300'}`}
+                      className={`w-4 h-4 ${i < review.rating ? 'text-yellow-400' : 'text-gray-300'}`}
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
@@ -124,9 +125,9 @@ export default function NetworkReviewSection({ networkName, networkSlug }: Netwo
               <div className="flex items-center justify-between text-sm text-gray-500">
                 <span>{new Date(review.created_at).toLocaleDateString()}</span>
                 <div className="flex items-center gap-4">
-                  <span>Offers: {review.offers_rating}★</span>
-                  <span>Payout: {review.payout_rating}★</span>
-                  <span>Tracking: {review.tracking_rating}★</span>
+                  <span>Offers: {review.offer_quality}★</span>
+                  <span>Payout: {review.payment_speed}★</span>
+                  <span>Support: {review.support_quality}★</span>
                 </div>
               </div>
             </div>
