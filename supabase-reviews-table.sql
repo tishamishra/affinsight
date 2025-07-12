@@ -7,10 +7,10 @@ CREATE TABLE IF NOT EXISTS profiles (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Create reviews table
+-- Create reviews table with correct column names
 CREATE TABLE IF NOT EXISTS reviews (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  network_id TEXT NOT NULL,
+  network_slug TEXT NOT NULL,
   network_name TEXT NOT NULL,
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
   user_name TEXT NOT NULL,
@@ -21,14 +21,14 @@ CREATE TABLE IF NOT EXISTS reviews (
   payment_speed INTEGER NOT NULL CHECK (payment_speed >= 1 AND payment_speed <= 5),
   offer_quality INTEGER NOT NULL CHECK (offer_quality >= 1 AND offer_quality <= 5),
   review_text TEXT NOT NULL,
-  payment_screenshot TEXT,
+  screenshot_url TEXT,
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Create indexes for better performance
-CREATE INDEX IF NOT EXISTS idx_reviews_network_id ON reviews(network_id);
+CREATE INDEX IF NOT EXISTS idx_reviews_network_slug ON reviews(network_slug);
 CREATE INDEX IF NOT EXISTS idx_reviews_status ON reviews(status);
 CREATE INDEX IF NOT EXISTS idx_reviews_created_at ON reviews(created_at);
 CREATE INDEX IF NOT EXISTS idx_profiles_role ON profiles(role);

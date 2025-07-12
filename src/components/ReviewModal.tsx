@@ -48,25 +48,41 @@ export default function ReviewModal({ open, onClose, networkName, networkSlug, o
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
       const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+      console.log('=== REVIEW SUBMISSION DEBUG ===');
       console.log('Supabase URL:', supabaseUrl);
       console.log('Supabase Key exists:', !!supabaseKey);
+      console.log('Network Slug:', networkSlug);
+      console.log('Review Data:', {
+        overall_rating: overall,
+        offers_rating: ratings.offers,
+        payout_rating: ratings.payout,
+        tracking_rating: ratings.tracking,
+        support_rating: ratings.support,
+        review_text: review,
+        name,
+        email
+      });
 
       if (supabaseUrl && supabaseKey) {
+        console.log('✅ Supabase credentials found, attempting to connect...');
+        
         const { createClientComponentClient } = await import("@supabase/auth-helpers-nextjs");
         const supabase = createClientComponentClient();
         
+        console.log('✅ Supabase client created successfully');
+        
         let screenshot_url = null;
         if (screenshot) {
-          console.log('Uploading screenshot...');
+          console.log('📸 Uploading screenshot...');
           const { data, error: uploadError } = await supabase.storage.from("general-images").upload(`payment-screenshots/${Date.now()}-${screenshot.name}`, screenshot);
           if (uploadError) {
-            console.error('Screenshot upload error:', uploadError);
+            console.error('❌ Screenshot upload error:', uploadError);
             setError("Failed to upload screenshot.");
             setUploading(false);
             return;
           }
           screenshot_url = data?.path ? supabase.storage.from("general-images").getPublicUrl(data.path).data.publicUrl : null;
-          console.log('Screenshot uploaded:', screenshot_url);
+          console.log('✅ Screenshot uploaded:', screenshot_url);
         }
         
         const reviewData = {
@@ -83,23 +99,23 @@ export default function ReviewModal({ open, onClose, networkName, networkSlug, o
           status: "pending"
         };
         
-        console.log('Submitting review data:', reviewData);
+        console.log('📝 Submitting review data to Supabase:', reviewData);
         
         const { data: insertData, error: insertError } = await supabase.from("reviews").insert([reviewData]);
         
-        console.log('Insert result:', { data: insertData, error: insertError });
+        console.log('📊 Insert result:', { data: insertData, error: insertError });
         
         if (insertError) {
-          console.error('Review insert error:', insertError);
+          console.error('❌ Review insert error:', insertError);
           setError(`Failed to submit review: ${insertError.message}`);
           setUploading(false);
           return;
         }
         
-        console.log('Review submitted successfully!');
+        console.log('✅ Review submitted successfully!');
+        console.log('=== END DEBUG ===');
       } else {
-        // No Supabase available, show success message anyway
-        console.log("Supabase not available, review would be submitted in production");
+        console.log('❌ Supabase credentials not found');
         console.log('Review data that would be submitted:', {
           network_slug: networkSlug,
           overall_rating: overall,
@@ -123,7 +139,7 @@ export default function ReviewModal({ open, onClose, networkName, networkSlug, o
       setScreenshot(null);
       if (onSubmitted) onSubmitted();
     } catch (error) {
-      console.error('Error submitting review:', error);
+      console.error('❌ Error submitting review:', error);
       setError(`Failed to submit review: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setUploading(false);
