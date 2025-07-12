@@ -29,18 +29,23 @@ CREATE POLICY "Enable update for authenticated users" ON offers
 CREATE POLICY "Enable delete for authenticated users" ON offers
     FOR DELETE USING (auth.role() = 'authenticated');
 
--- Create policies for reviews table - ALLOW ANYONE TO SUBMIT REVIEWS
-CREATE POLICY "Enable read access for all users" ON reviews
-    FOR SELECT USING (true);
-
--- This policy allows ANYONE (including anonymous users) to insert reviews
-CREATE POLICY "Enable insert for all users" ON reviews
+-- Create policies for reviews table
+-- Anyone can insert reviews
+CREATE POLICY "Anyone can insert reviews" ON reviews
     FOR INSERT WITH CHECK (true);
 
--- Optional: Allow authenticated users to update their own reviews (if needed)
-CREATE POLICY "Enable update for authenticated users" ON reviews
-    FOR UPDATE USING (auth.role() = 'authenticated');
+-- Anyone can read approved reviews
+CREATE POLICY "Anyone can read approved reviews" ON reviews
+    FOR SELECT USING (status = 'approved');
 
--- Optional: Allow authenticated users to delete reviews (if needed)
-CREATE POLICY "Enable delete for authenticated users" ON reviews
-    FOR DELETE USING (auth.role() = 'authenticated'); 
+-- Admin can read all reviews (for moderation)
+CREATE POLICY "Admin can read all reviews" ON reviews
+    FOR SELECT USING (true);
+
+-- Admin can update review status
+CREATE POLICY "Admin can update reviews" ON reviews
+    FOR UPDATE USING (true);
+
+-- Admin can delete reviews
+CREATE POLICY "Admin can delete reviews" ON reviews
+    FOR DELETE USING (true); 
