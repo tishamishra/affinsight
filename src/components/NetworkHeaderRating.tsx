@@ -122,68 +122,16 @@ export default function NetworkHeaderRating({ networkSlug, compact = false }: Ne
   }, [networkSlug]);
 
   if (loading) {
-    if (compact) {
-      return <span className="text-xs">-</span>;
-    }
-    return (
-      <div className="flex gap-1">
-        <div className="bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] rounded px-2 py-1 text-center min-w-[45px]">
-          <div className="text-xs text-white mb-0.5">OFFERS</div>
-          <div className="text-xs font-semibold text-white">-</div>
-        </div>
-        <div className="bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] rounded px-2 py-1 text-center min-w-[45px]">
-          <div className="text-xs text-white mb-0.5">PAYOUT</div>
-          <div className="text-xs font-semibold text-white">-</div>
-        </div>
-        <div className="bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] rounded px-2 py-1 text-center min-w-[45px]">
-          <div className="text-xs text-white mb-0.5">TRACKING</div>
-          <div className="text-xs font-semibold text-white">-</div>
-        </div>
-        <div className="bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] rounded px-2 py-1 text-center min-w-[45px]">
-          <div className="text-xs text-white mb-0.5">SUPPORT</div>
-          <div className="text-xs font-semibold text-white">-</div>
-        </div>
-      </div>
-    );
+    return compact ? <span className="text-xs">-</span> : null;
   }
 
-  if (compact) {
-    return (
-      <span className="inline-flex items-center gap-1 text-base font-bold text-[#bfa14a] bg-transparent p-0 m-0">
-        {ratings.overallAvg > 0 ? ratings.overallAvg : (loading ? '-' : '0')}
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="#bfa14a" className="w-5 h-5">
-          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.922-.755 1.688-1.54 1.118l-3.38-2.454a1 1 0 00-1.175 0l-3.38 2.454c-.784.57-1.838-.196-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.049 9.394c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.967z" />
-        </svg>
-      </span>
-    );
-  }
-
-  return (
-    <div className="flex gap-1">
-      <div className="bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] rounded px-2 py-1 text-center min-w-[45px]">
-        <div className="text-xs text-white mb-0.5">OFFERS</div>
-        <div className="text-xs font-semibold text-white">
-          {ratings.offersAvg > 0 ? ratings.offersAvg : '-'}
-        </div>
-      </div>
-      <div className="bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] rounded px-2 py-1 text-center min-w-[45px]">
-        <div className="text-xs text-white mb-0.5">PAYOUT</div>
-        <div className="text-xs font-semibold text-white">
-          {ratings.payoutAvg > 0 ? ratings.payoutAvg : '-'}
-        </div>
-      </div>
-      <div className="bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] rounded px-2 py-1 text-center min-w-[45px]">
-        <div className="text-xs text-white mb-0.5">TRACKING</div>
-        <div className="text-xs font-semibold text-white">
-          {ratings.trackingAvg > 0 ? ratings.trackingAvg : '-'}
-        </div>
-      </div>
-      <div className="bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] rounded px-2 py-1 text-center min-w-[45px]">
-        <div className="text-xs text-white mb-0.5">SUPPORT</div>
-        <div className="text-xs font-semibold text-white">
-          {ratings.supportAvg > 0 ? ratings.supportAvg : '-'}
-        </div>
-      </div>
-    </div>
-  );
+  // Only show compact, text-style rating or nothing
+  return compact ? (
+    <span className="inline-flex items-center gap-1 text-base font-bold text-[#bfa14a] bg-transparent p-0 m-0">
+      {ratings.overallAvg > 0 ? ratings.overallAvg : (loading ? '-' : '0')}
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="#bfa14a" className="w-5 h-5">
+        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.967a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.966c.3.922-.755 1.688-1.54 1.118l-3.38-2.454a1 1 0 00-1.175 0l-3.38 2.454c-.784.57-1.838-.196-1.54-1.118l1.287-3.966a1 1 0 00-.364-1.118L2.049 9.394c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.967z" />
+      </svg>
+    </span>
+  ) : null;
 } 

@@ -79,17 +79,14 @@ export default async function NetworkPage({ params }: PageProps) {
                 </div>
               </div>
             )}
-            {/* Right side: name, review button, stars, review count, contact icons, stats */}
+            {/* Right side: name, review count, contact icons, stats (compact/text style only) */}
             <div className="flex flex-col flex-1 min-w-0 gap-1">
               <div className="flex flex-row items-center gap-2 flex-wrap">
                 <h1 className="text-base font-semibold text-gray-900 tracking-wide truncate min-w-0" style={{letterSpacing: '0.02em'}}>
                   {network.name}
                 </h1>
-                {/* Review button with stars and count */}
-                <div className="flex items-center gap-1">
-                  <ReviewButton networkName={network.name} networkSlug={slug} />
-                  <NetworkHeaderRating networkSlug={slug} compact={false} />
-                </div>
+                {/* Review count and stars (compact) */}
+                <NetworkHeaderRating networkSlug={slug} compact={false} />
                 {/* Small contact icons */}
                 <div className="flex items-center gap-1 ml-2">
                   {"email" in network && typeof network.email === 'string' && network.email ? (
@@ -104,7 +101,7 @@ export default async function NetworkPage({ params }: PageProps) {
                   ) : null}
                 </div>
               </div>
-              {/* Stats badges */}
+              {/* Stats badges (compact/text style only) */}
               <div className="flex flex-row gap-1 mt-1">
                 <NetworkStats networkSlug={slug} />
               </div>
@@ -156,20 +153,17 @@ export default async function NetworkPage({ params }: PageProps) {
           </div>
         </div>
 
-        {/* Network Description Section */}
+        {/* About Network + Affiliate Network Details in one layer */}
         <div className="p-3 mb-2 sm:bg-white sm:rounded-2xl sm:shadow-xl sm:border sm:border-[#e6c77c] sm:p-8 sm:mb-8">
           <h2 className="text-sm sm:text-2xl font-semibold text-gray-900 mb-2 sm:mb-6 flex items-center tracking-wide" style={{letterSpacing: '0.01em'}}>
             <span className="w-1 h-4 sm:w-2 sm:h-8 bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] rounded-full mr-2 sm:mr-4"></span>
             About {network.name}
           </h2>
-          {/* Description with Read More functionality */}
-          <div className="text-xs sm:text-base">
+          <div className="text-xs sm:text-base mb-4">
             <NetworkDescription networkName={network.name} network={network} showReadMore={true} />
           </div>
-          {/* Network Details Table (dynamic, auto-updating) */}
-          <div className="sm:block bg-transparent rounded-none shadow-none border-none p-0">
-            <NetworkDetailsTable network={network} />
-          </div>
+          {/* Affiliate Network Details (no extra layer) */}
+          <NetworkDetailsTable network={network} />
         </div>
 
         {/* Offers Section */}
