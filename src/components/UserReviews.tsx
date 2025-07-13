@@ -348,41 +348,41 @@ export default function UserReviews({ networkSlug, networkName }: UserReviewsPro
 
   if (loading) {
     return (
-      <div className="flex justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#e6c77c]"></div>
+      <div className="flex justify-center py-6 sm:py-8">
+        <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-[#e6c77c]"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center py-8">
-        <p className="text-red-600">{error}</p>
+      <div className="text-center py-6 sm:py-8">
+        <p className="text-red-600 text-xs sm:text-base">{error}</p>
       </div>
     );
   }
 
   if (reviews.length === 0) {
     return (
-      <div className="text-center py-8">
-        <div className="w-16 h-16 bg-gradient-to-br from-[#e6c77c] to-[#bfa14a] rounded-full flex items-center justify-center mx-auto mb-4">
-          <FiUser className="w-8 h-8 text-white" />
+      <div className="text-center py-6 sm:py-8">
+        <div className="w-10 h-10 sm:w-16 sm:h-16 bg-gradient-to-br from-[#e6c77c] to-[#bfa14a] rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
+          <FiUser className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
         </div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">No Reviews Yet</h3>
-        <p className="text-gray-600">Be the first to review {networkName}</p>
+        <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-2">No Reviews Yet</h3>
+        <p className="text-gray-600 text-xs sm:text-base">Be the first to review {networkName}</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Filter and Sort Controls */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between bg-gradient-to-r from-[#fef7e6] to-[#fdf4d9] rounded-xl p-4 border border-[#e6c77c]">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-start sm:items-center justify-between bg-gradient-to-r from-[#fef7e6] to-[#fdf4d9] rounded-xl p-2 sm:p-4 border border-[#e6c77c]">
         {/* Filter Buttons */}
-        <div className="flex gap-2">
+        <div className="flex gap-1 sm:gap-2">
           <button
             onClick={() => setFilter('all')}
-            className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+            className={`px-2 sm:px-4 py-1 sm:py-2 rounded-lg font-medium transition-all duration-200 text-xs sm:text-base ${
               filter === 'all'
                 ? 'bg-[#e6c77c] text-white shadow-md'
                 : 'bg-white text-gray-700 hover:bg-[#fef7e6] border border-[#e6c77c]'
@@ -392,7 +392,7 @@ export default function UserReviews({ networkSlug, networkName }: UserReviewsPro
           </button>
           <button
             onClick={() => setFilter('payment-proofs')}
-            className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+            className={`px-2 sm:px-4 py-1 sm:py-2 rounded-lg font-medium transition-all duration-200 text-xs sm:text-base ${
               filter === 'payment-proofs'
                 ? 'bg-[#e6c77c] text-white shadow-md'
                 : 'bg-white text-gray-700 hover:bg-[#fef7e6] border border-[#e6c77c]'
@@ -406,22 +406,22 @@ export default function UserReviews({ networkSlug, networkName }: UserReviewsPro
         <div className="relative">
           <button
             onClick={() => setShowSortDropdown(!showSortDropdown)}
-            className="flex items-center gap-2 px-4 py-2 bg-white text-gray-700 rounded-lg border border-[#e6c77c] hover:bg-[#fef7e6] transition-all duration-200"
+            className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-1 sm:py-2 bg-white text-gray-700 rounded-lg border border-[#e6c77c] hover:bg-[#fef7e6] transition-all duration-200 text-xs sm:text-base"
           >
-            <FiFilter className="w-4 h-4" />
+            <FiFilter className="w-3 h-3 sm:w-4 sm:h-4" />
             <span>
               {sortBy === 'recent' && 'Most Recent'}
               {sortBy === 'oldest' && 'Oldest First'}
               {sortBy === 'popular' && 'Most Popular'}
             </span>
-            <FiChevronDown className={`w-4 h-4 transition-transform duration-200 ${showSortDropdown ? 'rotate-180' : ''}`} />
+            <FiChevronDown className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-200 ${showSortDropdown ? 'rotate-180' : ''}`} />
           </button>
 
           {showSortDropdown && (
-            <div className="absolute right-0 top-full mt-2 bg-white border border-[#e6c77c] rounded-lg shadow-lg z-10 min-w-[160px]">
+            <div className="absolute right-0 top-full mt-1 sm:mt-2 bg-white border border-[#e6c77c] rounded-lg shadow-lg z-10 min-w-[120px] sm:min-w-[160px]">
               <button
                 onClick={() => { setSortBy('recent'); setShowSortDropdown(false); }}
-                className={`w-full text-left px-4 py-2 hover:bg-[#fef7e6] transition-colors ${
+                className={`w-full text-left px-2 sm:px-4 py-1 sm:py-2 hover:bg-[#fef7e6] transition-colors text-xs sm:text-base ${
                   sortBy === 'recent' ? 'bg-[#fef7e6] text-[#bfa14a]' : 'text-gray-700'
                 }`}
               >
@@ -429,7 +429,7 @@ export default function UserReviews({ networkSlug, networkName }: UserReviewsPro
               </button>
               <button
                 onClick={() => { setSortBy('oldest'); setShowSortDropdown(false); }}
-                className={`w-full text-left px-4 py-2 hover:bg-[#fef7e6] transition-colors ${
+                className={`w-full text-left px-2 sm:px-4 py-1 sm:py-2 hover:bg-[#fef7e6] transition-colors text-xs sm:text-base ${
                   sortBy === 'oldest' ? 'bg-[#fef7e6] text-[#bfa14a]' : 'text-gray-700'
                 }`}
               >
@@ -437,7 +437,7 @@ export default function UserReviews({ networkSlug, networkName }: UserReviewsPro
               </button>
               <button
                 onClick={() => { setSortBy('popular'); setShowSortDropdown(false); }}
-                className={`w-full text-left px-4 py-2 hover:bg-[#fef7e6] transition-colors ${
+                className={`w-full text-left px-2 sm:px-4 py-1 sm:py-2 hover:bg-[#fef7e6] transition-colors text-xs sm:text-base ${
                   sortBy === 'popular' ? 'bg-[#fef7e6] text-[#bfa14a]' : 'text-gray-700'
                 }`}
               >
@@ -449,129 +449,70 @@ export default function UserReviews({ networkSlug, networkName }: UserReviewsPro
       </div>
 
       {/* Reviews List */}
-      <div className="space-y-6">
+      <div className="space-y-2 sm:space-y-3">
         {paginatedReviews.map((review) => (
-          <div key={review.id} className="bg-gradient-to-br from-white to-[#fef7e6] rounded-xl p-6 border border-[#e6c77c] shadow-sm hover:shadow-md transition-all duration-300">
-            {/* Review Header */}
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-[#e6c77c] to-[#bfa14a] rounded-full flex items-center justify-center shadow-sm">
-                  <FiUser className="w-6 h-6 text-white" />
+          <div key={review.id} className="bg-white border border-gray-200 rounded p-2 sm:p-3 text-xs sm:text-sm w-full flex flex-col gap-1">
+            {/* Header: Avatar, Name, Date, Rating */}
+            <div className="flex items-center gap-2 justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <FiUser className="w-4 h-4 text-blue-400" />
                 </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900 text-lg">{review.user_name}</h4>
-                  <p className="text-sm text-gray-500">
-                    {new Date(review.created_at).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
-                  </p>
-                </div>
+                <span className="font-semibold text-gray-800 text-xs sm:text-sm">{review.user_name}</span>
+                <span className="flex items-center text-[#fbbf24] text-xs sm:text-sm ml-1">
+                  {Array.from({length: review.overall_rating}).map((_,i) => <FiStar key={i} className="inline w-3 h-3 sm:w-4 sm:h-4" />)}
+                </span>
               </div>
-              <div className="flex items-center gap-2 bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] text-white px-3 py-1 rounded-full">
-                <span className="text-lg font-bold">{review.overall_rating}</span>
-                <FiStar className="w-5 h-5" />
-              </div>
+              <span className="text-gray-400 text-[10px] sm:text-xs whitespace-nowrap">{new Date(review.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' })}</span>
             </div>
-
+            {/* Stats Badges Row (compact style) */}
+            <div className="flex flex-row flex-wrap gap-1 mb-1">
+              <span className="inline-flex items-center bg-blue-50 text-gray-500 text-[10px] sm:text-xs font-semibold px-1.5 py-0.5 rounded-full">Ease <span className="ml-1 text-[#e57373] font-bold">{review.ease_of_use}</span></span>
+              <span className="inline-flex items-center bg-blue-50 text-gray-500 text-[10px] sm:text-xs font-semibold px-1.5 py-0.5 rounded-full">Payment <span className="ml-1 text-[#e57373] font-bold">{review.payment_speed}</span></span>
+              <span className="inline-flex items-center bg-blue-50 text-gray-500 text-[10px] sm:text-xs font-semibold px-1.5 py-0.5 rounded-full">Support <span className="ml-1 text-[#e57373] font-bold">{review.support_quality}</span></span>
+            </div>
             {/* Review Text */}
-            <div className="mb-6">
-              <p className="text-gray-700 leading-relaxed text-base">{review.review_text}</p>
+            <div>
+              <p className="text-gray-700 text-xs sm:text-sm leading-snug">{review.review_text}</p>
             </div>
-
-            {/* Rating Breakdown */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-white rounded-lg border border-[#e6c77c]/30">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-600">Ease of Use</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-sm font-bold text-[#bfa14a]">{review.ease_of_use}</span>
-                  <FiStar className="w-4 h-4 text-[#e6c77c]" />
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-600">Payment Speed</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-sm font-bold text-[#bfa14a]">{review.payment_speed}</span>
-                  <FiStar className="w-4 h-4 text-[#e6c77c]" />
-                </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-600">Support Quality</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-sm font-bold text-[#bfa14a]">{review.support_quality}</span>
-                  <FiStar className="w-4 h-4 text-[#e6c77c]" />
-                </div>
-              </div>
-            </div>
-
             {/* Like/Dislike Buttons */}
-            <div className="flex items-center gap-4 mb-4">
+            <div className="flex items-center gap-2 mt-1">
               <button
                 onClick={() => handleLike(review.id)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 ${
-                  review.user_vote === 'like'
-                    ? 'bg-green-100 text-green-700 border border-green-300'
-                    : 'bg-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600 border border-gray-200'
-                }`}
+                className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs sm:text-sm border transition-all duration-200 ${review.user_vote === 'like' ? 'bg-green-100 text-green-700 border-green-300' : 'bg-gray-50 text-gray-600 hover:bg-green-50 hover:text-green-600 border-gray-200'}`}
               >
-                <FiThumbsUp className={`w-4 h-4 ${review.user_vote === 'like' ? 'text-green-600' : ''}`} />
-                <span className="text-sm font-medium">{review.likes_count || 0}</span>
+                <FiThumbsUp className={`w-3 h-3 ${review.user_vote === 'like' ? 'text-green-600' : ''}`} />
+                <span>{review.likes_count || 0}</span>
               </button>
-              
               <button
                 onClick={() => handleDislike(review.id)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 ${
-                  review.user_vote === 'dislike'
-                    ? 'bg-red-100 text-red-700 border border-red-300'
-                    : 'bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600 border border-gray-200'
-                }`}
+                className={`flex items-center gap-1 px-2 py-0.5 rounded text-xs sm:text-sm border transition-all duration-200 ${review.user_vote === 'dislike' ? 'bg-red-100 text-red-700 border-red-300' : 'bg-gray-50 text-gray-600 hover:bg-red-50 hover:text-red-600 border-gray-200'}`}
               >
-                <FiThumbsDown className={`w-4 h-4 ${review.user_vote === 'dislike' ? 'text-red-600' : ''}`} />
-                <span className="text-sm font-medium">{review.dislikes_count || 0}</span>
+                <FiThumbsDown className={`w-3 h-3 ${review.user_vote === 'dislike' ? 'text-red-600' : ''}`} />
+                <span>{review.dislikes_count || 0}</span>
               </button>
             </div>
-
-            {/* Payment Proof Link */}
-            {review.screenshot_url && (
-              <div className="mt-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <FiImage className="w-5 h-5 text-[#bfa14a]" />
-                  <span className="text-sm font-medium text-gray-700">Payment Proof</span>
-                </div>
-                <a
-                  href={review.screenshot_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] text-white rounded-md hover:from-[#bfa14a] hover:to-[#e6c77c] transition-all duration-200 shadow-sm hover:shadow-md font-medium"
-                >
-                  <FiEye className="w-3 h-3" />
-                  <span className="hidden sm:inline">View Payment Proof</span>
-                  <span className="sm:hidden">View Proof</span>
-                </a>
-              </div>
-            )}
           </div>
         ))}
       </div>
 
       {/* Pagination Controls */}
       {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-4 mt-8">
+        <div className="flex justify-center items-center gap-2 sm:gap-4 mt-4 sm:mt-8">
           <button
             onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
             disabled={currentPage === 1}
-            className={`px-4 py-2 rounded-lg font-medium border border-[#e6c77c] transition-all duration-200 ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-[#bfa14a] hover:bg-[#fef7e6]'}`}
+            className={`px-2 sm:px-4 py-1 sm:py-2 rounded-lg font-medium border border-[#e6c77c] transition-all duration-200 text-xs sm:text-base ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-[#bfa14a] hover:bg-[#fef7e6]'}`}
           >
             Previous
           </button>
-          <span className="text-gray-700 font-medium">
+          <span className="text-gray-700 font-medium text-xs sm:text-base">
             Page {currentPage} of {totalPages}
           </span>
           <button
             onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
             disabled={currentPage === totalPages}
-            className={`px-4 py-2 rounded-lg font-medium border border-[#e6c77c] transition-all duration-200 ${currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-[#bfa14a] hover:bg-[#fef7e6]'}`}
+            className={`px-2 sm:px-4 py-1 sm:py-2 rounded-lg font-medium border border-[#e6c77c] transition-all duration-200 text-xs sm:text-base ${currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-[#bfa14a] hover:bg-[#fef7e6]'}`}
           >
             Next
           </button>
@@ -580,14 +521,14 @@ export default function UserReviews({ networkSlug, networkName }: UserReviewsPro
 
       {/* No Results Message */}
       {sortedReviews.length === 0 && (
-        <div className="text-center py-12">
-          <div className="w-16 h-16 bg-gradient-to-br from-[#e6c77c] to-[#bfa14a] rounded-full flex items-center justify-center mx-auto mb-4">
-            <FiFilter className="w-8 h-8 text-white" />
+        <div className="text-center py-8">
+          <div className="w-10 h-10 sm:w-16 sm:h-16 bg-gradient-to-br from-[#e6c77c] to-[#bfa14a] rounded-full flex items-center justify-center mx-auto mb-2 sm:mb-4">
+            <FiFilter className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-1 sm:mb-2">
             {filter === 'payment-proofs' ? 'No Payment Proofs Found' : 'No Reviews Found'}
           </h3>
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-xs sm:text-base">
             {filter === 'payment-proofs' 
               ? 'No reviews with payment proofs found for this filter.'
               : 'No reviews match the current filter.'
