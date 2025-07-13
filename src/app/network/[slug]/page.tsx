@@ -5,6 +5,7 @@ import NetworkHeaderRating from '@/components/NetworkHeaderRating'
 import NetworkStats from '@/components/NetworkStats'
 import UserReviews from '@/components/UserReviews'
 import NetworkDescription from '@/components/NetworkDescription'
+import NetworkDetailsTable from '@/components/NetworkDetailsTable'
 
 export const dynamic = 'force-dynamic';
 
@@ -121,26 +122,9 @@ export default async function NetworkPage({ params }: PageProps) {
           
           {/* Description with Read More functionality */}
           <NetworkDescription networkName={network.name} network={network} showReadMore={true} />
-          
-          {/* Network Details */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
-              <h3 className="font-semibold text-gray-900 mb-2">Commission Rate</h3>
-              <p className="text-[#bfa14a] font-medium">{network.commission_rate || 'N/A'}</p>
-            </div>
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
-              <h3 className="font-semibold text-gray-900 mb-2">Minimum Payout</h3>
-              <p className="text-[#bfa14a] font-medium">{network.minimum_payout || 'N/A'}</p>
-            </div>
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
-              <h3 className="font-semibold text-gray-900 mb-2">Payment Frequency</h3>
-              <p className="text-[#bfa14a] font-medium">{network.payment_frequency || 'N/A'}</p>
-            </div>
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-200">
-              <h3 className="font-semibold text-gray-900 mb-2">Offers Available</h3>
-              <p className="text-[#bfa14a] font-medium">{network.offers_count || networkOffers.length}</p>
-            </div>
-          </div>
+
+          {/* Network Details Table (dynamic, auto-updating) */}
+          <NetworkDetailsTable network={network} />
         </div>
 
         {/* Offers Section */}

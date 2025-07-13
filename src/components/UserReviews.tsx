@@ -64,6 +64,10 @@ export default function UserReviews({ networkSlug, networkName }: UserReviewsPro
   const [user, setUser] = useState<any>(null);
   const [userVotes, setUserVotes] = useState<Record<string, 'like' | 'dislike' | null>>({});
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const REVIEWS_PER_PAGE = 13;
+
   useEffect(() => {
     // Get current user
     const getUser = async () => {
@@ -328,6 +332,18 @@ export default function UserReviews({ networkSlug, networkName }: UserReviewsPro
     }
   });
 
+  // Pagination logic
+  const totalPages = Math.ceil(sortedReviews.length / REVIEWS_PER_PAGE);
+  const paginatedReviews = sortedReviews.slice(
+    (currentPage - 1) * REVIEWS_PER_PAGE,
+    currentPage * REVIEWS_PER_PAGE
+  );
+
+  // Reset to first page when filter or sort changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, sortBy, reviews.length]);
+
   const reviewsWithProofs = reviews.filter(review => review.screenshot_url && review.screenshot_url.trim() !== '').length;
 
   if (loading) {
@@ -434,7 +450,7 @@ export default function UserReviews({ networkSlug, networkName }: UserReviewsPro
 
       {/* Reviews List */}
       <div className="space-y-6">
-        {sortedReviews.map((review) => (
+        {paginatedReviews.map((review) => (
           <div key={review.id} className="bg-gradient-to-br from-white to-[#fef7e6] rounded-xl p-6 border border-[#e6c77c] shadow-sm hover:shadow-md transition-all duration-300">
             {/* Review Header */}
             <div className="flex items-start justify-between mb-4">
@@ -538,6 +554,29 @@ export default function UserReviews({ networkSlug, networkName }: UserReviewsPro
           </div>
         ))}
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-8">
+          <button
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            disabled={currentPage === 1}
+            className={`px-4 py-2 rounded-lg font-medium border border-[#e6c77c] transition-all duration-200 ${currentPage === 1 ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-[#bfa14a] hover:bg-[#fef7e6]'}`}
+          >
+            Previous
+          </button>
+          <span className="text-gray-700 font-medium">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            disabled={currentPage === totalPages}
+            className={`px-4 py-2 rounded-lg font-medium border border-[#e6c77c] transition-all duration-200 ${currentPage === totalPages ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-[#bfa14a] hover:bg-[#fef7e6]'}`}
+          >
+            Next
+          </button>
+        </div>
+      )}
 
       {/* No Results Message */}
       {sortedReviews.length === 0 && (
