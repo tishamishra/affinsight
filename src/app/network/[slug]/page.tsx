@@ -62,60 +62,60 @@ export default async function NetworkPage({ params }: PageProps) {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8" style={{fontFamily: 'Inter, ui-sans-serif, system-ui'}}>
       <div className="max-w-6xl mx-auto">
         {/* Header Section */}
-        <div className="bg-white rounded-2xl shadow-xl border border-[#e6c77c] p-8 mb-8">
-          <div className="flex flex-col gap-4">
-            {/* Top row: logo, name, and category pill */}
-            <div className="flex flex-row items-center gap-6">
-              {/* Logo */}
-              {network.logo_url && (
-                <div className="flex-shrink-0 relative">
-                  <img 
-                    src={network.logo_url} 
-                    alt={`${network.name} logo`}
-                    className="w-24 h-24 object-contain rounded-xl border border-[#e6c77c] bg-white p-3 shadow-sm"
-                  />
-                  {/* Small Rating Label on top of logo */}
-                  <div className="absolute -top-2 -right-2">
-                    <NetworkHeaderRating networkSlug={slug} compact={true} />
-                  </div>
+        <div className="bg-white rounded-2xl shadow-xl border border-[#e6c77c] p-3 sm:p-8 mb-4 sm:mb-8">
+          <div className="flex flex-col items-center gap-2 sm:flex-row sm:items-center sm:gap-6 w-full">
+            {/* Logo */}
+            {network.logo_url && (
+              <div className="flex-shrink-0 relative mb-1 sm:mb-0 flex flex-col items-center">
+                <img 
+                  src={network.logo_url} 
+                  alt={`${network.name} logo`}
+                  className="w-14 h-14 sm:w-24 sm:h-24 object-contain rounded-xl border border-[#e6c77c] bg-white p-1.5 sm:p-3 shadow-sm mx-auto"
+                />
+                {/* Small Rating Label on top of logo */}
+                <div className="absolute -top-2 -right-2">
+                  <NetworkHeaderRating networkSlug={slug} compact={true} />
                 </div>
-              )}
-              {/* Name and category pill in a row */}
-              <div className="flex flex-row items-center gap-4">
-                <h1 className="text-3xl font-semibold text-gray-900 tracking-wide" style={{letterSpacing: '0.02em'}}>
+              </div>
+            )}
+            {/* Name, category, and badges */}
+            <div className="flex flex-col flex-1 min-w-0 gap-1 sm:gap-3 items-center sm:items-start w-full">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 min-w-0 w-full">
+                <h1 className="text-base sm:text-3xl font-semibold text-gray-900 tracking-wide text-center sm:text-left truncate min-w-0" style={{letterSpacing: '0.02em'}}>
                   {network.name}
                 </h1>
                 {network.category && (
-                  <span className="inline-block px-4 py-2 bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] text-white text-sm font-medium rounded-full shadow-sm">
+                  <span className="inline-block max-w-full truncate text-ellipsis block text-center sm:text-left px-2 py-0.5 sm:px-4 sm:py-2 bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] text-white text-xs sm:text-sm font-medium rounded-full shadow-sm">
                     {network.category}
                   </span>
                 )}
               </div>
-            </div>
-            {/* Metrics badges */}
-            <div className="flex flex-wrap gap-2 justify-center md:justify-start">
-              <NetworkStats networkSlug={slug} />
+              <div className="flex flex-row gap-1 justify-center sm:justify-start overflow-x-auto w-full pb-1">
+                <NetworkStats networkSlug={slug} />
+              </div>
             </div>
             {/* Action buttons */}
-            <div className="flex flex-row gap-3 justify-end">
+            <div className="flex flex-col gap-2 w-full sm:w-auto sm:ml-auto sm:flex-row sm:gap-3 sm:flex-shrink-0 mt-2 sm:mt-0">
               {network.website && (
                 <a
                   href={network.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="bg-gradient-to-r from-[#bfa14a] to-[#e6c77c] hover:from-[#e6c77c] hover:to-[#bfa14a] text-white font-medium py-2 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md text-sm"
+                  className="w-full sm:w-auto text-center bg-gradient-to-r from-[#bfa14a] to-[#e6c77c] hover:from-[#e6c77c] hover:to-[#bfa14a] text-white font-medium py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md text-sm sm:text-sm"
                 >
-                  Visit Website
+                  Join Now
                 </a>
               )}
-              <ReviewButton networkName={network.name} networkSlug={slug} />
+              <div className="w-full sm:w-auto">
+                <ReviewButton networkName={network.name} networkSlug={slug} />
+              </div>
             </div>
           </div>
         </div>
 
         {/* Network Description Section */}
-        <div className="bg-white rounded-2xl shadow-xl border border-[#e6c77c] p-8 mb-8 sm:bg-white sm:rounded-2xl sm:shadow-xl sm:border sm:border-[#e6c77c] bg-transparent rounded-none shadow-none border-none p-2 mb-3">
-          <h2 className="text-base sm:text-2xl font-semibold text-gray-900 mb-3 sm:mb-6 flex items-center tracking-wide" style={{letterSpacing: '0.01em'}}>
+        <div className="bg-white rounded-2xl shadow-xl border border-[#e6c77c] p-3 mb-4 sm:bg-white sm:rounded-2xl sm:shadow-xl sm:border sm:border-[#e6c77c] bg-transparent rounded-none shadow-none border-none sm:p-8 sm:mb-8">
+          <h2 className="text-sm sm:text-2xl font-semibold text-gray-900 mb-2 sm:mb-6 flex items-center tracking-wide" style={{letterSpacing: '0.01em'}}>
             <span className="w-1 h-4 sm:w-2 sm:h-8 bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] rounded-full mr-2 sm:mr-4"></span>
             About {network.name}
           </h2>
@@ -130,22 +130,22 @@ export default async function NetworkPage({ params }: PageProps) {
         </div>
 
         {/* Offers Section */}
-        <div className="bg-white rounded-2xl shadow-xl border border-[#e6c77c] p-8 mb-8 sm:bg-white sm:rounded-2xl sm:shadow-xl sm:border sm:border-[#e6c77c] bg-transparent rounded-none shadow-none border-none p-2 mb-3">
-          <h2 className="text-base sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-8 flex items-center tracking-wide" style={{letterSpacing: '0.01em'}}>
+        <div className="bg-white rounded-2xl shadow-xl border border-[#e6c77c] p-3 mb-4 sm:bg-white sm:rounded-2xl sm:shadow-xl sm:border sm:border-[#e6c77c] bg-transparent rounded-none shadow-none border-none sm:p-8 sm:mb-8">
+          <h2 className="text-sm sm:text-2xl font-semibold text-gray-900 mb-2 sm:mb-8 flex items-center tracking-wide" style={{letterSpacing: '0.01em'}}>
             <span className="w-1 h-4 sm:w-2 sm:h-8 bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] rounded-full mr-2 sm:mr-4"></span>
             Available Offers ({networkOffers.length})
           </h2>
           {networkOffers.length > 0 ? (
-            <div className="flex flex-col gap-2 sm:gap-3">
+            <div className="flex flex-col gap-1 sm:gap-3">
               {networkOffers.map((offer, index) => (
-                <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-gray-50 border border-gray-200 rounded p-2 sm:p-3 text-sm sm:text-base w-full">
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 w-full">
+                <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-gray-50 border border-gray-200 rounded p-2 sm:p-3 text-xs sm:text-base w-full">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-0.5 sm:gap-4 w-full">
                     <span className="font-semibold text-gray-900">{offer.offerName || 'Unnamed Offer'}</span>
                     <span className="text-gray-500">{offer.vertical || 'General'}</span>
                     <span className="text-gray-500">Payout: <span className="font-medium text-[#bfa14a]">{offer.payout || 'N/A'}</span></span>
                     <span className="text-gray-400">{offer.country || 'Global'}</span>
                   </div>
-                  <button className="bg-gradient-to-r from-[#bfa14a] to-[#e6c77c] hover:from-[#e6c77c] hover:to-[#bfa14a] text-white text-xs sm:text-sm font-semibold px-3 sm:px-4 py-1 sm:py-2 transition-all duration-300 transform hover:scale-105 mt-2 sm:mt-0 whitespace-nowrap">
+                  <button className="bg-gradient-to-r from-[#bfa14a] to-[#e6c77c] hover:from-[#e6c77c] hover:to-[#bfa14a] text-white text-xs sm:text-sm font-semibold px-2 sm:px-4 py-1 sm:py-2 transition-all duration-300 transform hover:scale-105 mt-2 sm:mt-0 whitespace-nowrap">
                     View Offer
                   </button>
                 </div>
@@ -165,15 +165,15 @@ export default async function NetworkPage({ params }: PageProps) {
         </div>
 
         {/* User Reviews Section */}
-        <div className="bg-white rounded-2xl shadow-xl border border-[#e6c77c] p-8 mb-8 sm:bg-white sm:rounded-2xl sm:shadow-xl sm:border sm:border-[#e6c77c] bg-transparent rounded-none shadow-none border-none p-2 mb-3 text-xs sm:text-base">
-          <h2 className="text-base sm:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6 flex items-center tracking-wide" style={{letterSpacing: '0.01em'}}>
+        <div className="bg-white rounded-2xl shadow-xl border border-[#e6c77c] p-3 mb-4 sm:bg-white sm:rounded-2xl sm:shadow-xl sm:border sm:border-[#e6c77c] bg-transparent rounded-none shadow-none border-none sm:p-8 sm:mb-8 text-xs sm:text-base">
+          <h2 className="text-sm sm:text-2xl font-semibold text-gray-900 mb-2 sm:mb-6 flex items-center tracking-wide" style={{letterSpacing: '0.01em'}}>
             <span className="w-1 h-4 sm:w-2 sm:h-8 bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] rounded-full mr-2 sm:mr-4"></span>
             User Reviews
           </h2>
           {/* Display Reviews */}
           <UserReviews networkSlug={slug} networkName={network.name} />
           {/* Add Review Button */}
-          <div className="text-center pt-6 sm:pt-8 border-t border-gray-200">
+          <div className="text-center pt-4 sm:pt-8 border-t border-gray-200">
             <p className="text-gray-600 mb-2 sm:mb-4 text-xs sm:text-base">Share your experience with {network.name}</p>
             <ReviewButton networkName={network.name} networkSlug={slug} />
           </div>
