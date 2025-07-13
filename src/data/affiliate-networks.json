@@ -199,13 +199,13 @@
       "category": "Dating",
       "rating": 4.22,
       "countries": ["US", "UK", "CA", "AU", "DE"],
-      "description": "Resality is a smartlink network combining innovation and technology, backed by Cpamatica's decade-long expertise in dating.",
+      "description": "Resality is a performance marketing network specializing in dating and adult offers with global reach and high conversions.",
       "commission_rate": "5-25%",
       "payment_methods": ["Check", "Direct Deposit"],
       "minimum_payout": "$50",
       "tracking_software": "In-house",
-      "payment_frequency": "Weekly",
-      "offers_count": 6036,
+      "payment_frequency": "Net-30",
+      "offers_count": 2156,
       "logo_url": "https://hvhaavxjbujkpvbvftkj.supabase.co/storage/v1/object/public/logos/logos/Resality.jpg"
     },
     {

@@ -4,6 +4,7 @@ import ReviewButton from '@/components/ReviewButton'
 import NetworkHeaderRating from '@/components/NetworkHeaderRating'
 import NetworkStats from '@/components/NetworkStats'
 import UserReviews from '@/components/UserReviews'
+import NetworkDescription from '@/components/NetworkDescription'
 
 export const dynamic = 'force-dynamic';
 
@@ -17,7 +18,7 @@ export default async function NetworkPage({ params }: PageProps) {
   // Convert slug to network name for matching
   const networkName = slug
     .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ')
   
   // Improved network matching logic
@@ -117,7 +118,9 @@ export default async function NetworkPage({ params }: PageProps) {
             <span className="w-2 h-8 bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] rounded-full mr-4"></span>
             About {network.name}
           </h2>
-          <p className="text-gray-700 leading-relaxed mb-6">{network.description || 'No description available.'}</p>
+          
+          {/* Description with Read More functionality */}
+          <NetworkDescription networkName={network.name} network={network} showReadMore={true} />
           
           {/* Network Details */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

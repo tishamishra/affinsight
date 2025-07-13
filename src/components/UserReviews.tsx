@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { FiStar, FiEye, FiUser, FiFilter, FiChevronDown, FiImage } from 'react-icons/fi';
+import { FiStar, FiEye, FiUser, FiFilter, FiChevronDown, FiImage, FiThumbsUp, FiThumbsDown } from 'react-icons/fi';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -21,6 +21,17 @@ interface Review {
   screenshot_url?: string;
   status: 'pending' | 'approved' | 'rejected';
   created_at: string;
+  likes_count?: number;
+  dislikes_count?: number;
+  user_vote?: 'like' | 'dislike' | null;
+}
+
+interface UserVote {
+  id: string;
+  user_id: string;
+  review_id: string;
+  vote_type: 'like' | 'dislike';
+  created_at: string;
 }
 
 interface UserReviewsProps {
@@ -31,6 +42,18 @@ interface UserReviewsProps {
 type FilterType = 'all' | 'payment-proofs';
 type SortType = 'recent' | 'oldest' | 'popular';
 
+// Helper function to get or create anonymous user ID
+const getAnonymousUserId = (): string => {
+  if (typeof window === 'undefined') return '';
+  
+  let anonymousId = localStorage.getItem('anonymous_user_id');
+  if (!anonymousId) {
+    anonymousId = 'anon_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+    localStorage.setItem('anonymous_user_id', anonymousId);
+  }
+  return anonymousId;
+};
+
 export default function UserReviews({ networkSlug, networkName }: UserReviewsProps) {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,24 +61,88 @@ export default function UserReviews({ networkSlug, networkName }: UserReviewsPro
   const [filter, setFilter] = useState<FilterType>('all');
   const [sortBy, setSortBy] = useState<SortType>('recent');
   const [showSortDropdown, setShowSortDropdown] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [userVotes, setUserVotes] = useState<Record<string, 'like' | 'dislike' | null>>({});
+
+  useEffect(() => {
+    // Get current user
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
+  }, []);
 
   useEffect(() => {
     const fetchReviews = async () => {
       try {
         setLoading(true);
-        const { data, error } = await supabase
+        
+        // Fetch reviews with vote counts
+        const { data: reviewsData, error: reviewsError } = await supabase
           .from('reviews')
           .select('*')
           .eq('network_slug', networkSlug)
           .eq('status', 'approved')
           .order('created_at', { ascending: false });
 
-        if (error) {
-          console.error('Error fetching reviews:', error);
+        if (reviewsError) {
+          console.error('Error fetching reviews:', reviewsError);
           setError('Failed to load reviews');
-        } else {
-          setReviews(data || []);
+          return;
         }
+
+        const reviewIds = (reviewsData || []).map(r => r.id);
+        let userVotesData: any[] = [];
+
+        if (user) {
+          // Fetch authenticated user votes
+          const { data: authVotes, error: votesError } = await supabase
+            .from('user_votes')
+            .select('*')
+            .in('review_id', reviewIds)
+            .eq('user_id', user.id);
+
+          if (votesError) {
+            console.error('Error fetching user votes:', votesError);
+          } else {
+            userVotesData = authVotes || [];
+          }
+        } else {
+          // Fetch anonymous user votes
+          const anonymousId = getAnonymousUserId();
+          const { data: anonVotes, error: votesError } = await supabase
+            .from('user_votes')
+            .select('*')
+            .in('review_id', reviewIds)
+            .eq('user_id', anonymousId);
+
+          if (votesError) {
+            console.error('Error fetching anonymous votes:', votesError);
+          } else {
+            userVotesData = anonVotes || [];
+          }
+        }
+
+        // Combine reviews with user vote data
+        const reviewsWithVotes = (reviewsData || []).map(review => {
+          const userVote = userVotesData.find(vote => vote.review_id === review.id);
+          return {
+            ...review,
+            likes_count: review.likes_count || 0,
+            dislikes_count: review.dislikes_count || 0,
+            user_vote: userVote ? userVote.vote_type : null
+          };
+        });
+
+        setReviews(reviewsWithVotes);
+        
+        // Set user votes state
+        const votesMap: Record<string, 'like' | 'dislike' | null> = {};
+        userVotesData.forEach(vote => {
+          votesMap[vote.review_id] = vote.vote_type;
+        });
+        setUserVotes(votesMap);
       } catch (err) {
         console.error('Error:', err);
         setError('Failed to load reviews');
@@ -65,7 +152,156 @@ export default function UserReviews({ networkSlug, networkName }: UserReviewsPro
     };
 
     fetchReviews();
-  }, [networkSlug]);
+  }, [networkSlug, user]);
+
+  const updateReviewCounts = async (reviewId: string, likeChange: number, dislikeChange: number) => {
+    try {
+      // First get current counts
+      const { data: currentReview, error: fetchError } = await supabase
+        .from('reviews')
+        .select('likes_count, dislikes_count')
+        .eq('id', reviewId)
+        .single();
+
+      if (fetchError) {
+        console.error('Error fetching current counts:', fetchError);
+        return;
+      }
+
+      // Update with new counts
+      const { error } = await supabase
+        .from('reviews')
+        .update({
+          likes_count: (currentReview.likes_count || 0) + likeChange,
+          dislikes_count: (currentReview.dislikes_count || 0) + dislikeChange
+        })
+        .eq('id', reviewId);
+
+      if (error) {
+        console.error('Error updating review counts:', error);
+      }
+    } catch (err) {
+      console.error('Error updating counts:', err);
+    }
+  };
+
+  const updateUserVote = async (reviewId: string, voteType: 'like' | 'dislike', newVote: 'like' | 'dislike' | null) => {
+    try {
+      const userId = user ? user.id : getAnonymousUserId();
+      
+      if (newVote === null) {
+        // Remove vote
+        const { error } = await supabase
+          .from('user_votes')
+          .delete()
+          .eq('review_id', reviewId)
+          .eq('user_id', userId);
+
+        if (error) {
+          console.error('Error removing vote:', error);
+        }
+      } else {
+        // Add or update vote
+        const { error } = await supabase
+          .from('user_votes')
+          .upsert({
+            user_id: userId,
+            review_id: reviewId,
+            vote_type: newVote
+          }, {
+            onConflict: 'user_id,review_id'
+          });
+
+        if (error) {
+          console.error('Error adding vote:', error);
+        }
+      }
+    } catch (err) {
+      console.error('Error updating user vote:', err);
+    }
+  };
+
+  const handleLike = async (reviewId: string) => {
+    try {
+      const currentVote = userVotes[reviewId];
+      let likeChange = 0;
+      let dislikeChange = 0;
+      
+      if (currentVote === 'like') {
+        // Remove like
+        likeChange = -1;
+        setUserVotes(prev => ({ ...prev, [reviewId]: null }));
+      } else if (currentVote === 'dislike') {
+        // Switch from dislike to like
+        likeChange = 1;
+        dislikeChange = -1;
+        setUserVotes(prev => ({ ...prev, [reviewId]: 'like' }));
+      } else {
+        // Add like
+        likeChange = 1;
+        setUserVotes(prev => ({ ...prev, [reviewId]: 'like' }));
+      }
+      
+      // Update database
+      await updateUserVote(reviewId, 'like', currentVote === 'like' ? null : 'like');
+      await updateReviewCounts(reviewId, likeChange, dislikeChange);
+      
+      // Update local state immediately for better UX
+      setReviews(prev => prev.map(review => 
+        review.id === reviewId 
+          ? { 
+              ...review, 
+              likes_count: (review.likes_count || 0) + likeChange,
+              dislikes_count: (review.dislikes_count || 0) + dislikeChange,
+              user_vote: currentVote === 'like' ? null : 'like'
+            }
+          : review
+      ));
+    } catch (err) {
+      console.error('Error handling like:', err);
+    }
+  };
+
+  const handleDislike = async (reviewId: string) => {
+    try {
+      const currentVote = userVotes[reviewId];
+      let likeChange = 0;
+      let dislikeChange = 0;
+      
+      if (currentVote === 'dislike') {
+        // Remove dislike
+        dislikeChange = -1;
+        setUserVotes(prev => ({ ...prev, [reviewId]: null }));
+      } else if (currentVote === 'like') {
+        // Switch from like to dislike
+        likeChange = -1;
+        dislikeChange = 1;
+        setUserVotes(prev => ({ ...prev, [reviewId]: 'dislike' }));
+      } else {
+        // Add dislike
+        dislikeChange = 1;
+        setUserVotes(prev => ({ ...prev, [reviewId]: 'dislike' }));
+      }
+      
+      // Update database
+      await updateUserVote(reviewId, 'dislike', currentVote === 'dislike' ? null : 'dislike');
+      await updateReviewCounts(reviewId, likeChange, dislikeChange);
+      
+      // Update local state immediately for better UX
+      setReviews(prev => prev.map(review => 
+        review.id === reviewId 
+          ? { 
+              ...review, 
+              likes_count: (review.likes_count || 0) + likeChange,
+              dislikes_count: (review.dislikes_count || 0) + dislikeChange,
+              user_vote: currentVote === 'dislike' ? null : 'dislike'
+            }
+          : review
+      ));
+    } catch (err) {
+      console.error('Error handling dislike:', err);
+    }
+  };
 
   // Filter reviews based on selected filter
   const filteredReviews = reviews.filter(review => {
@@ -83,7 +319,10 @@ export default function UserReviews({ networkSlug, networkName }: UserReviewsPro
       case 'oldest':
         return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
       case 'popular':
-        return b.overall_rating - a.overall_rating;
+        // Sort by likes count (descending), then by dislikes count (ascending)
+        const aScore = (a.likes_count || 0) - (a.dislikes_count || 0);
+        const bScore = (b.likes_count || 0) - (b.dislikes_count || 0);
+        return bScore - aScore;
       default:
         return 0;
     }
@@ -250,6 +489,33 @@ export default function UserReviews({ networkSlug, networkName }: UserReviewsPro
               </div>
             </div>
 
+            {/* Like/Dislike Buttons */}
+            <div className="flex items-center gap-4 mb-4">
+              <button
+                onClick={() => handleLike(review.id)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 ${
+                  review.user_vote === 'like'
+                    ? 'bg-green-100 text-green-700 border border-green-300'
+                    : 'bg-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600 border border-gray-200'
+                }`}
+              >
+                <FiThumbsUp className={`w-4 h-4 ${review.user_vote === 'like' ? 'text-green-600' : ''}`} />
+                <span className="text-sm font-medium">{review.likes_count || 0}</span>
+              </button>
+              
+              <button
+                onClick={() => handleDislike(review.id)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 ${
+                  review.user_vote === 'dislike'
+                    ? 'bg-red-100 text-red-700 border border-red-300'
+                    : 'bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-600 border border-gray-200'
+                }`}
+              >
+                <FiThumbsDown className={`w-4 h-4 ${review.user_vote === 'dislike' ? 'text-red-600' : ''}`} />
+                <span className="text-sm font-medium">{review.dislikes_count || 0}</span>
+              </button>
+            </div>
+
             {/* Payment Proof Link */}
             {review.screenshot_url && (
               <div className="mt-4">
@@ -261,10 +527,11 @@ export default function UserReviews({ networkSlug, networkName }: UserReviewsPro
                   href={review.screenshot_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] text-white rounded-lg hover:from-[#bfa14a] hover:to-[#e6c77c] transition-all duration-200 shadow-sm hover:shadow-md"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] text-white rounded-md hover:from-[#bfa14a] hover:to-[#e6c77c] transition-all duration-200 shadow-sm hover:shadow-md font-medium"
                 >
-                  <FiEye className="w-4 h-4" />
-                  View Payment Proof
+                  <FiEye className="w-3 h-3" />
+                  <span className="hidden sm:inline">View Payment Proof</span>
+                  <span className="sm:hidden">View Proof</span>
                 </a>
               </div>
             )}
