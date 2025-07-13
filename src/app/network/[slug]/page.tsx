@@ -61,9 +61,10 @@ export default async function NetworkPage({ params }: PageProps) {
       <div className="max-w-6xl mx-auto">
         {/* Header Section */}
         <div className="bg-white rounded-2xl shadow-xl border border-[#e6c77c] p-8 mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-8">
-              {/* Network Logo with Rating */}
+          <div className="flex flex-col gap-4">
+            {/* Top row: logo, name, and category pill */}
+            <div className="flex flex-row items-center gap-6">
+              {/* Logo */}
               {network.logo_url && (
                 <div className="flex-shrink-0 relative">
                   <img 
@@ -77,8 +78,9 @@ export default async function NetworkPage({ params }: PageProps) {
                   </div>
                 </div>
               )}
-              <div>
-                <h1 className="text-3xl font-semibold text-gray-900 mb-3 tracking-wide" style={{letterSpacing: '0.02em'}}>
+              {/* Name and category pill in a row */}
+              <div className="flex flex-row items-center gap-4">
+                <h1 className="text-3xl font-semibold text-gray-900 tracking-wide" style={{letterSpacing: '0.02em'}}>
                   {network.name}
                 </h1>
                 {network.category && (
@@ -88,24 +90,23 @@ export default async function NetworkPage({ params }: PageProps) {
                 )}
               </div>
             </div>
-            <div className="flex items-center gap-6">
-              {/* Metrics Display */}
+            {/* Metrics badges */}
+            <div className="flex flex-wrap gap-2 justify-center md:justify-start">
               <NetworkStats networkSlug={slug} />
-              
-              {/* Action Buttons */}
-              <div className="flex items-center gap-3">
-                {network.website && (
-                  <a
-                    href={network.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-gradient-to-r from-[#bfa14a] to-[#e6c77c] hover:from-[#e6c77c] hover:to-[#bfa14a] text-white font-medium py-2 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md text-sm"
-                  >
-                    Visit Website
-                  </a>
-                )}
-                <ReviewButton networkName={network.name} networkSlug={slug} />
-              </div>
+            </div>
+            {/* Action buttons */}
+            <div className="flex flex-row gap-3 justify-end">
+              {network.website && (
+                <a
+                  href={network.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-gradient-to-r from-[#bfa14a] to-[#e6c77c] hover:from-[#e6c77c] hover:to-[#bfa14a] text-white font-medium py-2 px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md text-sm"
+                >
+                  Visit Website
+                </a>
+              )}
+              <ReviewButton networkName={network.name} networkSlug={slug} />
             </div>
           </div>
         </div>
