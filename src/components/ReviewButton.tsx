@@ -6,9 +6,10 @@ import ReviewModal from './ReviewModal';
 interface ReviewButtonProps {
   networkName: string;
   networkSlug: string;
+  className?: string;
 }
 
-export default function ReviewButton({ networkName, networkSlug }: ReviewButtonProps) {
+export default function ReviewButton({ networkName, networkSlug, className }: ReviewButtonProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -37,12 +38,11 @@ export default function ReviewButton({ networkName, networkSlug }: ReviewButtonP
   return (
     <>
       <button 
-        className="inline-flex items-center px-6 py-2 bg-gradient-to-r from-[#bfa14a] to-[#e6c77c] hover:from-[#e6c77c] hover:to-[#bfa14a] text-white font-medium rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md text-sm"
+        className={className ? className : "inline-flex items-center px-6 py-2 bg-gradient-to-r from-[#bfa14a] to-[#e6c77c] hover:from-[#e6c77c] hover:to-[#bfa14a] text-white font-medium rounded-lg transition-all duration-300 transform hover:scale-105 shadow-md text-sm"}
         onClick={() => setIsModalOpen(true)}
       >
         Write Review
       </button>
-      
       <ReviewModal
         open={isModalOpen}
         onClose={handleCloseModal}

@@ -130,31 +130,23 @@ export default function NetworkStats({ networkSlug }: NetworkStatsProps) {
   }
 
   return (
-    <div className="flex flex-row gap-1 overflow-x-auto w-full pb-1">
+    <div className="flex flex-row flex-wrap gap-1 overflow-x-auto w-full pb-1">
       {/* Reviews */}
-      <div className="flex items-center gap-1 border-l-4 border-[#bfa14a] bg-[#fff9ec] text-[#bfa14a] rounded-full text-[11px] px-2 py-0.5 shadow-sm min-w-[54px] sm:text-xs sm:px-3 sm:py-1">
-        <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" stroke="#bfa14a" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 17.75l-6.172 3.245 1.179-6.873L2 9.755l6.908-1.004L12 2.5l3.092 6.251L22 9.755l-5.007 4.367 1.179 6.873z"/></svg>
-        <span className="font-bold">{stats.reviewCount}</span>
-        <span className="font-normal opacity-80 hidden sm:inline">Reviews</span>
-      </div>
+      <span className="inline-flex items-center bg-blue-50 text-gray-500 text-[10px] sm:text-xs font-semibold px-1.5 py-0.5 rounded-full">
+        Reviews <span className="ml-1 text-[#e57373] font-bold">{stats.reviewCount}</span>
+      </span>
       {/* Offers */}
-      <div className="flex items-center gap-1 border-l-4 border-blue-400 bg-blue-50 text-blue-500 rounded-full text-[11px] px-2 py-0.5 shadow-sm min-w-[54px] sm:text-xs sm:px-3 sm:py-1">
-        <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" stroke="#3b82f6" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 17.75l-6.172 3.245 1.179-6.873L2 9.755l6.908-1.004L12 2.5l3.092 6.251L22 9.755l-5.007 4.367 1.179 6.873z"/></svg>
-        <span className="font-bold">{stats.offersCount}</span>
-        <span className="font-normal opacity-80 hidden sm:inline">Offers</span>
-      </div>
+      <span className="inline-flex items-center bg-blue-50 text-gray-500 text-[10px] sm:text-xs font-semibold px-1.5 py-0.5 rounded-full">
+        Offers <span className="ml-1 text-[#e57373] font-bold">{stats.offersCount}</span>
+      </span>
       {/* Payment */}
-      <div className="flex items-center gap-1 border-l-4 border-green-400 bg-green-50 text-green-600 rounded-full text-[11px] px-2 py-0.5 shadow-sm min-w-[54px] sm:text-xs sm:px-3 sm:py-1">
-        <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" stroke="#22c55e" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 17.75l-6.172 3.245 1.179-6.873L2 9.755l6.908-1.004L12 2.5l3.092 6.251L22 9.755l-5.007 4.367 1.179 6.873z"/></svg>
-        <span className="font-bold">{stats.paymentSpeed > 0 ? stats.paymentSpeed : '-'}</span>
-        <span className="font-normal opacity-80 hidden sm:inline">Payment</span>
-      </div>
+      <span className="inline-flex items-center bg-blue-50 text-gray-500 text-[10px] sm:text-xs font-semibold px-1.5 py-0.5 rounded-full">
+        Payment <span className="ml-1 text-[#e57373] font-bold">{stats.paymentSpeed > 0 ? stats.paymentSpeed : '-'}</span>
+      </span>
       {/* Support */}
-      <div className="flex items-center gap-1 border-l-4 border-purple-400 bg-purple-50 text-purple-600 rounded-full text-[11px] px-2 py-0.5 shadow-sm min-w-[54px] sm:text-xs sm:px-3 sm:py-1">
-        <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" fill="none" stroke="#a78bfa" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 17.75l-6.172 3.245 1.179-6.873L2 9.755l6.908-1.004L12 2.5l3.092 6.251L22 9.755l-5.007 4.367 1.179 6.873z"/></svg>
-        <span className="font-bold">{stats.supportQuality > 0 ? stats.supportQuality : '-'}</span>
-        <span className="font-normal opacity-80 hidden sm:inline">Support</span>
-      </div>
+      <span className="inline-flex items-center bg-blue-50 text-gray-500 text-[10px] sm:text-xs font-semibold px-1.5 py-0.5 rounded-full">
+        Support <span className="ml-1 text-[#e57373] font-bold">{stats.supportQuality > 0 ? stats.supportQuality : '-'}</span>
+      </span>
     </div>
   );
 } 
