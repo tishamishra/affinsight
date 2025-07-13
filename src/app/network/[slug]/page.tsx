@@ -62,7 +62,7 @@ export default async function NetworkPage({ params }: PageProps) {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8" style={{fontFamily: 'Inter, ui-sans-serif, system-ui'}}>
       <div className="max-w-6xl mx-auto">
         {/* Header Section */}
-        <div className="bg-white rounded-2xl shadow-xl border border-[#e6c77c] p-3 sm:p-8 mb-4 sm:mb-8">
+        <div className="p-3 sm:bg-white sm:rounded-2xl sm:shadow-xl sm:border sm:border-[#e6c77c] sm:p-8 mb-2 sm:mb-8">
           <div className="flex flex-col items-center gap-2 sm:flex-row sm:items-center sm:gap-6 w-full">
             {/* Logo */}
             {network.logo_url && (
@@ -114,7 +114,7 @@ export default async function NetworkPage({ params }: PageProps) {
         </div>
 
         {/* Network Description Section */}
-        <div className="bg-white rounded-2xl shadow-xl border border-[#e6c77c] p-3 mb-4 sm:bg-white sm:rounded-2xl sm:shadow-xl sm:border sm:border-[#e6c77c] bg-transparent rounded-none shadow-none border-none sm:p-8 sm:mb-8">
+        <div className="p-3 mb-2 sm:bg-white sm:rounded-2xl sm:shadow-xl sm:border sm:border-[#e6c77c] sm:p-8 sm:mb-8">
           <h2 className="text-sm sm:text-2xl font-semibold text-gray-900 mb-2 sm:mb-6 flex items-center tracking-wide" style={{letterSpacing: '0.01em'}}>
             <span className="w-1 h-4 sm:w-2 sm:h-8 bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] rounded-full mr-2 sm:mr-4"></span>
             About {network.name}
@@ -130,7 +130,7 @@ export default async function NetworkPage({ params }: PageProps) {
         </div>
 
         {/* Offers Section */}
-        <div className="bg-white rounded-2xl shadow-xl border border-[#e6c77c] p-3 mb-4 sm:bg-white sm:rounded-2xl sm:shadow-xl sm:border sm:border-[#e6c77c] bg-transparent rounded-none shadow-none border-none sm:p-8 sm:mb-8">
+        <div className="p-3 mb-2 sm:bg-white sm:rounded-2xl sm:shadow-xl sm:border sm:border-[#e6c77c] sm:p-8 sm:mb-8">
           <h2 className="text-sm sm:text-2xl font-semibold text-gray-900 mb-2 sm:mb-8 flex items-center tracking-wide" style={{letterSpacing: '0.01em'}}>
             <span className="w-1 h-4 sm:w-2 sm:h-8 bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] rounded-full mr-2 sm:mr-4"></span>
             Available Offers ({networkOffers.length})
@@ -165,7 +165,7 @@ export default async function NetworkPage({ params }: PageProps) {
         </div>
 
         {/* User Reviews Section */}
-        <div className="bg-white rounded-2xl shadow-xl border border-[#e6c77c] p-3 mb-4 sm:bg-white sm:rounded-2xl sm:shadow-xl sm:border sm:border-[#e6c77c] bg-transparent rounded-none shadow-none border-none sm:p-8 sm:mb-8 text-xs sm:text-base">
+        <div className="p-3 mb-2 sm:bg-white sm:rounded-2xl sm:shadow-xl sm:border sm:border-[#e6c77c] sm:p-8 sm:mb-8 text-xs sm:text-base">
           <h2 className="text-sm sm:text-2xl font-semibold text-gray-900 mb-2 sm:mb-6 flex items-center tracking-wide" style={{letterSpacing: '0.01em'}}>
             <span className="w-1 h-4 sm:w-2 sm:h-8 bg-gradient-to-r from-[#e6c77c] to-[#bfa14a] rounded-full mr-2 sm:mr-4"></span>
             User Reviews
